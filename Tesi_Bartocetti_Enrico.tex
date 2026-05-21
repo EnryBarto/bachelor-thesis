@@ -1,0 +1,135 @@
+\documentclass[12pt,a4paper,openright,twoside]{report}
+
+% ====================================================
+%
+% PACCHETTI
+%
+% ====================================================
+\usepackage[italian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{indentfirst}
+\usepackage{float}
+\usepackage{amssymb, amsmath, latexsym, amsthm, gensymb}
+\usepackage[a4paper]{geometry}
+\usepackage[pdfpagelabels]{hyperref}
+\usepackage[italian, capitalise]{cleveref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{emptypage} % Permette di usare \cleardoublepage invece di \clearpage{\pagestyle{empty}\cleardoublepage}
+\usepackage[bottom]{footmisc} % Forza la nota a piè di pagina a essere in fondo alla pagina
+\usepackage{lineno}
+
+% ====================================================
+%
+% CONFIGURAZIONI
+%
+% ====================================================
+\graphicspath{ {./resources/img/} }
+\linespread{1.3}
+\raggedbottom{} % Non forzare il contenuto a riempire la pagina
+\setlength{\intextsep}{20pt}   % Spazio sopra e sotto le figure posizionate con [h] o [H]
+
+% Configurazione Intestazioni
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection{} \ #1}{}}
+\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+\cfoot{}
+
+\begin{document}
+
+% ====================================================
+%
+% FRONTESPIZIO
+%
+% ====================================================
+\include{capitoli/Frontespizio}
+
+
+% ====================================================
+%
+% CAMBIAMENTO GEOMETRIA PER IL RESTO DELLA TESI
+%
+% ====================================================
+\restoregeometry
+
+% Margini classici: 3.5cm sopra/sotto e 3cm ai lati + rilegatura
+\newgeometry{
+    lines=33,
+    includehead,
+    vmarginratio=1:1, % Centra verticalmente il blocco delle 33 righe
+    bindingoffset=7mm, % Spazio per la rilegatura
+    inner=35mm,       % Margine interno (lato rilegatura)
+    outer=40mm        % Margine esterno
+}
+%Per la riga di intestazione
+\setlength{\headwidth}{\textwidth}
+\addtolength{\headwidth}{20pt} % Circa 7 mm
+
+% Vecchia gestione margini alterni:
+% \setlength{\oddsidemargin}{30pt}
+% \setlength{\evensidemargin}{20pt}
+
+
+% ====================================================
+%
+% DEDICA, INDICI E INTRO
+%
+% ====================================================
+\cleardoublepage
+\thispagestyle{empty}
+\vspace*{6.5cm}
+\begin{flushright}
+    \large \em
+    Questa è la \textsc{Dedica}.
+\end{flushright}
+
+\cleardoublepage
+\pagenumbering{roman}
+\tableofcontents % Indice
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Elenco delle Figure}
+\listoffigures % Indice delle figure
+
+\cleardoublepage
+\linenumbers
+\include{capitoli/0-Introduzione}
+
+% ====================================================
+%
+% CORPO DELLA TESI
+%
+% ====================================================
+\cleardoublepage
+\pagenumbering{arabic}
+\include{capitoli/1-SND}
+\include{capitoli/Conclusioni}
+
+
+% ====================================================
+%
+% BIBLIOGRAFIA
+%
+% ====================================================
+\cleardoublepage % Chiude il capitolo precedente
+\phantomsection % Crea l'ancora per hyperref
+\addcontentsline{toc}{chapter}{Bibliografia}
+\markboth{BIBLIOGRAFIA}{BIBLIOGRAFIA} % Aggiorna l'intestazione della pagina
+\bibliographystyle{ieeetr}
+\bibliography{resources/bib/Bibliografia}
+
+
+% ====================================================
+%
+% RINGRAZIAMENTI
+%
+% ====================================================
+\cleardoublepage
+\include{capitoli/Ringraziamenti}
+
+\end{document}
