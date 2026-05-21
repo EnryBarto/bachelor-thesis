@@ -1,0 +1,14 @@
+# Fine riga
+* text=auto eol=lf
+
+# File di testo
+*.tex text diff=latex
+*.bib text
+*.md  text
+
+# File Binari
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.ico binary

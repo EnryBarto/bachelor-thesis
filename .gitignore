@@ -1,0 +1,26 @@
+
+# --- File di compilazione LaTeX ---
+out/
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.pdfsync
+
+# --- File di backup e di editor ---
+*.bak
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# --- Altro ---
+_Materiale/
+*.xlsx
