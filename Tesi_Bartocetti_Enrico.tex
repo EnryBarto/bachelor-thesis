@@ -1,4 +1,5 @@
 \documentclass[12pt,a4paper,openright,twoside]{report}
+% chktex-file 1 % Ignora i warning di spazio dopo i comandi
 
 % ====================================================
 %
@@ -15,6 +16,8 @@
 \usepackage[a4paper]{geometry}
 \usepackage[pdfpagelabels]{hyperref}
 \usepackage[italian, capitalise]{cleveref}
+\crefname{figure}{Figura}{Figure}
+\Crefname{figure}{Figura}{Figure}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{emptypage} % Permette di usare \cleardoublepage invece di \clearpage{\pagestyle{empty}\cleardoublepage}
@@ -58,7 +61,7 @@
 
 % Margini classici: 3.5cm sopra/sotto e 3cm ai lati + rilegatura
 \newgeometry{
-    lines=33,
+    lines=34,
     includehead,
     vmarginratio=1:1, % Centra verticalmente il blocco delle 33 righe
     bindingoffset=7mm, % Spazio per la rilegatura

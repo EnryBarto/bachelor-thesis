@@ -1,16 +1,16 @@
 \chapter{L’esperimento SND@LHC}
 
-SND@LHC (\textit{Scattering and Neutrino Detector at the LHC}) è un esperimento il cui obiettivo è lo studio di neutrini ad alta energia prodotti nel Large Hadron Collider.
+Scattering and Neutrino Detector at the LHC (SND@LHC) è un esperimento il cui obiettivo è lo studio di neutrini ad alta energia prodotti nel Large Hadron Collider.
 Lo scattering (o diffusione / dispersione) è un fenomeno fisico in cui particelle o onde vengono deflesse e disperse in varie direzioni a causa dell'interazione con altre particelle o ostacoli.
 SND@LHC è stato approvato nel 2021, costruito, installato e messo in funzione in circa un anno e ha iniziato a raccogliere dati durante la Run 3 dell'LHC, iniziata nel luglio 2022.
 
 % ====================================================
 %
-% IL CERN E LHC
+% 1.1 - IL CERN E LHC
 %
 % ====================================================
 \section{Il CERN e LHC}
-Il CERN (Organizzazione Europea per la Ricerca Nucleare, in francese \textit{Conseil Européen pour la Recherche Nucléaire}) è il laboratorio di fisica delle particelle più grande al mondo, fondato il 29 settembre 1954.
+Il Conseil Européen pour la Recherche Nucléaire (CERN, in italiano Organizzazione Europea per la Ricerca Nucleare) è il laboratorio di fisica delle particelle più grande al mondo, fondato il 29 settembre 1954.
 Si trova al confine tra la Francia e la Svizzera, più precisamente alla periferia ovest della città di Ginevra, nel comune di Meyrin.
 
 Ospita un ampio complesso di acceleratori di particelle, illustrato in \cref{fig:acceleratori_cern}.
@@ -25,79 +25,84 @@ L'energia liberata si trasforma poi in materia sottoforma di altre particelle (l
 \end{figure}
 
 Alla data odierna il complesso del CERN è costituito da nove acceleratori (e due deceleratori): ognuno di questi accelera le particelle a energie sempre più elevate per poi passare mano a mano ad acceleratori sempre più grandi.
-Attualmente LHC (\textit{Large Hadron\footnote{Gli adroni sono particelle subatomiche composte; i più comunemente conosciuti sono i neutroni e i protoni.} Collider}) è l'acceleratore di particelle più potente e grande del mondo: installato nel 2008, fa collidere fasci di protoni a velocità vicine a quella della luce per studiare le particelle fondamentali.
+Attualmente il Large Hadron\footnote{Gli adroni sono particelle subatomiche composte; i più comunemente conosciuti sono i neutroni e i protoni.} Collider (LHC) è l'acceleratore di particelle più potente e grande del mondo: installato nel 2008, fa collidere fasci di protoni a velocità vicine a quella della luce per studiare le particelle fondamentali.
 Si trova in un tunnel posto a 100 metri di profondità ed è costituito da un anello lungo 27 chilometri di magneti superconduttori mantenuti a una temperatura di $‑271.3 \degree C$ \cite{CERN_LHC}.
 
 % ====================================================
 %
-% I NEUTRINI
+% 1.2 - I NEUTRINI
 %
 % ====================================================
 \section{I Neutrini}
-I leptoni sono una famiglia di particelle elementari appartenenti alla classe dei fermioni.
+I leptoni sono una famiglia di particelle elementari (elencate in \cref{fig:particelle_elementari}) appartenenti alla classe dei fermioni.
 Si dividono in tre generazioni, ciascuna composta da una particella carica e dal rispettivo neutrino associato: l'elettrone ($e$), il muone ($\mu$) e il tau ($\tau$).
 
 Il neutrino è una particella subatomica elementare di massa piccolissima (non ancora precisamente determinata) e carica elettrica nulla che interagisce molto raramente con la materia, tanto che la stessa Terra è praticamente trasparente per essi.
-L’ipotesi dell’esistenza dei neutrini fu formulata inizialmente da W. Pauli nel 1930; tuttavia, a causa della loro particolare elusività, furono rilevati per la prima volta solamente nel 1956 in un esperimento condotto da C. Cowan e F. Reines in un reattore nucleare negli Stati Uniti.
+L’ipotesi dell’esistenza dei neutrini fu formulata da W. Pauli nel 1930; tuttavia, a causa della loro particolare elusività, furono rilevati per la prima volta solamente nel 1956 in un esperimento condotto da C. Cowan e F. Reines in un reattore nucleare negli Stati Uniti.
 A questo seguirono scoperte sui neutrini che andarono ad arricchire il panorama della fisica delle particelle, portando alla scoperta di tre famiglie --- dette sapori --- di neutrini: elettronico, muonico e tau, ciascuno associato univocamente al rispettivo leptone carico e indicato con i simboli $\nu_e$, $\nu_\mu$ e $\nu_\tau$.
 
 \begin{figure}[H]
 	\centering{}
-	\includegraphics[width=0.97\textwidth]{cap1/modello_standard_infn}
+	\includegraphics[width=1\textwidth]{cap1/modello_standard_infn}
 	\caption[Particelle elementari del Modello Standard]{Particelle elementari del Modello Standard (\copyright~INFN)}
+	\label{fig:particelle_elementari}
 \end{figure}
 
 I tre tipi di neutrino sono soggetti ad un fenomeno chiamato oscillazioni di sapore per cui, in certe condizioni, si possono trasformare l’uno nell’altro: l’esistenza di questo fenomeno implica che i neutrini debbano avere una massa, seppur piccolissima, diversa tra loro.
 Questo risultato è in disaccordo con il Modello Standard che, al contrario, prevede che i neutrini abbiano massa nulla \cite{lngs_neutrini}.
 
-% ====================================================
-%
-% OBIETTIVI
-%
-% ====================================================
-\section{Obiettivi}
-Negli scorsi decenni le misure della sezione d’urto nelle interazioni di neutrino sono state per lo più effettuate a basse energie (al di sotto di 350 GeV): la regione tra i 350 GeV e i 10 TeV è rimasta sconosciuta fino a qualche anno fa \cite{Bustamante_Connolly}.
-I neutrini prodotti ad LHC consentono di osservarne le interazioni in un range di energie mai studiato che va da qualche centinaio di GeV a poche decine di TeV.
-L’alta intensità delle collisioni protone-protone si traduce in un abbondante flusso di neutrini, e le alte energie dei neutrini prodotti implicano sezioni d’urto relativamente grandi \cite{SND_Observation}.
-
-La sua posizione leggermente fuori asse rispetto alla linea di collisione dei fasci di protoni di LHC fa sì che l'intervallo di pseudorapidità\footnote{In fisica delle particelle, la pseudorapidità è una coordinata spaziale usata per descrivere l'angolo relativo tra una particella e l'asse del fascio.} dei neutrini studiati cada in una regione precedentemente inesplorata \cite{LHCb_Charm}.
-Per questa caratteristica SND si differenzia dall'esperimento FASER (\textit{ForwArd Search ExpeRiment}), che è invece posizionato sulla traiettoria del fascio.
-
 L'esistenza di queste particelle rappresenta quindi una prova dell’esistenza di una fisica che va oltre il Modello Standard \cite{Marfatia_2015}, e analizzandone le caratteristiche potremo avere un nuovo punto di vista per studiare l'universo \cite{Ackermann_2019}.
 
 % ====================================================
 %
-% UBICAZIONE DELL'ESPERIMENTO
+% 1.3 - OBIETTIVI
+%
+% ====================================================
+\section{Obiettivi}
+Negli scorsi decenni le misure della sezione d’urto dei neutrini, cioè la loro probabilità di interazione, sono state per lo più effettuate a basse energie (al di sotto di 350 GeV\footnote{L'elettronvolt, indicato con il simbolo eV, è un'unità di misura del lavoro e dell'energia utilizzata principalmente in fisica atomica, nucleare e delle particelle.}).
+La regione tra i 350 GeV e i 10 TeV è rimasta sconosciuta fino a qualche anno fa \cite{Bustamante_Connolly}: i neutrini prodotti ad LHC consentono di osservarne le interazioni in questo range.
+L’alta intensità delle collisioni protone-protone si traduce in un abbondante flusso di neutrini, e le alte energie dei neutrini prodotti implicano sezioni d’urto relativamente grandi \cite{SND_Observation}.
+
+La sua posizione leggermente fuori asse rispetto alla linea di collisione dei fasci di protoni di LHC fa sì che l'intervallo di pseudorapidità\footnote{In fisica delle particelle, la pseudorapidità è una coordinata spaziale usata per descrivere l'angolo relativo tra una particella e l'asse del fascio.} dei neutrini studiati cada in una regione precedentemente inesplorata \cite{LHCb_Charm}.
+Per questa caratteristica SND si differenzia dall'esperimento ForwArd Search ExpeRiment (FASER), che è invece posizionato sulla traiettoria del fascio.
+
+
+% ====================================================
+%
+% 1.4 - UBICAZIONE DELL'ESPERIMENTO
 %
 % ====================================================
 \section{Ubicazione dell'esperimento}
-TI18 è un tunnel lungo 280m che si innesta nell'anello di LHC tramite il punto di giunzione UJ18, a circa 480 m dal punto di impatto di ATLAS\footnote{ATLAS (\textit{A Toroidal LHC ApparatuS}) è uno dei nove rivelatori di particelle costruiti per LHC installato nel 2008.} (vedi posizione in \cref{fig:acceleratori_cern}).
-Era stato inizialmente costruito per l’iniezione di positroni\footnote{Il positrone, chiamato anche antielettrone, è l'antiparticella dell'elettrone: rispetto a quest'ultimo, ha la stessa massa ma carica elettrica uguale e opposta.} dall’SPS (\textit{Super Proton Synchrotron}) all’acceleratore LEP (\textit{Large Electron-Positron Collider}), quest'ultimo rimosso alla fine del 2000 per cedere il posto ad LHC, ponendo così in disuso TI18.
+In \cref{fig:ubicazione_snd} è riportata in maniera semplificata l’ubicazione dell’esperimento.
+TI18 è un tunnel lungo 280m che si innesta nell'anello di LHC tramite il punto di giunzione UJ18, a circa 480 m dal punto di impatto di ATLAS\footnote{A Toroidal LHC ApparatuS (ATLAS) è uno dei nove rivelatori di particelle costruiti per LHC installato nel 2008 (vedi posizione in \cref{fig:acceleratori_cern}).}, chiamato Interaction Point 1 (IP1).
+Era stato inizialmente costruito per l’iniezione di positroni\footnote{Il positrone, chiamato anche antielettrone, è l'antiparticella dell'elettrone: rispetto a quest'ultimo, ha la stessa massa ma carica elettrica uguale e opposta.} dal Super Proton Synchrotron (SPS) all’acceleratore Large Electron-Positron Collider (LEP), quest'ultimo rimosso alla fine del 2000 per cedere il posto ad LHC, ponendo così in disuso TI18.
 
 \begin{figure}[H]
 	\centering{}
-	\includegraphics[width=0.9\textwidth]{cap1/posizione_snd}
+	\includegraphics[width=1\textwidth]{cap1/posizione_snd}
 	\caption[Posizione del rivelatore SND@LHC]{Posizione del rivelatore SND@LHC: a sinistra il tunnel TI18 in cui è collocato SND, a destra il punto di collisione IP1 di ATLAS}
+	\label{fig:ubicazione_snd}
 \end{figure}
 
 Il tunnel TI18 è stato successivamente chiuso, ad eccezione di una piccola sezione di circa 20m prima di entrare nella giunzione UJ18 con LHC.
-Questa collocazione risulta particolarmente adeguata dal momento che il breve tratto scelto intercetta l’asse di collisione di IP1\footnote{L'IP1 (\textit{Interaction Point 1}) identifica il punto di interazione in cui avvengono le collisioni tra i fasci di protoni di LHC all'interno dell'esperimento ATLAS.}.
-Poiché l’esperimento SND@LHC si propone di sondare una regione di alta pseudorapidità (ricordiamo che è l’angolo relativo tra una particella e l’asse del fascio), il rivelatore è stato posizionato leggermente fuori asse.
+Questa collocazione risulta particolarmente adeguata dal momento che il breve tratto scelto intercetta l’asse di collisione di IP1 (schematizzato in \cref{fig:viste_tunnel}).
+L’esperimento è posizionato leggermente fuori asse, consentendo così di studiare neutrini prodotti in un intervallo di pseudorapidità $7.2 < \eta < 8.4$.
 
 \begin{figure}[H]
 	\centering{}
 	\includegraphics[width=1\textwidth]{cap1/asse_IP1}
 	\caption{Vista laterale e dall’alto del rivelatore nel tunnel TI18}
+	\label{fig:viste_tunnel}
 \end{figure}
 
 % ====================================================
 %
-% STRUTTURA DEL RIVELATORE
+% 1.5 - STRUTTURA DEL RIVELATORE
 %
 % ====================================================
 \section{Struttura del rivelatore}
 La struttura di SND@LHC è stata studiata per far sì che possano essere identificati tutti e tre i sapori di neutrino sfruttando lo spazio a disposizione nel tunnel TI18.
-Grazie all'esperimento OPERA\footnote{OPERA è stato un esperimento (2008 - 2012) posizionato ai Laboratori Nazionali del Gran Sasso per lo studio dell'oscillazione di sapore dei neutrini muonici in neutrini tau.} è stato dimostrato che la soluzione ottimale è data dalla combinazione di emulsioni nucleari e rivelatori elettronici \cite{R_Acquafredda_2009}.
+Grazie all'esperimento OPERA\footnote{Oscillation Project with Emulsion-tRacking Apparatus (OPERA) è stato un esperimento (2008 - 2012) posizionato ai Laboratori Nazionali del Gran Sasso per lo studio dell'oscillazione di sapore dei neutrini muonici in neutrini tau.} è stato dimostrato che la soluzione ottimale è data dalla combinazione di emulsioni nucleari e rivelatori elettronici \cite{R_Acquafredda_2009}.
 
 \begin{figure}[H]
 	\centering{}
@@ -106,11 +111,28 @@ Grazie all'esperimento OPERA\footnote{OPERA è stato un esperimento (2008 - 2012
 	\label{fig:rivelatore}
 \end{figure}
 
+% ====================================================
+% 1.5.1 - PRINCIPI DI PROGETTAZIONE
+% ====================================================
+\subsection{Principi di progettazione}
+La tipica interazione di neutrino che è possibile identificare nel rivelatore avviene con un nucleo del bersaglio: quest'ultimo è costituito per la maggior parte di un materiale denso, il tungsteno, per aumentare la probabilità che l’interazione avvenga.
+Una delle particelle costituenti il nucleo atomico riceve una grossa quantità di impulso nella interazione con il neutrino e viene proiettata fuori dal nucleo, producendo uno sciame di particelle adroniche, che può depositare una quantità significativa di energia negli elementi attivi del rivelatore.
+Il neutrino invece, nel caso di interazioni cosiddette a corrente carica, si trasforma nel corrispondente leptone carico (quindi un elettrone, un muone o un leptone tau a seconda del sapore del neutrino interagente).
+
+\subsubsection{Discriminazione del sapore}
+Elettroni e muoni di alta energia hanno un comportamento molto diverso quando attraversano un materiale denso: il muone interagisce poco e riesce ad attraversare, relativamente indisturbato, grossi spessori di materiale, mentre l’elettrone interagisce immediatamente, producendo un conseguente sciame elettromagnetico costituito da elettroni e positroni.
+Il leptone tau ha una brevissima vita media e decade immediatamente, per esempio in un muone e due neutrini, oppure in adroni.
+Mediamente il tau percorre, prima del suo decadimento, una distanza misurabile (ad esempio qualche millimetro) con un rivelatore di tracce di risoluzione sufficientemente elevata. 
+
+In conclusione tutti gli eventi di interazione sono accomunati dalla presenza di un significativo sciame di particelle adroniche.
+Il sapore del neutrino interagente può essere determinato dalle altre particelle presenti nello stato finale (muone o sciame elettromagnetico) e dalla ricostruzione precisa delle tracce delle particelle prodotte nel vertice di interazione (nel caso del leptone tau).
+
+\subsubsection{Stato attuale}
 Attualmente il rivelatore è composto dai seguenti sistemi (da sinistra a destra in \cref{fig:rivelatore}):
 \begin{itemize}
-	\item Sistema di veto: scherma il rivelatore dalle particelle cariche (principalmente muoni di LHC) che entrano frontalmente, permettendo di discriminare i prodotti delle interazioni neutre.
-	\item Volume bersaglio: composto da pareti di emulsioni nucleari alternate a piani di tracciatori elettronici (SciFi), funge da rivelatore di vertice e fornisce la marcatura temporale agli eventi ricostruiti nelle emulsioni. Nella vista frontale di \cref{fig:schema_struttura} viene messa in evidenza la regione di pseudorapidità $7.2 < \eta < 8.4$.
-	\item Sistema di identificazione dei muoni: situato a valle del bersaglio, identifica i muoni e agisce come calorimetro adronico\footnote{Un calorimetro adronico (HCAL, \textit{Hadronic Calorimeter}) è uno strumento progettato per misurare l'energia degli adroni.} campionato per la misura dell'energia degli sciami.
+	\item Sistema di veto: rileva particelle cariche (principalmente muoni di LHC) che entrano frontalmente, permettendo di discriminare i prodotti delle interazioni neutre.
+	\item Volume bersaglio: composto da pareti di emulsioni nucleari alternate a piani di tracciatori elettronici a fibre scintillanti (Scintillating Fibres, SciFi), funge da rivelatore di vertice e fornisce la marcatura temporale agli eventi ricostruiti nelle emulsioni. La maggior parte della sua massa è costituita da fogli di tungsteno: essendo molto denso massimizza la probabilità di interazione dei neutrini. Nella vista frontale di \cref{fig:schema_struttura} viene messa in evidenza la regione di pseudorapidità $7.2 < \eta < 8.4$.
+	\item Sistema di identificazione dei muoni: situato a valle del bersaglio, identifica i muoni e agisce come calorimetro adronico\footnote{Un calorimetro adronico (Hadronic Calorimeter, HCAL) è uno strumento progettato per misurare l'energia degli adroni.} campionato per la misura dell'energia degli sciami.
 \end{itemize}
 
 \begin{figure}[H]
@@ -121,28 +143,30 @@ Attualmente il rivelatore è composto dai seguenti sistemi (da sinistra a destra
 \end{figure}
 
 % ====================================================
-% VETO
+% 1.5.2 - VETO
 % ====================================================
 \subsection{Veto}
 Il sistema di veto è necessario per riconoscere le particelle cariche rilevate da SND provenienti frontalmente dall'esterno.
 Questo filtro è indispensabile poiché si vogliono studiare gli eventi in cui vengono prodotte delle particelle cariche a partire dall'interazione di particelle neutre (ad esempio un neutrino muonico $\nu_\mu$ che urtando un nucleo di tungsteno si trasforma in un muone $\mu^{-}$): se entra una particella già carica, l'evento non è rilevante ai fini dello studio.
 
-Alla base del suo funzionamento vi sono le barre scintillanti (SciFi, \textit{Scintillating Fibre}), ovvero delle barre che emettono scintille luminose al passaggio di particelle cariche, che vengono poi lette da fotosensori posti alle loro estremità.
-Il sistema è composto da due piani paralleli di barre, ognuna delle quali ha dimensioni $42 \times 6 \times 1\,\text{cm}^3$ ed è avvolta in un foglio di alluminio
-per assicurare l’opacità e isolarla dalla luce proveniente da barre adiacenti.
+Alla base del suo funzionamento vi sono le barre scintillanti, ovvero delle barre di un particolare materiale plastico che emette piccole quantità di luce quando è attraversato da particelle cariche: la luce emessa è poi misurata da fotosensori a silicio (Silicon Photomultiplier, SiPM) posti alle estremità delle barre.
+Il sistema è composto da due piani paralleli di barre, ognuna delle quali ha dimensioni $42 \times 6 \times 1\,\text{cm}^3$ ed è avvolta in un foglio di alluminio per assicurarne l’opacità e isolarla dalla luce proveniente da barre adiacenti.
 Ciascun piano comprende sette barre scintillanti racchiuse in una struttura di alluminio con pareti dello spessore di $4\,\text{mm}$.
-Ogni estremità di ciascuna barra è letta da otto fotosensori a silicio (SiPM, \textit{Silicon Photomultiplier}), che convertono i segnali luminosi in impulsi elettrici.
-Lo scostamento verticale di 2cm tra i due piani, consente di ottenere la massima copertura del bersaglio nonostante la presenza di spazi tra le barre indotti dalle variazioni delle loro altezze ($\sim250\,\mu\text{m}$) e dai fogli di alluminio ($\sim60\,\mu\text{m}$) \cite{Acampora_2024}.
+Ogni estremità di ciascuna barra è letta da otto SiPM, che convertono i segnali luminosi in impulsi elettrici.
+Lo scostamento verticale di $2\,\text{cm}$ tra i due piani, consente di ottenere la massima copertura del bersaglio nonostante la presenza di spazi tra le barre indotti dalle variazioni delle loro altezze ($\sim250\,\mu\text{m}$) e dai fogli di alluminio ($\sim60\,\mu\text{m}$) \cite{Acampora_2024}.
+A partire dal 2024, per migliorare la capacità di rigettare eventi in cui c’è una particella carica in ingresso, è stato installato un altro piano di barre scintillanti.
 
 % ====================================================
-% BERSAGLIO E RIVELATORE DI VERTICE
+% 1.5.3 - BERSAGLIO E RIVELATORE DI VERTICE
 % ====================================================
 \subsection{Bersaglio e rivelatore di vertice}
 Il bersaglio di SND@LHC è la sezione del rivelatore dove avvengono effettivamente le interazioni dei neutrini: è stato progettato in maniera tale da essere allo stesso tempo sia una massa in cui far avvenire le interazioni, sia un rivelatore ad altissima precisione.
-Il vertice è infatti il punto esatto in cui il neutrino interagisce con un altro nucleo (nel nostro caso il tungsteno), trasformandosi poi in altre particelle: è necessaria una risoluzione spaziale estrema per identificare questo punto.
+Il vertice è infatti il punto esatto in cui il neutrino interagisce con un nucleo (nel nostro caso tungsteno), trasformandosi poi in altre particelle: è necessaria una risoluzione spaziale estrema per identificare questo punto.
 
-Strutturalmente, è composto da cinque muri di sezione trasversale $384 \times 384 \,\text{mm}^2$ a loro volta divisi in quattro celle elementari dette mattoni. Ogni mattone è costruito sulla base della tecnologia ECC (\textit{Emulsion Cloud Chambers}): 60 film di emulsioni nucleari (ognuno spesso $300\,\mu\text{m}$ e di sezione trasversale $192 \times 192 \,\text{mm}^2$) usati come dispositivi di tracciamento sono intervallati a 59 piatti di tungsteno spessi $1 \,\text{mm}$ che fungono da bersaglio per i neutrini.
-Il mattone risultante (rappresentato in \cref{fig:muro_bersaglio}) ha uno spessore totale di circa $78\,\text{mm}$ e una massa di $41.5\,\text{kg}$, facendo sì che la massa totale del bersaglio composto dai cinque muri di $2\times2$ mattoni sia di $830\,\text{kg}$. A ogni muro del bersaglio è intervallato un piano di fibre scintillanti (SciFi) \cite{Acampora_2024}.
+Strutturalmente, è composto da cinque muri di sezione trasversale $384 \times 384 \,\text{mm}^2$ a loro volta divisi in quattro celle elementari dette mattoni (brick).
+Ogni mattone è costruito sulla base della tecnologia Emulsion Cloud Chambers (ECC): 60 film di emulsioni nucleari (ognuno spesso $300\,\mu\text{m}$ e di sezione trasversale $192 \times 192 \,\text{mm}^2$) usati come dispositivi di tracciamento sono intervallati a 59 piatti di tungsteno spessi $1 \,\text{mm}$ che fungono da bersaglio per i neutrini.
+Il mattone risultante (rappresentato in \cref{fig:muro_bersaglio}) ha uno spessore totale di circa $78\,\text{mm}$ e una massa di $41.5\,\text{kg}$, facendo sì che la massa totale del bersaglio composto dai cinque muri di $2\times2$ mattoni sia di $830\,\text{kg}$.
+A ogni muro del bersaglio è intervallato un piano SciFi \cite{Acampora_2024}.
 
 \begin{figure}[H]
 	\centering{}
@@ -152,12 +176,14 @@ Il mattone risultante (rappresentato in \cref{fig:muro_bersaglio}) ha uno spesso
 \end{figure}
 
 \subsubsection{Emulsioni}
-I film di emulsioni nucleari sono il rivelatore tridimensionale più leggero e compatto che garantisce al contempo una risoluzione spaziale submicrometrica e angolare al milliradiante. Durante lo sviluppo dei film in camera oscura è utilizzato un processo chimico che permette di ottenere dei cluster dal diametro di $0.6\,\mu\text{m}$ della traccia lasciata dalle particelle cariche che li hanno attraversati.
+I film di emulsioni nucleari sono il rivelatore tridimensionale più leggero e compatto che garantisce al contempo una risoluzione spaziale submicrometrica e angolare al milliradiante.
+Durante lo sviluppo dei film in camera oscura è utilizzato un processo chimico che permette di ottenere dei cluster dal diametro di $0.6\,\mu\text{m}$ della traccia lasciata dalle particelle cariche che li hanno attraversati.
 
 Un film è composto da due strati dallo spessore di $70\,\mu\text{m}$ separati da una base plastica trasparente di $170\,\mu\text{m}$.
 Nel rivelatore sono impiegati 1200 film di emulsioni, per un totale di $44\,\text{m}^2$ analizzati da microscopi ottici completamente automatizzati a un ritmo di $\sim180\,\text{cm}^2\text{/h}$.
 
-Collegando i punti rappresentanti il passaggio di una particella carica su entrambi gli strati del film è possibile misurare la direzione angolare della traccia, permettendo di distinguere i tre diversi sapori di neutrino.
+Collegando i punti rappresentanti il passaggio di una particella carica su entrambi gli strati del film può essere misurata la direzione di ogni traccia, oltre alla sua posizione, consentendo la completa ricostruzione di tutte le particelle cariche prodotte nell’interazione del neutrino.
+È così possibile identificare il sapore del neutrino interagente, poiché interazioni di sapore diverso producono topologie distinte, come mostrato schematicamente in \cref{fig:topolgie_scattering}.
 
 \begin{figure}[H]
      \centering
@@ -179,60 +205,67 @@ Collegando i punti rappresentanti il passaggio di una particella carica su entra
          \caption{Neutrino elettronico}
      \end{subfigure}
         \caption[Tracce dei tre sapori di neutrino nei film di emulsioni]{Schematizzazione dello scattering dei tre sapori di neutrino nelle pareti di emulsioni}
+	\label{fig:topolgie_scattering}
 \end{figure}
 
 \subsubsection{Piani SciFi}
-I cinque piani di fibre scintillanti, alternati agli altrettanti di muri del bersaglio, costituiscono il sistema di tracciamento di SND.
-Ogni piano è costituito da 6 strati di fibre dal diametro di $250\,\mu\text{m}$, offrendo una risoluzione spaziale di $\sim50\,\mu\text{m}$ e temporale di $\sim250\,\text{ps}$.
+I cinque piani di fibre scintillanti, alternati agli altrettanti di muri del bersaglio, costituiscono il sistema di tracciamento elettronico di SND.
+Ogni piano (foto in \cref{fig:foto_piano_scifi}) è costituito da 6 strati di fibre dal diametro di $250\,\mu\text{m}$, offrendo una risoluzione spaziale di $\sim50\,\mu\text{m}$ e temporale di $\sim250\,\text{ps}$.
+
+Poiché le emulsioni nucleari rimangono a raccogliere dati per alcune settimane, tramite le rilevazioni elettroniche delle scintille in SciFi è possibile assegnare un tempo preciso alle interazioni di neutrino impresse nei film.
+Inoltre, permettono anche di misurare l'energia degli sciami elettromagnetici e adronici prodotti in tali interazioni.
+
 \begin{figure}[H]
 	\centering{}
 	\includegraphics[width=0.5\textwidth]{cap1/fibre_scifi}
-	\caption[Fibre che compongono il piano SciFi]{Dettaglio dei sei strati di fibre che compongono un piano SciFi}
+	\caption[Fibre che compongono il piano SciFi]{Foto degli strati di fibre che compongono un piano SciFi}
+	\label{fig:foto_piano_scifi}
 \end{figure}
-Poiché le emulsioni nucleari rimangono a raccogliere dati per svariato tempo, tramite le rilevazioni elettroniche delle scintille in SciFi è possibile assegnare un tempo preciso alle interazioni di neutrino impresse nei film.
-Inoltre, permettono anche di misurare l'energia degli sciami elettromagnetici e adronici prodotti in tali interazioni.
 
 % ====================================================
-% SISTEMA DI IDENTIFICAZIONE DEI MUONI
+% 1.5.4 - SISTEMA DI IDENTIFICAZIONE DEI MUONI
 % ====================================================
 \subsection{Sistema di identificazione dei muoni}
-A valle del bersaglio di SND@LHC è presente il sistema di rilevazione di muoni.
+A valle del bersaglio di SND@LHC è presente il sistema di rilevazione di muoni, visibile in \cref{fig:sistema_muoni}.
 Il suo scopo principale è quello di identificare i muoni e, insieme alle SciFi, costituisce anche un calorimetro adronico per la misura dell’energia degli sciami adronici.
 
-È composto da 8 strati di piani scintillanti, alternati a blocchi di ferro spessi 20cm che fungono da materiale passivo.
+È composto da 8 strati di piani scintillanti, alternati a blocchi di ferro spessi $20\,\text{cm}$ che fungono da materiale passivo.
 Se una particella attraversa tutti gli otto piani è quasi sicuramente identificata come un muone: interagendo poco con la materia, essi possono penetrare quasi indisturbati gli strati del rivelatore.
-
-Il sistema è diviso in due regioni: i primi cinque piani a monte (\textit{upstream}, US) e gli ultimi tre a valle (\textit{downstream}, DS), serviti rispettivamente da tre e due DAQ (\textit{Data Acquisition System}) \cite{Acampora_2024}.
 
 \begin{figure}[H]
 	\centering{}
-	\includegraphics[width=0.75\textwidth]{cap1/sistema_muoni}
+	\includegraphics[width=0.64\textwidth]{cap1/sistema_muoni}
 	\caption[Foto del sistema di identificazione di muoni]{Foto del sistema di identificazione dei muoni, in cui vengono messi in evidenza le due regioni US e DS, e i DAQ}
+	\label{fig:sistema_muoni}
 \end{figure}
 
-\subsubsection{Upstream - US}
-I 5 piani di US sono simili ai piani del sistema di veto, ad eccezione delle dimensioni.
-Ogni piano è formato da 10 barre scintillanti sovrapposte, ognuna di dimensioni $1 \times 6 \times 83 \,\text{cm}^3$, ricomprendo un'area di $81 \times 60 \,\text{cm}^2$. Così come accade per quelle del sistema di veto, ogni barra è avvolta in un foglio di alluminio e ognuna delle sue estremità è letta da otto SiPM.
+Il sistema è diviso in due regioni: i primi cinque piani a monte (upstream, US) e gli ultimi tre a valle (downstream, DS), serviti rispettivamente da tre e due Data Acquisition System (DAQ) \cite{Acampora_2024}.
 
-\subsubsection{Downstream - DS}
-Gli ultimi tre piani completano l'identificazione dei muoni: essendo caratterizzati da un’alta granularità, la regione DS consente di determinarne la posizione con una risoluzione migliore.
+\subsubsection{Upstream -- US}
+I 5 piani di US sono simili ai piani del sistema di veto, ad eccezione delle dimensioni.
+Ogni piano è formato da 10 barre scintillanti sovrapposte, ognuna di dimensioni $1 \times 6 \times 83 \,\text{cm}^3$, ricomprendo un'area di $81 \times 60 \,\text{cm}^2$.
+Così come accade per quelle del sistema di veto, ogni barra è avvolta in un foglio di alluminio e ognuna delle sue estremità è letta da otto SiPM.
+
+\subsubsection{Downstream -- DS}
+Gli ultimi tre piani completano l'identificazione dei muoni: essendo caratterizzati da un’alta granularità, la regione DS consente di determinarne la posizione e direzione con una risoluzione migliore.
 Ogni piano è formato da due strati di barre scintillanti: il primo strato è composto da 60 barre orizzontali da $1 \times 1 \times 82.5 \,\text{cm}^3$, il secondo da 60 barre verticali da $1 \times 1 \times 63.5 \,\text{cm}^3$.
-Ogni barra orizzontale è letta da un SiMP a ogni estremità; quelle verticali sono lette da un solo SiPM all’estremità superiore.
-Anche in questo caso le barre sono avvolte strettamente da fogli di alluminio per minimizzare la perdita di luce a causa di riflessioni multiple.
-Per le barre verticali, all’estremità inferiore non collegata ad alcun SiMP, vi è un altro strato piatto che ottimizza la riflessione.
 
 \begin{figure}[H]
-     \centering
-     \begin{subfigure}[b]{1\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{cap1/foto_scifi}
-         \caption{60 barre SciFi}
-     \end{subfigure}
-     \hfill
-     \begin{subfigure}[b]{1\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{cap1/pcb_sipm}
-         \caption{PCB su cui alloggiano i SiPM delle SciFi}
-     \end{subfigure}
-        \caption[Foto dei componenti di un piano SciFi di DS]{Foto scattate durante il processo di produzione di un piano SciFi di DS}
+	\centering
+	\includegraphics[width=0.92\textwidth]{cap1/foto_barre_scintillanti}
+	\caption[Componenti di un piano di barre scintillanti di DS]{Foto scattata durante il processo di produzione di un piano di barre scintillanti di DS}
+	\label{fig:barre_scintillanti_ds}
 \end{figure}
+
+Ogni barra orizzontale è letta da un SiPM a ogni estremità; quelle verticali sono lette da un solo SiPM all’estremità superiore.
+Anche in questo caso le barre sono avvolte strettamente da fogli di alluminio (visibili in \cref{fig:barre_scintillanti_ds}) per minimizzare la perdita di luce a causa di riflessioni multiple.
+Per le barre verticali, all’estremità inferiore non collegata ad alcun SiPM, vi è un altro strato piatto che ottimizza la riflessione.
+
+% ====================================================
+% CONCLUSIONE CAPITOLO 1
+% ====================================================
+\bigskip
+In sintesi, la complessa architettura di SND@LHC --- comprendente i sistemi di veto, il volume bersaglio a emulsioni nucleari con i piani SciFi e il sistema di identificazione dei muoni (US e DS) --- è ingegnerizzata per fornire una precisione geometrica e temporale eccezionale nella rivelazione dei neutrini di LHC.
+Al fine di sfruttare appieno le potenzialità del rivelatore, si rende necessario uno strumento che permetta di analizzare complessivamente i dati raccolti da ogni sotto-rivelatore in modo intuitivo per l'utente.
+
+Nel prossimo capitolo verrà presentato l'event display utilizzato finora dal gruppo di ricerca di SND, così da delineare i requisiti e le necessità sui quali è stata fondata la progettazione del nuovo software.
