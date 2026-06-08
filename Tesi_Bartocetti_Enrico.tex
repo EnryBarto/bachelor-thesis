@@ -27,6 +27,7 @@
 \usepackage[backend=biber, style=ieee]{biblatex}
 \usepackage{csquotes}
 \usepackage{xurl} % Migliora le interruzioni di riga degli URL, soprattutto per la bibliografia
+\usepackage{thmtools}
 
 % ====================================================
 %
@@ -41,10 +42,14 @@
 \setlength{\intextsep}{20pt}   % Spazio sopra e sotto le figure posizionate con [h] o [H]
 \addbibresource{resources/bib/Bibliografia.bib}
 
+\DeclareRobustCommand{\textemdash}{%
+  \leavevmode\hbox{\rule[0.3ex]{0.6em}{0.05em}}%
+}
+
 % Configurazioni nomi per cref
-\crefname{figure}{figura}{figure}
+\crefname{figure}{Figura}{Figure}
 \Crefname{figure}{Figura}{Figure}
-\crefname{listing}{listato}{listati}
+\crefname{listing}{Listato}{Listati}
 \Crefname{listing}{Listato}{Listati}
 
 % Configurazione Intestazioni
@@ -73,6 +78,30 @@
     frame=single,
     rulecolor=\color{gray!40},
 }
+
+% Configurazioni per matematica
+\declaretheoremstyle[
+    headfont=\bfseries,
+    bodyfont=\normalfont,
+    headpunct={.\\},
+    postfoothook={\medskip},
+]{stiledef}
+
+\declaretheorem[style=stiledef, name=Definizione, numberwithin=chapter]{definizione}
+\declaretheorem[style=stiledef, name=Esempio, numberwithin=chapter]{esempio}
+\declaretheorem[style=stiledef, name=Osservazione, numberwithin=chapter]{osservazione}
+\declaretheorem[style=stiledef, name=Proposizione, numberwithin=chapter]{proposizione}
+
+% Aggiunta a capo dopo dimostrazione
+\makeatletter
+\renewenvironment{proof}[1][\proofname]{%
+    \par\noindent\textit{#1.}\newline
+}{%
+    \hfill\qed
+}
+\makeatother
+
+\newcommand{\norm}[2][]{\left\|#2\right\|_{#1}}
 
 \begin{document}
 
@@ -143,7 +172,7 @@
 \cleardoublepage
 \pagenumbering{arabic}
 \include{capitoli/1-SND}
-\include{capitoli/2-Stato_arte_analisi}
+\include{capitoli/2-Software_esistente_requisiti}
 \include{capitoli/Conclusioni}
 
 

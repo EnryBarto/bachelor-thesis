@@ -1,17 +1,18 @@
-\chapter{Stato dell'arte e analisi preliminare}
+\chapter{Software esistente e requisiti del nuovo sistema}
 
-Una volta compresa la struttura del rivelatore SND@LHC, è necessario analizzare gli strumenti software attualmente a disposizione della collaborazione per la visualizzazione degli eventi, partendo dal framework su cui si basano.
+Una volta compresa la struttura del rivelatore SND@LHC, è necessario analizzare gli strumenti software attualmente a disposizione della collaborazione per la visualizzazione degli eventi.
+L’analisi sarà quindi focalizzata sull’ambiente software effettivamente utilizzato in SND@LHC, a partire dal framework su cui esso si basa.
 
 ROOT è un framework software open-source per il calcolo scientifico, sviluppato
 originariamente dal CERN a partire dal 1995, scritto principalmente nel linguaggio C++.
 Standard di fatto nella fisica delle alte energie, ROOT fornisce le librerie essenziali per l'analisi dei dati, la gestione di grandi set di informazioni e la simulazione statistica di eventi.
 Il nome, che tradotto dall'inglese significa letteralmente radice, è una metafora utilizzata per racchiudere lo scopo del framework.
-ROOT deve fungere da base per qualsiasi applicazione venga sviluppata, come sottolineò René Brun --- uno dei fondatori del progetto --- all'interno della mailing list ufficiale nel 1996:
+ROOT deve fungere da base per qualsiasi applicazione venga sviluppata, come sottolineò René Brun -- uno dei fondatori del progetto -- all'interno della mailing list ufficiale nel 1996:
 \begin{quote}
     \textit{“[\ldots] in January 1995, I came quickly to the name ROOT for our system.\ [\ldots] ROOT really means the `roots' for end-user applications. Once we have the roots well installed in the ground, Trees or other Flowers can flourish. We hope that we are reaching this stage now.”}\cite{root_name_origin}
 \end{quote}
 
-Tra gli strumenti offerti da ROOT vi è anche un motore grafico per il rendering di oggetti 2D e 3D:\ in questo capitolo approfondiremo però i motivi per cui tali strumenti risultano inadeguati, discutendo anche i requisiti che saranno la base su cui fondare la progettazione del nuovo software.
+ROOT mette inoltre a disposizione strumenti grafici per il rendering di oggetti 2D e 3D. In questo capitolo verranno tuttavia approfonditi i motivi per cui tali strumenti non risultano adeguati al caso in esame, delineando al contempo i requisiti che costituiranno la base per la progettazione del nuovo software.
 
 % ====================================================
 %
@@ -19,18 +20,18 @@ Tra gli strumenti offerti da ROOT vi è anche un motore grafico per il rendering
 %
 % ====================================================
 \section{Il framework sndsw}
-Per la gestione dell'intero ciclo di vita dei dati prodotti nell'esperimento SND@LHC, la collaborazione ha sviluppato lo Scattering and Neutrino Detector Software (sndsw).
-Scritto principalmente nei linguaggi di programmazione C++ e Python gestiti tramite CMake, è basato a sua volta sui framework FairRoot (inizialmente ideato per l’esperimento tedesco Facility for Antiproton and Ion Research, FAIR, costruito interamente su ROOT) e FairShip (il framework dell’esperimento Search for Hidden Particles --- SHiP --- anch'esso basato su FairRoot).
+Per la gestione dell'intero ciclo di vita dei dati prodotti nell'esperimento SND@LHC, la collaborazione ha sviluppato lo \emph{Scattering and Neutrino Detector Software} (sndsw).
+Scritto principalmente nei linguaggi di programmazione C++ e Python e configurato tramite CMake, è basato a sua volta sui framework FairRoot (inizialmente sviluppato per l’esperimento tedesco Facility for Antiproton and Ion Research, FAIR, costruito interamente su ROOT) e FairShip (il framework dell’esperimento Search for Hidden Particles -- SHiP -- anch'esso basato su FairRoot).
 
-Sndsw mette a disposizione un event display bidimensionale, strumento che risulta tuttavia limitato, per cui si è reso necessario lo sviluppo di un nuovo event display che fosse in grado di valorizzare appieno la complessità geometrica e strutturale del rivelatore SND@LHC.\@
+Sndsw include un event display bidimensionale, strumento che presenta tuttavia alcune limitazioni, che hanno reso necessario lo sviluppo di un nuovo event display capace di rappresentare in modo più efficace la complessità geometrica e strutturale del rivelatore SND@LHC.\@
 
 % ====================================================
 % 2.1.1 - ORGANIZZAZIONE DEI DATI
 % ====================================================
 \subsection{Organizzazione dei dati}
-Per interagire con i dati di sndsw, il nuovo software dovrà conoscere come questi sono organizzati.
-La \emph{Run} è il periodo in cui il fascio di particelle nell’acceleratore è stabile e il sistema di acquisizione dati sta registrando in una certa configurazione: se ad esempio il fascio venisse interrotto, la run attuale verrebbe terminata. Ogni run ha come identificatore univoco un numero intero progressivo, il run number.
-L’\emph{Evento} è l’unità minima di dato registrato, corrispondente a una singola interazione (o collisione) all’interno del rivelatore. Ogni evento all’interno di una run è contrassegnato da un numero progressivo, l'event number.
+Per interagire con i dati di sndsw, il nuovo software deve conoscerne l'organizzazione.
+Una \emph{Run} indica un intervallo di acquisizione durante il quale il fascio di particelle nell’acceleratore è stabile e il sistema di acquisizione dati registra gli eventi secondo una determinata configurazione: se ad esempio il fascio venisse interrotto, la run corrente verrebbe terminata. Ogni run ha come identificatore univoco un numero intero progressivo, il \emph{run number}.
+L’\emph{Evento} è l’unità minima di dato registrato, corrispondente a una singola interazione (o collisione) all’interno del rivelatore. Ogni evento all’interno di una run è contrassegnato da un numero progressivo, l'\emph{event number}.
 Per identificare univocamente un evento in un database o in un archivio, si utilizza sempre la coppia \emph{(run number, event number)}.
 
 I file contenenti i dati delle collisioni sono archiviati all'interno di EOS Open Storage (EOS), una soluzione software open-source per lo storage distribuito. Sviluppato dal CERN a partire dal 2010 per gestire gli enormi volumi di dati scientifici prodotti da LHC (nell'ordine degli exabyte), EOS consente l'accesso simultaneo e scalabile ai file di analisi da parte dell'intera collaborazione.
@@ -41,13 +42,13 @@ L'organizzazione dei file è variata nel corso del tempo; in ogni caso, i dati v
 % 2.1.2 - EVENT DISPLAY
 % ====================================================
 \subsection{Event display}
-Un \emph{event display} --- letteralmente “visualizzatore di eventi” --- è un software di visualizzazione utilizzato principalmente nella fisica delle particelle: il suo scopo è mostrare le complesse collisioni tra particelle (gli “eventi”) registrate dai rivelatori, fornendo ai ricercatori una rappresentazione immediata di ciò che è avvenuto al loro interno durante le collisioni.
+Un \emph{event display} -- letteralmente “visualizzatore di eventi” -- è un software di visualizzazione utilizzato principalmente nell'ambito della fisica delle particelle: il suo scopo è rappresentare graficamente le complesse collisioni tra particelle (gli “eventi”) registrate dai rivelatori, fornendo ai ricercatori una visualizzazione immediata di ciò che è avvenuto al loro interno durante le collisioni.
 In linea di massima, ogni esperimento di fisica delle particelle sviluppa il proprio software event display, adattato alla geometria e alle esigenze specifiche del rivelatore.
 In \cref{fig:cms_display} è riportato un esempio di output di quello sviluppato per il rivelatore CMS.\@
 
-\begin{figure}[H]
+\begin{figure}[ht]
 	\centering{}
-	\includegraphics[width=0.89\textwidth]{cap2/CMSDisplay}
+	\includegraphics[width=0.98\textwidth]{cap2/CMSDisplay}
 	\caption[Esempio di display 3D di CMS]{Output di un event display di CMS, in cui è raffigurato un candidato bosone Z (una delle particelle elementari in \cref{fig:particelle_elementari}) decaduto in due elettroni~\cite{McCauley:2648517}}
     \label{fig:cms_display}
 \end{figure}
@@ -55,8 +56,9 @@ In \cref{fig:cms_display} è riportato un esempio di output di quello sviluppato
 \subsubsection{L'event display 2D di SND@LHC}
 
 L'event display sviluppato dalla collaborazione e utilizzato regolarmente nell'analisi degli eventi di SND@LHC è interamente contenuto in un singolo script Python di circa 1300 righe: l'assenza di una struttura modulare ne limita significativamente la manutenibilità e l'estensibilità.
-Per visualizzare un'interazione, richiede che i file contenenti i dati da visualizzare e la geometria da caricare vengano passati come argomenti all'eseguibile, per poi selezionare l'evento tramite shell interattiva di Python.
-Se ad esempio si volesse aprire l'evento numero \texttt{112104442} della run \texttt{5262}, sarebbe necessario utilizzare i comandi del \cref{lst:vecchio_display}; il risultato è riportato in \cref{fig:vecchio_display}.
+Per visualizzare un'interazione, l’utente deve fornire all’eseguibile, come argomenti, sia i file contenenti i dati da rappresentare sia il file di geometria da caricare.
+La selezione dell’evento avviene poi tramite la shell interattiva di Python.
+Ad esempio, per aprire l’evento numero \texttt{112104442} della run \texttt{5262}, è necessario utilizzare i comandi riportati nel \cref{lst:vecchio_display}; il risultato è mostrato in \cref{fig:vecchio_display}.
 Ne consegue che l'utente debba conoscere l'intricato sistema di archiviazione dei dati di sndsw descritto nella sezione precedente, e rende necessario riavviare l'applicativo nel caso si volesse caricare un evento non contenuto nello stesso file di quello già in memoria.
 
 \begin{lstlisting}[style=myBash, caption=Comandi da terminale per aprire il display dell'evento numero \texttt{112104442} della run \texttt{5262}, label=lst:vecchio_display]
@@ -73,7 +75,8 @@ Ne consegue che l'utente debba conoscere l'intricato sistema di archiviazione de
     loopEvents(104442, hitColour='q')
 \end{lstlisting}
 
-Oltretutto, una volta lanciato il programma, non è possibile interagire con l'applicativo, se non per pochissime operazioni: per eseguire lo zoom ad esempio, è necessario utilizzare un altro comando sulla shell Python, specificando l'area da visualizzare.
+Una volta avviato il programma, inoltre, l’interazione con l’applicativo risulta limitata a poche operazioni.
+Anche funzionalità basilari, come lo zoom, richiedono l’inserimento di ulteriori comandi nella shell interattiva di Python nei quali è necessario specificare manualmente l’area da visualizzare. 
 Tutto ciò compromette significativamente l'usabilità del software.
 
 \begin{figure}[H]
@@ -99,19 +102,21 @@ Per comprendere appieno le necessità della collaborazione, è stata affrontata 
 Dall'incontro è emersa una serie di requisiti, successivamente catalogati in funzionali e non funzionali.
 
 \subsubsection{Requisiti funzionali}
+Il software dovrà consentire all’utente di:
 \begin{itemize}
-    \item L'utente dovrà poter selezionare tramite interfaccia il numero di run ed evento da visualizzare.
-    \item L'applicativo dovrà essere interattivo, ovvero l'utente dovrà poter controllare attivamente la scena (tramite traslazione, rotazione, zoom) per osservare la geometria del rivelatore e le traiettorie delle particelle da prospettive arbitrarie.
-    \item Le particelle dovranno essere visualizzate coerentemente con i dati letti dal framework ROOT.\@
-    \item Le possibili configurazioni dei dati da caricare dovranno poter essere selezionate dall'utente.
+    \item selezionare tramite interfaccia il numero di run e di evento da visualizzare;
+    \item interagire con la scena, controllandone traslazione, rotazione e zoom, così da osservare la geometria del rivelatore e le traiettorie delle particelle da prospettive arbitrarie;
+    \item visualizzare l'energia depositata nel rivelatore dalle particelle, in modo coerente con i dati letti tramite il framework ROOT;\@
+    \item selezionare le possibili configurazioni dei dati da caricare.
 \end{itemize}
 
 \subsubsection{Requisiti non funzionali}
+Il software dovrà inoltre:
 \begin{itemize}
-	\item Dovrà essere garantita un'interazione reattiva e senza ritardi percettibili.
-	\item L’interfaccia dovrà essere ridimensionabile.
-    \item Il passaggio da un evento all'altro dovrà risultare agile.
-  	\item Il software dovrà offrire un'interazione intuitiva per l'utente, ovvero che non sia necessario l'uso di comandi mnemonici.
+    \item garantire un’interazione reattiva, senza ritardi percettibili durante la manipolazione della scena;
+    \item offrire un’interfaccia ridimensionabile;
+    \item rendere agile il passaggio da un evento all’altro;
+    \item fornire un’interazione intuitiva, senza richiedere l’utilizzo di comandi mnemonici.
 \end{itemize}
 
 % ====================================================
@@ -119,10 +124,11 @@ Dall'incontro è emersa una serie di requisiti, successivamente catalogati in fu
 % ====================================================
 \subsection{Scelta delle API grafiche}
 ROOT mette a disposizione un framework per l'event display chiamato \texttt{TEve}, il cui modulo grafico \texttt{TGL} si basa su OpenGL 1.x.
-Tale tecnologia risulta però inadeguata per lo sviluppo di un software moderno: prevede una pipeline grafica fissa --- ovvero non programmabile tramite shader --- che non permette di agire sul calcolo del colore in modo arbitrario (ad esempio per trasparenze ed illuminazione), e fa largo uso della \emph{immediate mode}, in cui i dati geometrici vengono inviati alla GPU ad ogni frame anziché essere memorizzati in buffer dedicati, con conseguenti forti limitazioni in termini di prestazioni.
+Tale tecnologia risulta però inadeguata per lo sviluppo di un software moderno: prevede una pipeline grafica fissa -- ovvero non programmabile tramite shader -- che non permette di agire sul calcolo del colore in modo arbitrario (ad esempio per trasparenze ed illuminazione), e fa largo uso della \emph{immediate mode}, in cui i dati geometrici vengono inviati alla GPU ad ogni frame anziché essere memorizzati in buffer dedicati, con conseguenti forti limitazioni in termini di prestazioni.
 Gli sviluppatori di ROOT, riconosciute le limitazioni di TEve, hanno sviluppato REve, il suo successore moderno basato su un'architettura client-server con rendering via browser~\cite{bohak_2024}.
 
 La scelta è ricaduta su OpenGL 3.3: oltre ad avere la pipeline programmabile per sviluppare shader su misura per il display degli eventi, è perfettamente integrabile in un progetto in linguaggio C++, permettendo di affrontare la progettazione tramite il paradigma ad oggetti.
+A differenza di Vulkan, infatti, OpenGL 3.3 consente di sfruttare una pipeline programmabile senza introdurre una complessità progettuale eccessiva; rispetto a soluzioni come WebGPU, inoltre, si presta meglio allo sviluppo di un’applicazione locale integrata con sndsw.
 
 % ====================================================
 % CONCLUSIONE CAPITOLO 2
