@@ -30,13 +30,14 @@ Sndsw include un event display bidimensionale, strumento che presenta tuttavia a
 % ====================================================
 \subsection{Organizzazione dei dati}
 Per interagire con i dati di sndsw, il nuovo software deve conoscerne l'organizzazione.
-Una \emph{Run} indica un intervallo di acquisizione durante il quale il fascio di particelle nell’acceleratore è stabile e il sistema di acquisizione dati registra gli eventi secondo una determinata configurazione: se ad esempio il fascio venisse interrotto, la run corrente verrebbe terminata. Ogni run ha come identificatore univoco un numero intero progressivo, il \emph{run number}.
+Una \emph{Run} indica un intervallo di tempo durante il quale il sistema di acquisizione dati è attivo; la fine della registrazione corrisponde alla chiusura della run.
+Ogni run ha come identificatore univoco un numero intero progressivo, il \emph{run number}.
 L’\emph{Evento} è l’unità minima di dato registrato, corrispondente a una singola interazione (o collisione) all’interno del rivelatore. Ogni evento all’interno di una run è contrassegnato da un numero progressivo, l'\emph{event number}.
 Per identificare univocamente un evento in un database o in un archivio, si utilizza sempre la coppia \emph{(run number, event number)}.
 
 I file contenenti i dati delle collisioni sono archiviati all'interno di EOS Open Storage (EOS), una soluzione software open-source per lo storage distribuito. Sviluppato dal CERN a partire dal 2010 per gestire gli enormi volumi di dati scientifici prodotti da LHC (nell'ordine degli exabyte), EOS consente l'accesso simultaneo e scalabile ai file di analisi da parte dell'intera collaborazione.
 
-L'organizzazione dei file è variata nel corso del tempo; in ogni caso, i dati vengono sostanzialmente divisi per anno, poi per numero di run e infine raggruppati in file che accorpano 1 milione di eventi ciascuno.
+L'organizzazione dei file è variata nel corso del tempo; in ogni caso, i dati vengono sostanzialmente divisi per anno, poi per numero di run e infine raggruppati in partizioni, ovvero file che accorpano 1 milione di eventi ciascuno così da limitarne la dimensione.
 
 % ====================================================
 % 2.1.2 - EVENT DISPLAY
@@ -56,7 +57,7 @@ In \cref{fig:cms_display} è riportato un esempio di output di quello sviluppato
 \subsubsection{L'event display 2D di SND@LHC}
 
 L'event display sviluppato dalla collaborazione e utilizzato regolarmente nell'analisi degli eventi di SND@LHC è interamente contenuto in un singolo script Python di circa 1300 righe: l'assenza di una struttura modulare ne limita significativamente la manutenibilità e l'estensibilità.
-Per visualizzare un'interazione, l’utente deve fornire all’eseguibile, come argomenti, sia i file contenenti i dati da rappresentare sia il file di geometria da caricare.
+Per visualizzare un'interazione, l’utente deve fornire all’eseguibile, come argomenti, sia il percorso della partizione contenente i dati da rappresentare che il file di geometria da caricare.
 La selezione dell’evento avviene poi tramite la shell interattiva di Python.
 Ad esempio, per aprire l’evento numero \texttt{112104442} della run \texttt{5262}, è necessario utilizzare i comandi riportati nel \cref{lst:vecchio_display}; il risultato è mostrato in \cref{fig:vecchio_display}.
 Ne consegue che l'utente debba conoscere l'intricato sistema di archiviazione dei dati di sndsw descritto nella sezione precedente, e rende necessario riavviare l'applicativo nel caso si volesse caricare un evento non contenuto nello stesso file di quello già in memoria.
@@ -127,8 +128,8 @@ ROOT mette a disposizione un framework per l'event display chiamato \texttt{TEve
 Tale tecnologia risulta però inadeguata per lo sviluppo di un software moderno: prevede una pipeline grafica fissa -- ovvero non programmabile tramite shader -- che non permette di agire sul calcolo del colore in modo arbitrario (ad esempio per trasparenze ed illuminazione), e fa largo uso della \emph{immediate mode}, in cui i dati geometrici vengono inviati alla GPU ad ogni frame anziché essere memorizzati in buffer dedicati, con conseguenti forti limitazioni in termini di prestazioni.
 Gli sviluppatori di ROOT, riconosciute le limitazioni di TEve, hanno sviluppato REve, il suo successore moderno basato su un'architettura client-server con rendering via browser~\cite{bohak_2024}.
 
-La scelta è ricaduta su OpenGL 3.3: oltre ad avere la pipeline programmabile per sviluppare shader su misura per il display degli eventi, è perfettamente integrabile in un progetto in linguaggio C++, permettendo di affrontare la progettazione tramite il paradigma ad oggetti.
-A differenza di Vulkan, infatti, OpenGL 3.3 consente di sfruttare una pipeline programmabile senza introdurre una complessità progettuale eccessiva; rispetto a soluzioni come WebGPU, inoltre, si presta meglio allo sviluppo di un’applicazione locale integrata con sndsw.
+Per il progetto del nuovo event display, la scelta è ricaduta su OpenGL 3.3: oltre ad avere la pipeline programmabile per sviluppare shader su misura per la visualizzazione degli eventi, è perfettamente integrabile in un progetto in linguaggio C++, permettendo di affrontare la progettazione tramite il paradigma ad oggetti.
+A differenza di Vulkan\footnote{Vulkan è la nuova API per la grafica 2D e 3D sviluppata dal Khronos Group, lo stesso consorzio che gestisce OpenGL, di cui è considerato il diretto successore. Promette prestazioni migliori di OpenGL al costo di una maggior complessità di programmazione.}, infatti, OpenGL 3.3 consente di sfruttare una pipeline programmabile senza introdurre una complessità progettuale eccessiva; rispetto a soluzioni come WebGPU, inoltre, si presta meglio allo sviluppo di un’applicazione locale integrata con sndsw.
 
 % ====================================================
 % CONCLUSIONE CAPITOLO 2
