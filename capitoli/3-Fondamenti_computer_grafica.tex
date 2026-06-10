@@ -1,0 +1,873 @@
+\chapter{Fondamenti di computer grafica}
+
+Per poter comprendere appieno il funzionamento della pipeline grafica, è prima necessario ripassare una serie di concetti base di algebra lineare.
+Molti di questi verranno presentati in maniera semplificata, quanto basta nel nostro caso per affrontare lo studio dei prossimi argomenti.
+Queste nozioni verranno poi usate per espandere le conoscenze geometriche che sono alla base della computer grafica tridimensionale.
+
+% ====================================================
+%
+% 3.1 - RICHIAMI DI ALGEBRA LINEARE
+%
+% ====================================================
+\section{Richiami di algebra lineare}
+Innanzitutto si introducono velocemente le tre entità base necessarie per definire i concetti e le operazioni che verranno utilizzate.
+
+Uno \emph{scalare} è un numero utilizzato per descrivere una grandezza.
+
+Un \emph{punto} $P$ è un'entità la cui unica proprietà è la posizione rispetto a un sistema di riferimento.
+
+Un \emph{vettore} $\mathbf{v}$ è un'entità caratterizzata da lunghezza (numero reale non negativo), direzione (individuata da una retta) e verso, indipendente dalla posizione nello spazio; viene rappresentato come una $n$-upla di componenti:
+\[
+    \mathbf{v} = \begin{bmatrix} v_1 \\ v_2 \\ v_3 \end{bmatrix}
+\]
+
+% ====================================================
+% 3.1.1 - SPAZI VETTORIALI E AFFINI
+% ====================================================
+\subsection{Spazi vettoriali e affini}
+
+Ora è possibile assemblare le entità base presentate per costruire delle strutture più complesse.
+
+\begin{definizione}[Spazio vettoriale]
+    Si definisce \emph{spazio vettoriale} $V$ una struttura algebrica formata da un insieme di vettori su cui sono definite l'addizione tra vettori e la moltiplicazione per uno scalare.
+\end{definizione}
+
+Poiché verranno utilizzati i vettori formati da numeri reali, introduciamo lo spazio $\mathbb{R}^n$ e un modo di rappresentare i vettori dello spazio.
+
+\begin{definizione}[$\mathbb{R}^n$]
+    Definiamo $\mathbb{R}^n$ come l'insieme dei vettori a $n$ componenti reali.
+    $\mathbb{R}^n$ è uno spazio vettoriale su $\mathbb{R}$ su cui sono definite le operazioni di addizione tra due vettori $\mathbf{u}, \mathbf{v} \in \mathbb{R}^n$ e moltiplicazione di un vettore $\mathbf{v} \in \mathbb{R}^n$ per uno scalare $\lambda \in \mathbb{R}$.
+    \[
+        \mathbf{u} + \mathbf{v} = 
+        \begin{bmatrix} u_1 + v_1 \\ \vdots \\ u_n + v_n \end{bmatrix}, 
+        \qquad
+        \lambda\mathbf{v} = 
+        \begin{bmatrix} \lambda v_1 \\ \vdots \\ \lambda v_n \end{bmatrix}
+    \]
+\end{definizione}
+
+\begin{definizione}[Combinazione lineare]
+    Dati $k$ vettori $\mathbf{v}_1, \ldots, \mathbf{v}_k \in \mathbb{R}^n$ e $k$ scalari $\lambda_1, \ldots, \lambda_k \in \mathbb{R}$, si definisce \emph{combinazione lineare} la quantità:
+    \[
+        \sum_{i=1}^{k} \lambda_i \mathbf{v}_i = \lambda_1 \mathbf{v}_1 + \cdots + \lambda_k \mathbf{v}_k
+    \]
+\end{definizione}
+
+\begin{definizione}[Base]
+    Dato uno spazio vettoriale $V$, un insieme di $n$ vettori $\mathcal{B} = \{\mathbf{v}_1, \dots, \mathbf{v}_n\} \subseteq V$ è detto \emph{base} di $V$ se è linearmente indipendente e genera $V$, ovvero se qualsiasi $\mathbf{v} \in V$ è esprimibile come combinazione lineare:
+    \[
+        \mathbf{v} = \alpha_1 \mathbf{v}_1 + \cdots + \alpha_n \mathbf{v}_n
+    \]
+    dove i coefficienti $\alpha_1, \dots, \alpha_n \in \mathbb{R}$ sono unici e sono detti \emph{coordinate} di $\mathbf{v}$ rispetto alla base scelta. 
+    Il numero $n$ di elementi della base è detto \emph{dimensione} di $V$.
+\end{definizione}
+
+\begin{esempio}[Base canonica di $\mathbb{R}^n$]
+    La \emph{base canonica} di $\mathbb{R}^n$ è l'insieme di vettori $\mathcal{B} = \{\mathbf{e}_1, \ldots, \mathbf{e}_n\}$ dove $\mathbf{e}_i \in \mathbb{R}^n$ è il vettore con $1$ in posizione $i$-esima e $0$ altrove:
+    \[
+        \mathbf{e}_i = \begin{bmatrix} 0 \\ \vdots \\ 1 \\ \vdots \\ 0 \end{bmatrix} \quad \forall\, i = 1, \ldots, n
+    \]
+    Ad esempio, il vettore $\mathbf{v} = \begin{bmatrix}4 & 5 & 6\end{bmatrix}^T \in \mathbb{R}^3$ può essere espresso come combinazione lineare della base canonica $\mathcal{B} = \{\mathbf{e}_1, \mathbf{e}_2, \mathbf{e}_3\}$:
+    \[
+        \mathbf{v} = \sum_{i=1}^{3} v_i \mathbf{e}_i 
+        = 4 \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}
+        + 5 \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}
+        + 6 \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}
+        = \begin{bmatrix} 4 \\ 5 \\ 6 \end{bmatrix}
+    \]
+    Le coordinate di $\mathbf{v} $ rispetto alla base canonica di $\mathbb{R}^3$ sono quindi date dal vettore $\begin{bmatrix}4 & 5 & 6\end{bmatrix}$.
+\end{esempio}
+
+Lo spazio vettoriale da solo non è sufficiente a rappresentare posizioni nello spazio: i vettori descrivono direzioni e grandezze ma non punti, rendendo necessario estendere questo concetto.
+
+\begin{definizione}[Spazio affine]
+    Uno \emph{spazio affine} è un insieme di punti che possono essere traslati da vettori di uno spazio vettoriale associato, senza che vi sia un punto di origine privilegiato.
+    Lo spazio euclideo è un esempio di spazio affine reale.
+\end{definizione}
+
+Con la definizione degli spazi affini si introducono quindi nuove operazioni:
+\begin{itemize}
+    \item Differenza punto-punto: definisce un vettore $\mathbf{v} = P - Q$
+    \item Somma punto-vettore (derivata dalla precedente): definisce un punto $P = Q + \mathbf{v}$
+\end{itemize}
+
+\begin{osservazione}
+    È importante tenere a mente che:
+    \begin{itemize}
+        \item La somma punto-punto non è definita.
+        \item I punti sono locazioni nello spazio e la differenza tra loro è data dal vettore che li congiunge.
+    \end{itemize}
+\end{osservazione}
+
+% ====================================================
+% 3.1.2 - COMBINAZIONI E SIMPLESSI
+% ====================================================
+\subsection{Combinazioni e simplessi}
+Le GPU moderne sono progettate per eseguire calcoli in maniera efficiente su primitive geometriche triangolari.
+In questa sezione si introducono gli strumenti matematici che generalizzano e formalizzano questi concetti.
+
+\begin{definizione}[Combinazione affine]
+    Una \emph{combinazione affine} è una combinazione lineare di punti, i cui coefficienti hanno somma $= 1$.
+    \[
+        P = \alpha_0 P_0 + \cdots + \alpha_n P_n = \sum_{i=0}^{n} \alpha_i P_i \quad \text{con} \quad \sum_{i=0}^{n} \alpha_i = 1
+    \]
+    I coefficienti $\alpha_0, \dots, \alpha_n$ sono le \emph{coordinate baricentriche} (affini) di $P$ nello spazio affine.
+\end{definizione}
+
+\begin{definizione}[Simplesso]
+    Un \emph{simplesso} di dimensione $k$ è il più piccolo insieme convesso che contiene $k+1$ punti indipendenti.
+    I $k+1$ punti sono detti \emph{vertici} del simplesso.
+\end{definizione}
+
+\begin{esempio}
+    Un simplesso è una generalizzazione di concetti familiari come segmento, triangolo, ecc\ldots estesi a dimensioni arbitrarie.
+    \begin{itemize}
+        \item $k = 0$: Singolo punto
+        \item $k = 1$: Segmento (due vertici distinti)
+        \item $k = 2$: Triangolo (tre punti non allineati)
+        \item $k = 3$: Tetraedro (quattro punti non complanari)
+    \end{itemize}
+\end{esempio}
+
+\begin{definizione}[Combinazione convessa]
+    Una \emph{combinazione convessa} è una combinazione affine in cui le coordinate $\in [0, 1]$:
+    \[
+        P = \sum_{i=0}^{n} \alpha_i P_i \quad \text{con} \quad \sum_{i=0}^{n} \alpha_i = 1\ \text{e}\ \alpha_i \in [0, 1]\ \forall\ i = 0, \ldots , n
+    \]
+\end{definizione}
+
+Le coordinate baricentriche rappresentano un sistema di coordinate relative ai vertici di un simplesso.
+Se vincolate a formare una combinazione convessa, garantiscono che i punti ottenibili come combinazione dei vertici di un simplesso appartengano al simplesso stesso.
+Questa proprietà viene sfruttata dalle GPU per l'interpolazione degli attributi dei vertici di un triangolo, motivando la scelta del triangolo come primitiva geometrica fondamentale.
+
+% ====================================================
+% 3.1.3 - OPERAZIONI TRA VETTORI
+% ====================================================
+\subsection{Operazioni tra vettori} 
+Si riportano ora alcune delle operazioni fondamentali effettuate con i vettori, che verranno sfruttate all'interno della pipeline grafica.
+
+\begin{definizione}[Prodotto scalare]
+    Si definisce \emph{prodotto scalare} un'applicazione $\mathbb{R}^n \times \mathbb{R}^n \to \mathbb{R}$ che gode delle seguenti proprietà $\forall\ \mathbf{u}, \mathbf{v}, \mathbf{w} \in \mathbb{R}^n$ e $\lambda \in \mathbb{R}$:
+    \begin{enumerate}
+        \item \emph{Simmetria}: $ \mathbf{u} \cdot \mathbf{v} = \mathbf{v} \cdot \mathbf{u}$
+        \item \emph{Linearità}: $\mathbf{v} \cdot (\lambda_1\mathbf{u} + \lambda_2\mathbf{w}) = \lambda_1(\mathbf{v} \cdot \mathbf{u}) + \lambda_2(\mathbf{v} \cdot \mathbf{w})$
+        \item \emph{Definitezza positiva}: $ \mathbf{v} \cdot \mathbf{v} > 0 \iff \mathbf{v} \neq 0 $
+    \end{enumerate}
+\end{definizione}
+
+\begin{definizione}[Prodotto scalare standard]
+    Si definisce \emph{prodotto scalare standard} $\langle \cdot, \cdot \rangle$:
+    \[
+        \mathbf{u}, \mathbf{v} \in \mathbb{R}^n : \langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u} \cdot \mathbf{v} = \sum_{i=1}^{n} u_i v_i = u_1 v_1 + \cdots + u_n v_n = \mathbf{u}^T \mathbf{v}
+    \]
+\end{definizione}
+
+\begin{definizione}[Prodotto vettoriale]
+    Dati due vettori $\mathbf{u}, \mathbf{v} \in \mathbb{R}^3$ si definisce il loro \emph{prodotto vettoriale} come il vettore $\mathbf{u} \times \mathbf{v} \in \mathbb{R}^3$ così definito:
+    \begin{itemize}
+        \item Modulo:
+        \[
+            \norm{\mathbf{u} \times \mathbf{v}} = \norm{\mathbf{u}} \cdot \norm{\mathbf{v}} \cdot \sin{\theta}
+        \]
+        (ove $\theta$ è l'angolo convesso fra $\mathbf{u}$ e $\mathbf{v}$)
+        \item Direzione: retta perpendicolare a $\mathbf{u}$ e $\mathbf{v}$
+        \item Verso: dato dalla “regola della mano destra”
+    \end{itemize}
+\end{definizione}
+
+Dal momento che si lavora con vettori nello spazio, è necessario introdurre una misura per queste quantità. In computer grafica viene utilizzata la \emph{norma euclidea} (o norma 2):
+\[
+    \norm[2]{\mathbf{v}} = \sqrt{\langle \mathbf{v}, \mathbf{v} \rangle} = \sqrt{\mathbf{v}^T \mathbf{v}} = \sqrt{\sum_{i=1}^{n} (v_i)^2} = \sqrt{v_1^2 + \cdots + v_n^2}
+\]
+
+\begin{osservazione}
+    La norma 2 è invariante rispetto alle trasformazioni ortogonali -- come rotazioni e riflessioni -- e anche rispetto alle traslazioni.
+\end{osservazione}
+
+% ====================================================
+%
+% 3.2 - SISTEMI DI RIFERIMENTO E TRASFORMAZIONI GEOMETRICHE
+%
+% ====================================================
+\section{Sistemi di riferimento e trasformazioni geometriche}
+Per descrivere oggetti e scene tridimensionali è necessario definire sistemi di riferimento e le trasformazioni che permettono di passare dall'uno all'altro.
+In questa sezione si introduce il formalismo che consente di rappresentare uniformemente punti e vettori, e di esprimere le trasformazioni geometriche come moltiplicazioni matriciali.
+In alcuni casi verrà utilizzata la notazione bidimensionale per semplicità, mantenendo invariati i concetti sottostanti.
+
+% ====================================================
+% 3.2.1 - SISTEMI DI RIFERIMENTO AFFINI E COORDINATE OMOGENEE
+% ====================================================
+\subsection{Sistemi di riferimento affini e coordinate omogenee}
+
+\begin{definizione}[Sistema di riferimento]
+    Un \emph{sistema di riferimento} $F$ in uno spazio affine ci consente di determinare univocamente la posizione di ogni punto dello spazio; è identificato da:
+    \begin{itemize}
+        \item una base di vettori linearmente indipendenti $\mathcal{B} = \{\mathbf{e}_1, \mathbf{e}_2, \dots, \mathbf{e}_n\}$;
+        \item un punto di origine $P_0$.
+    \end{itemize}
+\end{definizione}
+
+\begin{osservazione}
+    Rappresentare punti e vettori tramite $n$ scalari (dove $n$ è la dimensione dello spazio) è ambiguo: la stessa $n$-upla potrebbe indicare sia un punto che un vettore. Estendendo convenzionalmente il prodotto scalare-punto agli spazi affini con $1 \cdot P_0 = P_0$ e $0 \cdot P_0 = 0$, possiamo scrivere:
+    \[
+        P = v_1 \mathbf{e}_1 + v_2 \mathbf{e}_2 + v_3 \mathbf{e}_3 + 1 \cdot P_0
+    \]
+    \[
+        \mathbf{v} = v_1 \mathbf{e}_1 + v_2 \mathbf{e}_2 + v_3 \mathbf{e}_3 + 0 \cdot P_0
+    \]
+    Notiamo che la coordinata finale vale $1$ per i punti e $0$ per i vettori.
+\end{osservazione}
+ 
+\begin{definizione}[Coordinate omogenee]
+    La coordinata aggiuntiva che distingue punti e vettori è detta \emph{coordinata omogenea} e indicata con $w$. Dato il sistema di riferimento $F (\mathbf{e}_1, \mathbf{e}_2, \mathbf{e}_3, P_0)$, punti e vettori in coordinate omogenee sono rappresentati da:
+    \[
+        P = 
+            \begin{bmatrix} p_1 & p_2 & p_3 & 1 \end{bmatrix}
+            \begin{bmatrix} \mathbf{e}_1 \\ \mathbf{e}_2 \\ \mathbf{e}_3 \\ P_0 \end{bmatrix}
+        \qquad
+        \mathbf{v} =
+            \begin{bmatrix} v_1 & v_2 & v_3 & 0 \end{bmatrix}
+            \begin{bmatrix} \mathbf{e}_1 \\ \mathbf{e}_2 \\ \mathbf{e}_3 \\ P_0 \end{bmatrix}
+    \]
+\end{definizione}
+
+% ====================================================
+% 3.2.2 - CAMBIAMENTO DI SISTEMA DI RIFERIMENTO
+% ====================================================
+\subsection{Cambiamento di sistema di riferimento}
+\label{subsec:cambio_sdr}
+Dati due sistemi di riferimento affini $F_1 = (\mathbf{x}, \mathbf{y}, O)$ e $F_2 = (\mathbf{u}, \mathbf{v}, \mathbf{e})$, rappresentiamo i vettori e l'origine di $F_2$ in funzione dei vettori e dell'origine di $F_1$:
+
+\[
+\begin{cases}
+    \mathbf{u} = u_{x} \mathbf{x} + u_{y} \mathbf{y} + 0 \cdot O \\
+    \mathbf{v} = v_{x} \mathbf{x} + v_{y} \mathbf{y} + 0 \cdot O \\
+    \mathbf{e} = e_x \mathbf{x} + e_y \mathbf{y} + 1 \cdot O
+\end{cases}
+\quad \implies \quad
+\begin{bmatrix}
+    \mathbf{u} \\
+    \mathbf{v} \\
+    \mathbf{e}
+\end{bmatrix} 
+= 
+\underbrace{
+    \begin{bmatrix}
+        u_x & u_y & 0 \\
+        v_x & v_y & 0 \\
+        e_x & e_y & 1
+    \end{bmatrix}
+}_{M}
+\begin{bmatrix}
+    \mathbf{x} \\
+    \mathbf{y} \\
+    O
+\end{bmatrix}
+\]
+
+\begin{proposizione}
+    \label{prop:cambio_sdr}
+    Sia $\mathbf{a} = \begin{bmatrix} x_1 & y_1 & 1 \end{bmatrix}^T$ il vettore delle coordinate omogenee di un punto $P$ rispetto al sistema $F_1$, e sia $\mathbf{b} = \begin{bmatrix} x_2 & y_2 & 1 \end{bmatrix}^T$ il medesimo punto espresso rispetto a $F_2$. 
+    Data la matrice di trasformazione delle basi $M$, valgono le seguenti relazioni di cambiamento di coordinate:
+    \begin{itemize}
+        \item La matrice trasposta $M^T$ mappa le coordinate dal sistema $F_2$ al sistema $F_1$:
+        \[
+            \mathbf{a} = M^T \mathbf{b}
+        \]
+        \item La matrice inversa della trasposta $(M^T)^{-1}$ mappa le coordinate dal sistema $F_1$ al sistema $F_2$:
+        \[
+            \mathbf{b} = (M^T)^{-1} \mathbf{a}
+        \]
+    \end{itemize}
+\end{proposizione}
+
+% ====================================================
+% 3.2.3 - TRASFORMAZIONI GEOMETRICHE ELEMENTARI
+% ====================================================
+\subsection{Trasformazioni geometriche elementari}
+Le trasformazioni geometriche elementari (traslazione, rotazione e scalatura) possono essere espresse in modo analogo a un cambio di sistema di riferimento.
+In questo contesto, anziché cambiare gli assi di riferimento, applichiamo le matrici direttamente sulle coordinate dei punti per modificarne la posizione nello spazio.
+Alla luce di quanto visto, approfondiamo come si compongono le singole matrici di trasformazione per trasformare un punto in coordinate omogenee $P = \begin{bmatrix} P_x & P_y & 1 \end{bmatrix}$ in un altro punto $P' = \begin{bmatrix} {P'}_x & {P'}_y & 1 \end{bmatrix}$, per poi visualizzarne il risultato in \cref{fig:trasformazioni_geometriche_elementari}.
+
+\subsubsection{Traslazione}
+Dato il vettore di traslazione $\mathbf{e} = \begin{bmatrix}e_x & e_y\end{bmatrix}$, otteniamo il punto $P'$ traslando $P$ del vettore $\mathbf{e}$ grazie alla matrice di traslazione $T$:
+\[
+P'
+= 
+\underbrace{
+    \begin{bmatrix}
+        1 & 0 & e_x \\
+        0 & 1 & e_y \\
+        0 & 0 & 1
+    \end{bmatrix}
+}_{T(\mathbf{e})}
+P
+\]
+
+\subsubsection{Rotazione}
+Dato l'angolo di rotazione $\theta$, otteniamo il punto $P'$ ruotando $P$ dell'angolo $\theta$ attorno all'origine del sistema di riferimento utilizzando la matrice di rotazione $R$: 
+\[
+P'
+= 
+\underbrace{
+    \begin{bmatrix}
+        \cos{\theta} & -\sin{\theta} & 0 \\
+        \sin{\theta} & \cos{\theta} & 0 \\
+        0 & 0 & 1
+    \end{bmatrix}
+}_{R(\theta)}
+P
+\]
+Per le rotazioni nello spazio tridimensionale, risulta comodo utilizzare un asse di rotazione $\hat{\mathbf{n}}$ e un angolo $\theta$.
+
+\subsubsection{Scalatura}
+Dato il vettore contenente i fattori di scala $\mathbf{s} = \begin{bmatrix}s_x & s_y\end{bmatrix}$, otteniamo il punto $P'$ scalando $P$ con i fattori $\mathbf{s}$ grazie alla matrice di scala $S$:
+\[
+P'
+= 
+\underbrace{
+    \begin{bmatrix}
+        s_x & 0 & 0 \\
+        0 & s_y & 0 \\
+        0 & 0 & 1
+    \end{bmatrix}
+}_{S(\mathbf{s})}
+P
+\]
+Tenendo conto che:
+\begin{itemize}
+    \item Fattori $s < 1$: i punti si avvicinano all'origine
+    \item Fattori $s > 1$: i punti si allontanano dall'origine
+    \item Se $s_x \neq s_y$: le proporzioni non sono mantenute (\emph{scalatura non uniforme})
+    \item Se $s_x = s_y$: le proporzioni sono mantenute (\emph{scalatura uniforme})
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/Traslazione}
+        \caption{Traslazione}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/Rotazione}
+        \caption{Rotazione}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/Scala}
+        \caption{Scalatura}
+    \end{subfigure}
+    \caption[Applicazione trasformazioni geometriche elementari]{Applicazione delle trasformazioni geometriche elementari a dei punti del piano}
+    \label{fig:trasformazioni_geometriche_elementari}
+\end{figure}
+
+% ====================================================
+%
+% 3.3 - LA PIPELINE GRAFICA
+%
+% ====================================================
+\section{La pipeline grafica}
+La pipeline grafica è la sequenza di operazioni atte a costruire un'immagine partendo dagli oggetti tridimensionali presenti nella scena.
+L'immagine prodotta è di tipo \emph{raster}, poiché è composta da una matrice di punti -- detti picture elements (pixel) -- ognuno contenente le proprie informazioni sul colore.
+
+La GPU gestisce il processo di rendering tramite alcuni buffer, che non sono altro che matrici in cui ad ogni pixel è associata una cella di memoria.
+I principali sono il \emph{color buffer}, che contiene il colore di ogni pixel dell'immagine finale, e il \emph{depth buffer} (o \emph{z-buffer}), che memorizza la profondità del frammento più vicino all'osservatore per ogni pixel, permettendo di gestire correttamente la visibilità tra oggetti sovrapposti.
+L'insieme di questi buffer forma il \emph{framebuffer}, che viene letto e scritto nelle varie fasi della pipeline.
+
+L'intero processo di visualizzazione può essere riassunto in quattro sottosistemi:
+\begin{itemize}
+    \item Applicazione: l'applicazione con cui interagisce l'utente produce le primitive geometriche tridimensionali.
+    \item Geometria: le primitive vengono sottoposte a una sequenza di trasformazioni, passando da un sistema di riferimento a un altro premoltiplicando per apposite matrici, che permettono di passare dai vertici della scena 3D a coordinate normalizzate.
+    \item Rasterizzazione: converte le primitive geometriche risultanti in  frammenti da visualizzare sullo schermo tramite appositi algoritmi.
+    \item Visualizzazione: il dispositivo di output (ad esempio un monitor) mostra l'immagine creata.
+\end{itemize}
+
+Durante le fasi di geometria e rasterizzazione, a partire da OpenGL 2.0, il programmatore può intervenire all'interno della pipeline tramite dei programmi scritti in linguaggio OpenGL Shading Language (GLSL), che prendono il nome di \emph{shader}.
+Esistono vari tipi di shader che agiscono in momenti distinti, ma gli obbligatori sono il \emph{vertex shader}, eseguito per ogni vertice all'inizio del sottosistema geometrico, e il \emph{fragment shader}, eseguito per ogni frammento prodotto dalla rasterizzazione.
+Nel progetto viene utilizzato anche il \emph{geometry shader}, che viene eseguito subito dopo il vertex shader e, a differenza di quest'ultimo, riceve in input una primitiva geometrica completa, potendo così accedere a tutti i suoi vertici contemporaneamente.
+In \cref{fig:pipeline} è possibile visualizzare dove intervengono durante il processo di produzione delle immagini.
+
+\begin{figure}[ht]
+    \centering
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw, minimum width=3cm, minimum height=1.7cm, align=center},
+        arrow/.style={->, thick, >={Stealth[length=8pt, width=6pt]}}
+    ]
+        % Nodi
+        \node[box] (app) {Applicazione};
+        \node[box, right=4.5cm of app] (geo) {Geometria \\ {\small (Vertex e Geometry shader)}};
+        \node[box, below=1.5cm of geo] (rast) {Rasterizzazione \\ {\small (Fragment shader)}};
+        \node[box, below=1.5cm of app] (visual) {Visualizzazione};
+
+        % Frecce
+        \draw[arrow] (app) -- node[above] {Vertici e primitive} (geo);
+        \draw[arrow] (geo) -- node[left] {Vertici e primitive trasformati} (rast);
+        \draw[arrow] (rast) -- node[above] {Pixel} (visual);
+    \end{tikzpicture}
+    \caption{Schema del processo di produzione di un'immagine}
+    \label{fig:pipeline}
+\end{figure}
+
+Poiché nelle sezioni precedenti abbiamo studiato e analizzato gli strumenti per manipolare punti e vettori, vediamo come essi vengono sfruttati all'interno della pipeline grafica: per il sottosistema geometrico analizzeremo ogni trasformazione di sistema di riferimento, mentre per quello di rasterizzazione descriveremo il processo di conversione delle primitive in frammenti.
+
+% ====================================================
+% 3.3.1 - MODELLAZIONE
+% ====================================================
+\subsection{Modellazione}
+Inizialmente, ogni oggetto è modellato in un proprio sistema di riferimento, detto \emph{Object Coordinate System} (OCS): vengono poi posizionati nella scena tridimensionale, il cui sistema di riferimento è detto \emph{World Coordinate System} (WCS).
+Questa fase è detta di modellazione, e avviene applicando a ogni vertice le trasformazioni studiate, ovvero scalatura, rotazione e infine traslazione.
+Poiché le trasformazioni geometriche sono associative ma non commutative, è necessario che vengano applicate nell'ordine corretto.
+Dal momento che nelle moltiplicazioni matriciali l'ultima matrice è la prima ad agire, la matrice di modellazione è composta nella seguente maniera:
+\[
+    M = T(e) \cdot R(\theta) \cdot S(s)
+\]
+
+% ====================================================
+% 3.3.2 - VISTA
+% ====================================================
+\subsection{Vista}
+In questa fase, viene posizionata e orientata nella scena una telecamera virtuale.
+La trasformazione di vista è una matrice che mappa tutti i vertici dal WCS al \emph{View Coordinate System} (VCS), il cui punto di origine è la posizione della telecamera (che convenzionalmente punta verso $-z$).
+
+Uno dei modelli di camera virtuale più intuitivi e utilizzati, è quello della camera \emph{look at}, che si basa su quattro informazioni:
+\begin{itemize}
+    \item Punto C: posizione della telecamera nel WCS;
+    \item Punto A: punto verso cui la telecamera guarda;
+    \item \emph{Field of View} (FOV): angolo di visibilità verticale nella scena, ovvero quanta porzione di scena viene inquadrata;
+    \item \emph{Depth of Field}: determina la distanza tra l'oggetto più vicino e quello più lontano che appaiono a fuoco.
+\end{itemize}
+Da queste informazioni possiamo ricavare i versori che definiscono il sistema di riferimento VCS.
+
+La direzione di vista è il versore $\hat{\mathbf{w}}$ che da C punta verso A:
+\[
+    \hat{\mathbf{w}} = \frac{C - A}{\norm{C - A}}
+\]
+
+Il \emph{View Up Vector} ($VUP$) è il vettore che punta verso l'alto della telecamera.
+
+L'asse $\hat{\mathbf{u}}$ è il versore che punta alla destra dell'osservatore: è perpendicolare al piano individuato da $VUP$ e $\hat{\mathbf{w}}$:
+\[
+    \hat{\mathbf{u}} = \frac{VUP \times \hat{\mathbf{w}}}{\norm{VUP \times \hat{\mathbf{w}}}}
+\]
+
+L'asse $\hat{\mathbf{v}}$ è a sua volta perpendicolare a $\hat{\mathbf{w}}$ e $\hat{\mathbf{u}}$, ma dato che sono già versori non è necessario rieseguire la normalizzazione:
+\[
+    \hat{\mathbf{v}} = \hat{\mathbf{w}} \times \hat{\mathbf{u}}
+\]
+
+Definiamo quindi il sistema di riferimento in coordinate di vista $VCS (\hat{\mathbf{u}}, \hat{\mathbf{v}}, \hat{\mathbf{w}}, C)$, ovvero i tre assi appena trovati con la telecamera all'origine. 
+Conoscendo questi vettori risulta semplice calcolare la matrice di vista.
+Come visto nella \cref{subsec:cambio_sdr} per il cambio di sistema di riferimento, la matrice di trasformazione delle basi che esprime il $VCS (\hat{\mathbf{u}}, \hat{\mathbf{v}}, \hat{\mathbf{w}}, C)$ in termini del $WCS (\hat{\mathbf{x}}, \hat{\mathbf{y}}, \hat{\mathbf{z}}, O)$ è:
+\[
+M =
+\begin{bmatrix}
+    u_x & u_y & u_z & 0 \\
+    v_x & v_y & v_z & 0 \\
+    w_x & w_y & w_z & 0 \\
+    C_x & C_y & C_z & 1
+\end{bmatrix}
+\]
+
+Poiché la nostra matrice di vista $V$ dovrà trasformare i punti da WCS a VCS, per la \cref{prop:cambio_sdr} è composta come:
+\[
+V =
+(M^T)^{-1}
+\]
+
+% ====================================================
+% 3.3.3 - PROIEZIONE
+% ====================================================
+\subsection{Proiezione}
+In generale, la proiezione è una trasformazione geometrica che ha come dominio uno spazio di dimensione $n$ e come codominio uno spazio di dimensione $n-1$.
+Una proiezione di un oggetto 3D è definita da un insieme di rette di proiezione dette proiettori che, partendo da un centro di proiezione comune, passano per tutti i punti dell'oggetto e intersecano un piano di proiezione per formare l'immagine bidimensionale.
+Quando i proiettori sono rette e la proiezione avviene su un piano si parla di proiezioni geometriche piane, che vengono divise in due tipologie: le proiezioni prospettiche e le proiezioni parallele.
+
+L'operazione di proiezione nella pipeline grafica viene divisa in due fasi: la determinazione del volume di vista -- ovvero la regione di spazio compresa tra due piani, detti piano vicino e piano lontano, che la camera virtuale è in grado di inquadrare in un dato momento -- e la sua mappatura in un cubo canonico (trattata in questa sezione), e la riduzione da spazio 3D a 2D (trattata nella sezione successiva).
+
+In questa fase, grazie alla matrice di proiezione $P$, si passa dal VCS al sistema \emph{Normalized Device Coordinates} (NDC), un cubo canonico dai lati di lunghezza 2 centrato nell'origine tale che $x, y, z \in [-1, 1]$, così da semplificare sensibilmente i calcoli svolti negli stadi successivi.
+Al termine della moltiplicazione per la matrice di proiezione, la  pipeline riporta automaticamente i punti in coordinate cartesiane (quindi con la quarta coordinata $w = 1$)  dividendo tutte le componenti per $w$, operazione detta \emph{perspective divide}.
+
+\subsubsection{Proiezioni parallele}
+Il nome proiezioni parallele deriva dalla proprietà di parallelismo dei proiettori: non c'è un centro di proiezione, ma si parla di direzione di proiezione. 
+Poiché vengono mantenute le distanze, linee parallele nella realtà lo sono anche nel volume proiettato.
+
+Si dividono a loro volta in due classi, le proiezioni oblique e quelle ortografiche.
+Nelle proiezioni oblique i proiettori possono formare un angolo qualsiasi col piano di proiezione: ne è un esempio la cavaliera, utilizzata nel disegno tecnico, in cui la direzione di proiezione forma un angolo di 45 gradi con il piano di proiezione.
+Nelle proiezioni ortografiche invece, la direzione di proiezione coincide con la normale al piano di proiezione: in questo caso il volume di vista corrisponde con un parallelepipedo (visibile in \cref{fig:proiezione_ortografica}), che risulta semplice da trasformare nel cubo canonico poiché è sufficiente traslarne il centroide nell'origine per poi scalarne i vertici in $[-1, 1]$.
+Dati i vertici del parallelepipedo, il suo centroide è identificato dal punto:
+\[
+    C = 
+    \begin{bmatrix} C_x & C_y & C_z \end{bmatrix} =
+    \begin{bmatrix}
+        \frac{left + right}{2} &
+        \frac{top + bottom}{2} &
+        \frac{-near - far}{2}
+    \end{bmatrix}
+\]
+Per traslarlo nell'origine, il vettore di traslazione è semplicemente:
+\[
+    \mathbf{e} = O - C = \begin{bmatrix} -C_x & -C_y & -C_z \end{bmatrix}
+\]
+Mentre i fattori di scala per ottenere lati di lunghezza 2 saranno:
+\[
+    \mathbf{s} = 
+    \begin{bmatrix}
+        \frac{2}{right - left} &
+        \frac{2}{top - bottom} &
+        \frac{2}{-near + far}
+    \end{bmatrix}
+    = \begin{bmatrix} s_x & s_y & s_z \end{bmatrix}
+\]
+Otteniamo così la matrice di proiezione ortografica come la composizione della matrice di scala e di traslazione:
+\[
+    P_{ortho} =
+    \underbrace{
+        \begin{bmatrix}
+            s_x &  &  &  \\
+             & s_y &  &  \\
+             &  & s_z &  \\
+             &  &  & 1
+        \end{bmatrix}
+    }_{S(\mathbf{s})}
+    \cdot
+    \underbrace{
+        \begin{bmatrix}
+            1 &  &  & -C_x \\
+             & 1 &  & -C_y \\
+             &  & 1 & -C_z \\
+             &  &  & 1
+        \end{bmatrix}
+    }_{T(\mathbf{e})}
+    =
+    \begin{bmatrix}
+        s_x &  &  & -C_x s_x \\
+         & s_y &  & -C_y s_y \\
+         &  & s_z & -C_z s_z \\
+         &  &  & 1
+    \end{bmatrix}
+\]
+
+Dall'ultima riga della matrice notiamo che la coordinata $w$ viene sempre mantenuta a 1: in questo caso la perspective divide risulta quindi ininfluente.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=1\textwidth]{cap3/Proiezione_ortografica}
+	\caption{Volume di vista della proiezione ortografica}
+    \label{fig:proiezione_ortografica}
+\end{figure}
+
+\subsubsection{Proiezioni prospettiche}
+Nelle proiezioni prospettiche il centro di proiezione si trova a distanza finita dal piano di proiezione: gli oggetti più vicini all'osservatore risulteranno più grandi e viceversa.
+Il volume di vista è un tronco di piramide (visibile in \cref{fig:proiezione_prospettica}) che dovrà essere trasformato in parallelepipedo, in cui i punti del piano vicino fungono da riferimento e quelli del piano lontano vengono compressi in un rettangolo più piccolo: il parallelepipedo dovrà essere infine trasformato nel cubo normalizzato tramite una proiezione ortografica.
+
+Detta $d$ la distanza del piano di proiezione dal centro di proiezione, vogliamo che i punti $P = \begin{bmatrix} x & y & z & 1 \end{bmatrix}$ vengano mappati in altri punti in cui la grandezza dipende dalla distanza: l'obiettivo è quindi costruire una matrice $M_{persp}$ tale che, dopo la perspective divide, si ottenga $x' = x \cdot d / z$ e $y' = y \cdot d /z$.
+
+Per ottenere questa divisione per $\frac{z}{d}$, è sufficiente che la quarta riga della matrice produca $w = \frac{z}{d}$: la quarta riga della matrice è quindi $\begin{bmatrix} 0 & 0 & \frac{1}{d} & 0 \end{bmatrix}$.
+Le prime due righe lasciano invece $x$ e $y$ inalterati, poiché la divisione per $w$ penserà a scalarle correttamente.
+
+Rimane da determinare la terza riga della matrice, che deve rimappare $z$ nell'intervallo $[-1, 1]$ del cubo canonico.
+Essa non può dipendere da $x$ e $y$ (altrimenti la profondità di un punto cambierebbe in base alla sua posizione orizzontale o verticale), assumendo quindi necessariamente la forma $\begin{bmatrix} 0 & 0 & a & b \end{bmatrix}$, dove $a$ e $b$ sono due incognite.
+Notiamo che, dopo la perspective divide, la coordinata $z$ risultante è:
+\[
+    z_{NDC} = \frac{az + b}{z/d} = \frac{(az + b)d}{z}
+\]
+Imponendo le condizioni per cui il piano vicino deve essere mappato in $z = -1$ e il piano lontano in $z = +1$, e assumendo che il piano di proiezione corrisponda al piano vicino ($d = near$):
+\[
+    \begin{cases} 
+        \dfrac{(a \cdot near + b) \cdot d}{near} = -1 \\[10pt]
+        \dfrac{(a \cdot far + b) \cdot d}{far} = +1 
+    \end{cases}
+    \underset{d\ =\ near}{\implies}
+    \quad
+    \begin{cases} 
+        a \cdot near + b = -1 \\[6pt]
+        \dfrac{(a \cdot far + b) \cdot near}{far} = +1 
+    \end{cases}
+\]
+La cui soluzione è:
+\[
+    a = \frac{far + near}{far - near}, \qquad b = -\frac{2 \cdot far \cdot near}{far - near}
+\]
+La matrice $M_{persp}$ è quindi:
+\[
+    M_{persp} = 
+    \begin{bmatrix}
+        1 &   &   &   \\
+          & 1 &   &   \\
+          &   & \frac{far + near}{far - near} & -\frac{2 \cdot far \cdot near}{far - near} \\
+          &   & \frac{1}{near} & 0
+    \end{bmatrix}
+\]
+
+Una volta trasformato il volume di vista in un parallelepipedo, è sufficiente applicare $P_{ortho}$ per normalizzare nel cubo NDC, ottenendo la matrice di proiezione prospettica completa:
+\[
+    P_{persp} = P_{ortho} \cdot M_{persp}
+\]
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{cap3/Proiezione_prospettica}
+	\caption{Volume di vista della proiezione prospettica}
+    \label{fig:proiezione_prospettica}
+\end{figure}
+
+% ====================================================
+% 3.3.4 - CLIPPING E VIEWPORT 
+% ====================================================
+\subsection{Clipping e viewport}
+Una volta ottenuto il cubo in coordinate NDC, viene eseguito il \emph{clipping}, in cui le porzioni di primitive geometriche che non rientrano nel volume di vista vengono scartate dalla pipeline: questo permette di eseguire i calcoli successivi solo per i vertici che rientrano effettivamente nell'area da visualizzare.
+Il risultato di quest'operazione è schematizzato in figura.
+
+Infine i valori delle coordinate $x$ e $y$ passano dal sistema NDC al sistema di \emph{viewport}, ovvero in coordinate dell'effettiva area di visualizzazione in pixel, di cui è necessario conoscere l'origine del sistema di riferimento $(x_0, y_0)$ e l'altezza e larghezza dell'area $(height, width)$:
+\[
+    x_{vp} = \frac{width}{2} \cdot x_{NDC} + \left(x_0 + \frac{width}{2}\right)
+\]
+\[
+    y_{vp} = \frac{height}{2} \cdot y_{NDC} + \left(y_0 + \frac{height}{2}\right)
+\]
+
+A questo punto della pipeline termina il sottosistema geometrico, per passare al sottosistema di rasterizzazione.
+
+% ====================================================
+% 3.3.5 - RASTERIZZAZIONE 
+% ====================================================
+\subsection{Rasterizzazione}
+Il sottosistema raster è l'ultima fase della pipeline di rendering.
+Il processo di rasterizzazione si occupa di convertire le primitive geometriche (punti, linee, poligoni) definite in coordinate di viewport nella loro rappresentazione discreta composta da frammenti: ne è riportato un esempio in \cref{fig:rasterizzazione}
+Nel passaggio dai vertici ai frammenti, la GPU interpola tutti i dati dei vertici per ogni frammento grazie alle coordinate baricentriche, discusse in precedenza.
+Dopo la produzione dei frammenti interviene il \emph{fragment shader}, utilizzato principalmente per calcolarne il colore.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.5\textwidth]{cap3/Rasterizzazione}
+	\caption[Rasterizzazione di primitive geometriche]{Dettaglio di rasterizzazione di alcune primitive geometriche, in cui si mostra come alcuni pixel vengano ``accesi'' per approssimarne le forme}
+    \label{fig:rasterizzazione}
+\end{figure}
+
+Una volta terminata l'elaborazione dei frammenti, tramite il \emph{depth test} la GPU decide se scartare il frammento -- ad esempio perché coperto da un oggetto più vicino alla camera -- o scriverlo nel color buffer. 
+In quest'ultimo caso, il colore viene eventualmente miscelato a quello già presente qualora il \emph{blending} sia attivo.
+Il blending è una tecnica utilizzata principalmente per implementare la trasparenza: invece di sovrascrivere il color buffer con il colore del frammento candidato, i due colori vengono miscelati in base al canale \emph{alpha} $\alpha \in [0, 1]$ del frammento in arrivo.
+Un esempio di funzione di blending può essere la seguente, denominata da OpenGL come \texttt{GL\_ONE\_MINUS\_SRC\_ALPHA}:
+\[
+    C_{out} = \alpha \cdot C_{src} + (1 - \alpha) \cdot C_{dst}
+\]
+
+% ====================================================
+%
+% 3.4 - MODELLI DI SHADING E ILLUMINAZIONE
+%
+% ====================================================
+\section{Modelli di illuminazione e shading}
+I modelli di illuminazione descrivono i fattori che determinano il colore di una superficie in un determinato punto, tramite le interazioni tra luci e superfici, le proprietà delle superfici (materiali) e la natura della radiazione luminosa incidente.
+Sono classificati in due gruppi, i modelli di illuminazione locale e i modelli di illuminazione globale.
+
+Un modello di illuminazione è detto locale quando calcola l'intensità luminosa di un singolo punto della superficie considerando esclusivamente la luce diretta dalle sorgenti luminose.
+Non vengono quindi calcolate ombre, riflessioni all'interno dell'ambiente e/o rifrazioni.
+
+Un modello di illuminazione è invece detto globale quando calcola il colore in un punto considerando sia la luce diretta che quella che raggiunge il punto dopo essere stata riflessa e/o trasmessa dalle altre superfici presenti nell'ambiente circostante.
+I modelli di illuminazione globale più conosciuti sono il \emph{ray tracing}, che simula il percorso dei raggi luminosi, e il \emph{radiosity}, che modella lo scambio di energia luminosa tra superfici tramite equazioni di conservazione dell'energia.
+
+Sebbene i modelli locali offrano semplicità e velocità di calcolo, solo con i modelli globali si può ottenere il fotorealismo: le differenze tra i modelli sono visibili nelle immagini a confronto in \cref{fig:modelli_illuminazione}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.64\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/IlluminazioneLocale}
+        \caption{Illuminazione locale}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/IlluminazioneGlobale}
+        \caption{Illuminazione globale}
+    \end{subfigure}
+    \caption[Differenza tra modelli di illuminazione locali e globali]{Immagini in cui si nota il divario tra i modelli di illuminazione locali e globali: è immediatamente evidente la differenza nella gestione delle ombre e delle riflessioni}
+    \label{fig:modelli_illuminazione}
+\end{figure}
+
+Mentre il calcolo dell'illuminazione si occupa di definire l'intensità luminosa di un punto in base alle proprietà della luce e del materiale, lo \emph{shading} specifica come tale luce viene effettivamente utilizzata per colorare i pixel dell'immagine finale.
+
+Nei paragrafi seguenti vengono analizzati il modello di Phong e la sua variante migliorata di Blinn-Phong, per poi illustrare come questi vengono applicati attraverso i principali modelli di shading.
+
+% ====================================================
+% 3.4.1 - MODELLO DI ILLUMINAZIONE DI PHONG
+% ====================================================
+\subsection{Modello di illuminazione di Phong}
+Il modello di illuminazione di Phong approssima tutti i contributi della luce in 3 componenti -- ambientale, diffusivo e speculare -- e fa uso di sorgenti di luce puntiformi, ovvero sorgenti dotate di una posizione specifica nello spazio, prive di volume e area, che emettono luce uniformemente in ogni direzione.
+
+\subsubsection{Componente ambientale}
+Nella realtà gli oggetti che non sono direttamente colpiti dalla luce non appaiono completamente neri: questo perché vengono illuminati dalla luce riflessa dall'ambiente circostante.
+Si approssimano tutti i contributi di questi riflessi nella luce ambientale, una luce diffusa e non direzionale che colpisce ugualmente tutte le superfici da tutte le direzioni.
+La quantità di luce dell'ambiente riflessa dalla superficie dell'oggetto è determinata dal coefficiente di riflessione ambientale $k_a$: $k_a \in [0, 1]$ ed è una proprietà che caratterizza il materiale di cui la superficie è composta.
+
+Sia $k_a$ il coefficiente di riflessione ambientale del materiale, e $I_a$ l'intensità della luce ambientale (supposta costante per tutti gli oggetti della scena), allora la componente ambientale $A$ è determinata da:
+\[
+    A = I_a \cdot k_a
+\]
+Gli oggetti illuminati da sola luce ambientale sono ancora uniformemente illuminati su tutta la superficie.
+
+\subsubsection{Componente diffusiva}
+Questo termine modella la riflessione lambertiana, tipica di materiali opachi e rugosi come il gesso.
+Queste superfici appaiono ugualmente luminose da qualunque punto di vista vengano osservate poiché riflettono uniformemente la luce in tutte le direzioni.
+La luminosità dipende solo dall'angolo $\theta$, ovvero l'angolo formato dalla direzione del raggio luminoso $L$ e la normale alla superficie nel punto d'incidenza $N$ (schematizzato in \cref{fig:vettori_diffusivi}): è quindi indipendente dalla posizione dell'osservatore.
+La quantità di luce data dalla riflessione lambertiana della superficie dell'oggetto è determinata dal coefficiente di riflessione diffusiva $k_d \in [0, 1]$.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.4\textwidth]{cap3/VettoriDiffusiva}
+	\caption{Vettori della componente diffusiva}
+    \label{fig:vettori_diffusivi}
+\end{figure}
+
+Sia $k_d$ il coefficiente di riflessione diffusiva del materiale e $I_p$ l'intensità della sorgente luminosa puntiforme, allora la componente diffusiva $D$ è data da:
+\[
+    D = I_p \cdot k_d \cdot \cos{\theta}
+\]
+Nel caso in cui $N$ e $L$ siano normalizzati utilizziamo il prodotto scalare:
+\[
+    D = I_p \cdot k_d \cdot (\hat{N} \cdot \hat{L})
+\]
+
+\subsubsection{Componente speculare}
+Nel caso in cui la superficie di un oggetto non sia completamente opaca, la luce non viene riflessa ugualmente in tutte le direzioni, ma si concentra in un intervallo ristretto.
+La direzione di riflessione $R$ è geometricamente la direzione di incidenza della luce $L$ riflessa rispetto ad $N$.
+$L, R, N$ sono vettori che giacciono sullo stesso piano, e per definizione l'angolo di riflessione $\theta_R$ è uguale all'angolo di incidenza della luce $\theta_L$.
+Il vettore $V$ è la direzione di vista (ovvero il vettore dato dalla posizione della camera sottratto alla posizione del suo obiettivo), e l'angolo formato col vettore di riflessione è indicato come $\alpha$.
+Tutte queste componenti sono rappresentate in \cref{fig:vettori_speculare}.
+
+Nei materiali perfettamente speculari (come gli specchi), l'osservatore vede il riflesso solo se $\alpha = 0$, quindi solo se il vettore di vista è allineato con il vettore riflessione.
+Phong trova un modo per simulare i materiali non perfettamente speculari: fa decadere rapidamente la luce riflessa all'aumentare di $\alpha$, elevando $\cos{\alpha}$ per un coefficiente $n$: si genera così un cono intorno alla direzione di riflessione (visibile in \cref{fig:cono_riflessione}), in cui il riflesso è comunque visibile.
+Questo coefficiente $n$ è detto \emph{shininess} (lucentezza), o coefficiente di riflessione speculare, e controlla la dimensione e l'intensità delle macchie di luce che appaiono sulle superfici quando è colpita dalla luce.
+Nella formula $\cos^n\alpha$, l'aumento di $n$ corrisponde a una riduzione della dimensione del cono di direzioni intorno al vettore $R$ in cui la luce riflessa rimane visibile: valori alti (100 - 500) corrispondono a un riflesso nitido e puntiforme, tipico delle superfici metalliche, mentre valori bassi ($<$ 100) producono un'ampia zona di massima lucentezza più sfocata, tipica ad esempio di plastica e cera.
+La quantità di luce riflessa dalla superficie dell'oggetto è invece determinata dal coefficiente di riflessione speculare $k_s \in [0, 1]$.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/VettoriRiflessione}
+        \caption{Vettore di riflessione}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/ConoRiflessione}
+        \caption{Vettore di vista, cono di riflessione}
+        \label{fig:cono_riflessione}
+    \end{subfigure}
+    \caption[Vettori della componente speculare]{Vettori che concorrono alla creazione della componente speculare}
+    \label{fig:vettori_speculare}
+\end{figure}
+
+Dati il coefficiente $k_s$, la shininess $n$, l'angolo $\alpha$ formato tra $R$ e $V$ e $I_p$ l'intensità della sorgente luminosa, allora la componente speculare $S$ è data da:
+\[
+    S = I_p \cdot k_s \cdot \cos^n\alpha
+\]
+Nel caso in cui $R$ e $V$ siano normalizzati:
+\[
+    S = I_p \cdot k_s \cdot (\hat{R} \cdot \hat{V})^n
+\]
+
+\subsubsection{Modello completo}
+Il modello di illuminazione di Phong unisce le tre componenti appena studiate, ovvero ambientale $A$, diffusiva $D$ e speculare $S$, il cui contributo è mostrato in un esempio in \cref{fig:componenti_phong}.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{cap3/ComponentiPhong}
+	\caption[Componenti del modello di illuminazione di Phong]{Esempio di come ogni componente (ambientale, diffusiva, speculare) dia il suo contributo per la creazione dell'immagine finale}
+    \label{fig:componenti_phong}
+\end{figure}
+
+Nel calcolo dell'illuminazione, si può voler tenere conto anche dell'attenuazione dell'intensità luminosa, ad esempio all'aumentare della sua distanza dal punto di incidenza $d_L$: $f_{att} = 1 / {d_L}^2$. 
+Unendo tutti questi contributi si ha la formula $I = A + f_{att} (D + S)$, che espansa fornisce l'equazione del modello di illuminazione di Phong, in cui i vettori utilizzati sono schematizzati in \cref{fig:vettori_phong}:
+\[
+    I = I_a \cdot k_a + f_{att} \cdot I_p [k_d (\hat{N} \cdot \hat{L}) + k_s (\hat{R} \cdot \hat{V})^n]
+\]
+Nel caso siano presenti più luci è sufficiente sommare i termini per ogni sorgente puntiforme:
+\[
+    I = I_a \cdot k_a + \sum_{l \in luci} f_{att l} \cdot I_{pl} [k_d (\hat{N} \cdot \hat{L_l}) + k_s (\hat{R_l} \cdot \hat{V})^n]
+\]
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.65\textwidth]{cap3/VettoriPhong}
+	\caption{Vettori del modello di illuminazione di Phong}
+    \label{fig:vettori_phong}
+\end{figure}
+
+% ====================================================
+% 3.4.2 - MODELLO DI ILLUMINAZIONE DI BLINN-PHONG
+% ====================================================
+\subsection{Modello di illuminazione di Blinn-Phong}
+Blinn propone una variante del modello di Phong per quanto riguarda la componente speculare.
+Poiché il ricalcolo continuo del vettore riflessione $R$ è computazionalmente oneroso, introduce l'\emph{halfway vector}.
+
+L'halfway vector $H$ è un vettore a metà strada tra la direzione di vista $V$ e la luce $L$: è quindi la diagonale del parallelogramma formato da $V$ ed $L$ (visibile in \cref{fig:vettori_blinnphong}).
+Dato che sappiamo che la diagonale del parallelogramma formato da due vettori non è altro che la loro somma, il vettore $H$ si calcola:
+\[
+    H = L + V
+\]
+Spostando $V$ verso $R$ accade che $H$ si avvicina a $N$.
+Nel punto di massima riflessione, ovvero $V = R$, si ha che $H$ è allineato ad $N$: l'angolo $\beta$, formato tra $N$ e $H$, approssima bene l'angolo $\alpha$.
+
+Blinn decide quindi di sostituire $(\hat{R} \cdot \hat{V})^n$ con $(\hat{N} \cdot \hat{H})^n$, creando così l'equazione del modello di illuminazione di Blinn-Phong:
+\[
+    I = I_a \cdot k_a + f_{att} \cdot I_p [k_d(\hat{N} \cdot \hat{L}) + k_s (\hat{N} \cdot \hat{H})^n]
+\]
+
+Bisogna però notare che spesso $\beta$ è più piccolo di $\alpha$ usato in Phong, tranne quando la superficie è vista da un angolo molto ripido. Per avvicinarsi di più al risultato di $(R \cdot V)^n$ di Phong, in $(N \cdot H)^{n_\beta}$ sarebbe opportuno scegliere $n_\beta > n$.
+Inoltre, mentre Phong produce sempre riflessi rotondi su una superficie piana, quelli di Blinn-Phong diventano ellittici quando la superficie viene vista da un angolo ripido, ad esempio quando il sole vicino all'orizzonte viene riflesso sulla superficie del mare.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.7\textwidth]{cap3/VettoriBlinnPhong}
+	\caption{Costruzione dell'halfway vector}
+    \label{fig:vettori_blinnphong}
+\end{figure}
+
+% ====================================================
+% 3.4.3 - MODELLI DI SHADING
+% ====================================================
+\subsection{Modelli di shading}
+I modelli di shading rappresentano il processo matematico e algoritmico utilizzato per determinare il colore di tutti i pixel che ricoprono una superficie, applicando un determinato modello di illuminazione.
+Si differenziano principalmente per la frequenza con cui viene ricalcolato il modello di illuminazione, dando diversi effetti visibili in \cref{fig:modelli_shading}.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=1\textwidth]{cap3/Shading_models}
+	\caption[Diversi modelli di shading a confronto]{Confronto tra i principali modelli di shading; lo shading interpolativo, non rappresentato, si colloca concettualmente tra flat e Gouraud shading}
+    \label{fig:modelli_shading}
+\end{figure}
+
+\subsubsection{Flat shading}
+È il modello più semplice ed efficiente: il modello di illuminazione è applicato una sola volta per poligono.
+Questo può rendere le divisioni in facce visibili su superfici curve e crea una discontinuità netta tra facce adiacenti.
+Viene ad esempio calcolato il colore solo per il centroide del triangolo, per poi applicarlo a tutto il poligono.
+
+\subsubsection{Shading interpolativo}
+L'equazione di illuminazione viene calcolata per ogni vertice del poligono, per poi eseguire un'interpolazione lineare per colorarne ogni pixel.
+Poiché non teniamo conto che un triangolo fa parte di una geometria più complessa, abbiamo una sola normale per triangolo.
+Questo causa brusche variazioni delle normali ai bordi dei poligoni adiacenti, rendendo i bordi nettamente visibili: questo fenomeno prende il nome di \emph{Mach banding}.
+
+\subsubsection{Gouraud shading}
+Rappresenta la diretta evoluzione dello shading interpolativo.
+Esegue comunque il calcolo dell'illuminazione per ogni vertice del poligono, ma invece di utilizzare la normale del poligono usa quella della superficie che sta approssimando.
+Se la normale della superficie non è nota, la si approssima con la media delle normali ai poligoni che condividono il vertice.
+Si procede poi con l'interpolazione della luce calcolata nei vertici.
+Non è ideale per materiali molto riflettenti o speculari, poiché i punti luce possono andare persi se ricadono all'interno di un poligono senza colpirne i vertici.
+
+\subsubsection{Phong shading}
+È il modello più sofisticato e realistico ma anche più computazionalmente costoso.
+Prevede il calcolo dell'illuminazione per ogni pixel del poligono, utilizzando il vettore normale ottenuto dall'interpolazione delle normali note.
+Promette così di gestire correttamente le riflessioni speculari, anche quando queste non colpiscono direttamente i vertici.
+
+% ====================================================
+% CONCLUSIONE CAPITOLO 3
+% ====================================================
+\bigskip
+Disponendo ora degli strumenti necessari alla comprensione della pipeline grafica, è possibile procedere con la progettazione dell'architettura del software.
