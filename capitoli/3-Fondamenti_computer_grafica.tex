@@ -1,7 +1,6 @@
 \chapter{Fondamenti di computer grafica}
 
-Per poter comprendere appieno il funzionamento della pipeline grafica, è prima necessario ripassare una serie di concetti base di algebra lineare.
-Molti di questi verranno presentati in maniera semplificata, quanto basta nel nostro caso per affrontare lo studio dei prossimi argomenti.
+Per poter comprendere appieno il funzionamento della pipeline grafica, è prima necessario ripassare una serie di concetti base di algebra lineare, di cui verranno presentati i punti chiave più utili ai fini del progetto.
 Queste nozioni verranno poi usate per espandere le conoscenze geometriche che sono alla base della computer grafica tridimensionale.
 
 % ====================================================
@@ -54,7 +53,7 @@ Poiché verranno utilizzati i vettori formati da numeri reali, introduciamo lo s
 \end{definizione}
 
 \begin{definizione}[Base]
-    Dato uno spazio vettoriale $V$, un insieme di $n$ vettori $\mathcal{B} = \{\mathbf{v}_1, \dots, \mathbf{v}_n\} \subseteq V$ è detto \emph{base} di $V$ se è linearmente indipendente e genera $V$, ovvero se qualsiasi $\mathbf{v} \in V$ è esprimibile come combinazione lineare:
+    Dato uno spazio vettoriale $V$, un suo sottoinsieme $\mathcal{B} \subseteq V$ di $n$ vettori $\mathcal{B} = \{\mathbf{v}_1, \dots, \mathbf{v}_n\}$ è detto \emph{base} di $V$ se è linearmente indipendente e genera $V$, ovvero se qualsiasi $\mathbf{v} \in V$ è esprimibile come combinazione lineare:
     \[
         \mathbf{v} = \alpha_1 \mathbf{v}_1 + \cdots + \alpha_n \mathbf{v}_n
     \]
@@ -63,17 +62,13 @@ Poiché verranno utilizzati i vettori formati da numeri reali, introduciamo lo s
 \end{definizione}
 
 \begin{esempio}[Base canonica di $\mathbb{R}^n$]
-    La \emph{base canonica} di $\mathbb{R}^n$ è l'insieme di vettori $\mathcal{B} = \{\mathbf{e}_1, \ldots, \mathbf{e}_n\}$ dove $\mathbf{e}_i \in \mathbb{R}^n$ è il vettore con $1$ in posizione $i$-esima e $0$ altrove:
-    \[
-        \mathbf{e}_i = \begin{bmatrix} 0 \\ \vdots \\ 1 \\ \vdots \\ 0 \end{bmatrix} \quad \forall\, i = 1, \ldots, n
-    \]
+    La \emph{base canonica} di $\mathbb{R}^n$ è l'insieme di vettori $\mathcal{B} = \{\mathbf{e}_1, \ldots, \mathbf{e}_n\}$ dove $\mathbf{e}_i \in \mathbb{R}^n$ è il vettore con $1$ in posizione $i$-esima e $0$ altrove.
     Ad esempio, il vettore $\mathbf{v} = \begin{bmatrix}4 & 5 & 6\end{bmatrix}^T \in \mathbb{R}^3$ può essere espresso come combinazione lineare della base canonica $\mathcal{B} = \{\mathbf{e}_1, \mathbf{e}_2, \mathbf{e}_3\}$:
     \[
         \mathbf{v} = \sum_{i=1}^{3} v_i \mathbf{e}_i 
-        = 4 \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}
-        + 5 \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}
-        + 6 \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}
-        = \begin{bmatrix} 4 \\ 5 \\ 6 \end{bmatrix}
+        = 4 \mathbf{e_1}
+        + 5 \mathbf{e_2} 
+        + 6 \mathbf{e_3} 
     \]
     Le coordinate di $\mathbf{v} $ rispetto alla base canonica di $\mathbb{R}^3$ sono quindi date dal vettore $\begin{bmatrix}4 & 5 & 6\end{bmatrix}$.
 \end{esempio}
@@ -82,9 +77,9 @@ Lo spazio vettoriale da solo non è sufficiente a rappresentare posizioni nello 
 
 \begin{definizione}[Spazio affine]
     Uno \emph{spazio affine} è un insieme di punti che possono essere traslati da vettori di uno spazio vettoriale associato, senza che vi sia un punto di origine privilegiato.
-    Lo spazio euclideo è un esempio di spazio affine reale.
 \end{definizione}
 
+Lo spazio euclideo è un esempio di spazio affine reale.
 Con la definizione degli spazi affini si introducono quindi nuove operazioni:
 \begin{itemize}
     \item Differenza punto-punto: definisce un vettore $\mathbf{v} = P - Q$
@@ -99,12 +94,14 @@ Con la definizione degli spazi affini si introducono quindi nuove operazioni:
     \end{itemize}
 \end{osservazione}
 
+La distinzione tra punti e vettori è fondamentale nella computer grafica tridimensionale: i punti rappresentano posizioni degli oggetti nella scena, mentre i vettori descrivono direzioni, spostamenti e normali alle superfici. Tale distinzione verrà formalizzata ulteriormente tramite le coordinate omogenee, introdotte nelle sezioni successive.
+
+
 % ====================================================
 % 3.1.2 - COMBINAZIONI E SIMPLESSI
 % ====================================================
 \subsection{Combinazioni e simplessi}
-Le GPU moderne sono progettate per eseguire calcoli in maniera efficiente su primitive geometriche triangolari.
-In questa sezione si introducono gli strumenti matematici che generalizzano e formalizzano questi concetti.
+Vengono riportate le definizioni dei concetti di combinazione di punti, illustrando successivamente il ruolo fondamentale che ricoprono nell'ambito della computer grafica. 
 
 \begin{definizione}[Combinazione affine]
     Una \emph{combinazione affine} è una combinazione lineare di punti, i cui coefficienti hanno somma $= 1$.
@@ -119,35 +116,34 @@ In questa sezione si introducono gli strumenti matematici che generalizzano e fo
     I $k+1$ punti sono detti \emph{vertici} del simplesso.
 \end{definizione}
 
-\begin{esempio}
-    Un simplesso è una generalizzazione di concetti familiari come segmento, triangolo, ecc\ldots estesi a dimensioni arbitrarie.
-    \begin{itemize}
-        \item $k = 0$: Singolo punto
-        \item $k = 1$: Segmento (due vertici distinti)
-        \item $k = 2$: Triangolo (tre punti non allineati)
-        \item $k = 3$: Tetraedro (quattro punti non complanari)
-    \end{itemize}
+\begin{esempio}[Simplessi conosciuti]
+    Un simplesso è una generalizzazione a dimensioni arbitrarie di concetti familiari: ad esempio per $k = 0$ è un singolo punto, per $k = 1$ un segmento (due vertici distinti), per $k = 2$ un triangolo (tre punti non allineati) e per $k = 3$ un tetraedro (quattro punti non complanari).
 \end{esempio}
 
 \begin{definizione}[Combinazione convessa]
-    Una \emph{combinazione convessa} è una combinazione affine in cui le coordinate $\in [0, 1]$:
+    Una \emph{combinazione convessa} è una combinazione affine in cui ogni coefficiente $\alpha_i \in [0, 1]$:
     \[
         P = \sum_{i=0}^{n} \alpha_i P_i \quad \text{con} \quad \sum_{i=0}^{n} \alpha_i = 1\ \text{e}\ \alpha_i \in [0, 1]\ \forall\ i = 0, \ldots , n
     \]
 \end{definizione}
 
-Le coordinate baricentriche rappresentano un sistema di coordinate relative ai vertici di un simplesso.
-Se vincolate a formare una combinazione convessa, garantiscono che i punti ottenibili come combinazione dei vertici di un simplesso appartengano al simplesso stesso.
-Questa proprietà viene sfruttata dalle GPU per l'interpolazione degli attributi dei vertici di un triangolo, motivando la scelta del triangolo come primitiva geometrica fondamentale.
+\begin{osservazione}
+    Le coordinate baricentriche rappresentano un sistema di coordinate relative ai vertici di un simplesso.
+    Se vincolate a formare una combinazione convessa, garantiscono che i punti ottenibili come combinazione dei vertici di un simplesso appartengano al simplesso stesso.
+\end{osservazione}
+
+Nel contesto della pipeline grafica, queste nozioni sono particolarmente rilevanti perché i triangoli costituiscono la primitiva geometrica fondamentale elaborata dalla GPU.
+Le coordinate baricentriche permettono infatti di interpolare sugli elementi triangolari grandezze definite ai vertici, come colori, normali o coordinate di texture.
 
 % ====================================================
 % 3.1.3 - OPERAZIONI TRA VETTORI
 % ====================================================
 \subsection{Operazioni tra vettori} 
-Si riportano ora alcune delle operazioni fondamentali effettuate con i vettori, che verranno sfruttate all'interno della pipeline grafica.
+Si riportano ora alcune delle operazioni fondamentali effettuate con i vettori, che verranno sfruttate all'interno della pipeline in varie occasioni, ad esempio per il calcolo dell'illuminazione.
+Trattandosi di un concetto astratto, verrà inoltre proposto uno strumento per misurarne la lunghezza.
 
 \begin{definizione}[Prodotto scalare]
-    Si definisce \emph{prodotto scalare} un'applicazione $\mathbb{R}^n \times \mathbb{R}^n \to \mathbb{R}$ che gode delle seguenti proprietà $\forall\ \mathbf{u}, \mathbf{v}, \mathbf{w} \in \mathbb{R}^n$ e $\lambda \in \mathbb{R}$:
+    Si definisce \emph{prodotto scalare} un'applicazione $\mathbb{R}^n \times \mathbb{R}^n \to \mathbb{R}$ che gode delle seguenti proprietà $\forall\ \mathbf{u}, \mathbf{v}, \mathbf{w} \in \mathbb{R}^n$ e $\lambda_1, \lambda_2 \in \mathbb{R}$:
     \begin{enumerate}
         \item \emph{Simmetria}: $ \mathbf{u} \cdot \mathbf{v} = \mathbf{v} \cdot \mathbf{u}$
         \item \emph{Linearità}: $\mathbf{v} \cdot (\lambda_1\mathbf{u} + \lambda_2\mathbf{w}) = \lambda_1(\mathbf{v} \cdot \mathbf{u}) + \lambda_2(\mathbf{v} \cdot \mathbf{w})$
@@ -156,9 +152,9 @@ Si riportano ora alcune delle operazioni fondamentali effettuate con i vettori, 
 \end{definizione}
 
 \begin{definizione}[Prodotto scalare standard]
-    Si definisce \emph{prodotto scalare standard} $\langle \cdot, \cdot \rangle$:
+    Si definisce \emph{prodotto scalare standard} $\langle \cdot, \cdot \rangle$ tra due vettori $\mathbf{u}, \mathbf{v} \in \mathbb{R}^n$:
     \[
-        \mathbf{u}, \mathbf{v} \in \mathbb{R}^n : \langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u} \cdot \mathbf{v} = \sum_{i=1}^{n} u_i v_i = u_1 v_1 + \cdots + u_n v_n = \mathbf{u}^T \mathbf{v}
+        \langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u} \cdot \mathbf{v} = \sum_{i=1}^{n} u_i v_i = u_1 v_1 + \cdots + u_n v_n = \mathbf{u}^T \mathbf{v}
     \]
 \end{definizione}
 
@@ -175,13 +171,13 @@ Si riportano ora alcune delle operazioni fondamentali effettuate con i vettori, 
     \end{itemize}
 \end{definizione}
 
-Dal momento che si lavora con vettori nello spazio, è necessario introdurre una misura per queste quantità. In computer grafica viene utilizzata la \emph{norma euclidea} (o norma 2):
+Dal momento che si lavora con vettori nello spazio, è necessario introdurre una misura della lunghezza per queste quantità. In computer grafica viene utilizzata la \emph{norma euclidea} (o norma 2):
 \[
     \norm[2]{\mathbf{v}} = \sqrt{\langle \mathbf{v}, \mathbf{v} \rangle} = \sqrt{\mathbf{v}^T \mathbf{v}} = \sqrt{\sum_{i=1}^{n} (v_i)^2} = \sqrt{v_1^2 + \cdots + v_n^2}
 \]
 
 \begin{osservazione}
-    La norma 2 è invariante rispetto alle trasformazioni ortogonali -- come rotazioni e riflessioni -- e anche rispetto alle traslazioni.
+    La norma 2 è invariante rispetto alle trasformazioni ortogonali -- come rotazioni e riflessioni -- e rispetto alle traslazioni.
 \end{osservazione}
 
 % ====================================================
@@ -198,7 +194,6 @@ In alcuni casi verrà utilizzata la notazione bidimensionale per semplicità, ma
 % 3.2.1 - SISTEMI DI RIFERIMENTO AFFINI E COORDINATE OMOGENEE
 % ====================================================
 \subsection{Sistemi di riferimento affini e coordinate omogenee}
-
 \begin{definizione}[Sistema di riferimento]
     Un \emph{sistema di riferimento} $F$ in uno spazio affine ci consente di determinare univocamente la posizione di ogni punto dello spazio; è identificato da:
     \begin{itemize}
@@ -236,6 +231,8 @@ In alcuni casi verrà utilizzata la notazione bidimensionale per semplicità, ma
 % ====================================================
 \subsection{Cambiamento di sistema di riferimento}
 \label{subsec:cambio_sdr}
+Si mostra ora come gli strumenti studiati permettano di mappare un sistema di riferimento in un altro, ricavando le matrici corrispondenti alle trasformazioni volute.
+
 Dati due sistemi di riferimento affini $F_1 = (\mathbf{x}, \mathbf{y}, O)$ e $F_2 = (\mathbf{u}, \mathbf{v}, \mathbf{e})$, rappresentiamo i vettori e l'origine di $F_2$ in funzione dei vettori e dell'origine di $F_1$:
 
 \[
@@ -280,6 +277,8 @@ Dati due sistemi di riferimento affini $F_1 = (\mathbf{x}, \mathbf{y}, O)$ e $F_
         \]
     \end{itemize}
 \end{proposizione}
+
+Avendo introdotto gli strumenti per esprimere le coordinate di un punto in sistemi di riferimento diversi, è possibile entrare nel dettaglio delle trasformazioni geometriche più comuni, che verranno utilizzate nella pipeline grafica per manipolare gli oggetti della scena.
 
 % ====================================================
 % 3.2.3 - TRASFORMAZIONI GEOMETRICHE ELEMENTARI
@@ -365,6 +364,8 @@ Tenendo conto che:
     \label{fig:trasformazioni_geometriche_elementari}
 \end{figure}
 
+Ora che sono stati presentati gli strumenti geometrici per rappresentare e trasformare punti e vettori, è possibile contestualizzarli all'interno del processo di rendering.
+
 % ====================================================
 %
 % 3.3 - LA PIPELINE GRAFICA
@@ -377,6 +378,10 @@ L'immagine prodotta è di tipo \emph{raster}, poiché è composta da una matrice
 La GPU gestisce il processo di rendering tramite alcuni buffer, che non sono altro che matrici in cui ad ogni pixel è associata una cella di memoria.
 I principali sono il \emph{color buffer}, che contiene il colore di ogni pixel dell'immagine finale, e il \emph{depth buffer} (o \emph{z-buffer}), che memorizza la profondità del frammento più vicino all'osservatore per ogni pixel, permettendo di gestire correttamente la visibilità tra oggetti sovrapposti.
 L'insieme di questi buffer forma il \emph{framebuffer}, che viene letto e scritto nelle varie fasi della pipeline.
+
+Poiché all'interno del color buffer viene scritta l'informazione del colore, è importante capire come questo viene gestito dalla GPU.
+Il modello di colore RGBA -- ovvero Red, Green, Blue, Alpha -- è un'estensione del modello RGB in cui si include una quarta componente per il canale alpha, utilizzato per indicare l'opacità del colore.
+La GPU rappresenta quindi i colori tramite la quaterna di valori RGBA, con ogni componente compresa nell'intervallo $[0, 1]$: per $\alpha = 1$ il colore è completamente opaco, mentre per $\alpha = 0$ è completamente trasparente.
 
 L'intero processo di visualizzazione può essere riassunto in quattro sottosistemi:
 \begin{itemize}
@@ -497,7 +502,7 @@ Poiché vengono mantenute le distanze, linee parallele nella realtà lo sono anc
 
 Si dividono a loro volta in due classi, le proiezioni oblique e quelle ortografiche.
 Nelle proiezioni oblique i proiettori possono formare un angolo qualsiasi col piano di proiezione: ne è un esempio la cavaliera, utilizzata nel disegno tecnico, in cui la direzione di proiezione forma un angolo di 45 gradi con il piano di proiezione.
-Nelle proiezioni ortografiche invece, la direzione di proiezione coincide con la normale al piano di proiezione: in questo caso il volume di vista corrisponde con un parallelepipedo (visibile in \cref{fig:proiezione_ortografica}), che risulta semplice da trasformare nel cubo canonico poiché è sufficiente traslarne il centroide nell'origine per poi scalarne i vertici in $[-1, 1]$.
+Nelle proiezioni ortografiche invece, la direzione di proiezione coincide con la normale al piano di proiezione: in questo caso il volume di vista corrisponde a un parallelepipedo (visibile in \cref{fig:proiezione_ortografica}), che risulta semplice da trasformare nel cubo canonico poiché è sufficiente traslarne il centroide nell'origine per poi scalarne i vertici in $[-1, 1]$.
 Dati i vertici del parallelepipedo, il suo centroide è identificato dal punto:
 \[
     C = 
@@ -620,7 +625,14 @@ Una volta trasformato il volume di vista in un parallelepipedo, è sufficiente a
 % ====================================================
 \subsection{Clipping e viewport}
 Una volta ottenuto il cubo in coordinate NDC, viene eseguito il \emph{clipping}, in cui le porzioni di primitive geometriche che non rientrano nel volume di vista vengono scartate dalla pipeline: questo permette di eseguire i calcoli successivi solo per i vertici che rientrano effettivamente nell'area da visualizzare.
-Il risultato di quest'operazione è schematizzato in figura.
+Il risultato di quest'operazione è schematizzato per una scena bidimensionale in \cref{fig:clipping}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{cap3/Clipping}
+	\caption{Clipping di primitive in una scena bidimensionale}
+    \label{fig:clipping}
+\end{figure}
 
 Infine i valori delle coordinate $x$ e $y$ passano dal sistema NDC al sistema di \emph{viewport}, ovvero in coordinate dell'effettiva area di visualizzazione in pixel, di cui è necessario conoscere l'origine del sistema di riferimento $(x_0, y_0)$ e l'altezza e larghezza dell'area $(height, width)$:
 \[
@@ -637,7 +649,7 @@ A questo punto della pipeline termina il sottosistema geometrico, per passare al
 % ====================================================
 \subsection{Rasterizzazione}
 Il sottosistema raster è l'ultima fase della pipeline di rendering.
-Il processo di rasterizzazione si occupa di convertire le primitive geometriche (punti, linee, poligoni) definite in coordinate di viewport nella loro rappresentazione discreta composta da frammenti: ne è riportato un esempio in \cref{fig:rasterizzazione}
+Il processo di rasterizzazione si occupa di convertire le primitive geometriche (punti, linee, poligoni) definite in coordinate di viewport nella loro rappresentazione discreta composta da frammenti: ne è riportato un esempio in \cref{fig:rasterizzazione}.
 Nel passaggio dai vertici ai frammenti, la GPU interpola tutti i dati dei vertici per ogni frammento grazie alle coordinate baricentriche, discusse in precedenza.
 Dopo la produzione dei frammenti interviene il \emph{fragment shader}, utilizzato principalmente per calcolarne il colore.
 
@@ -650,10 +662,10 @@ Dopo la produzione dei frammenti interviene il \emph{fragment shader}, utilizzat
 
 Una volta terminata l'elaborazione dei frammenti, tramite il \emph{depth test} la GPU decide se scartare il frammento -- ad esempio perché coperto da un oggetto più vicino alla camera -- o scriverlo nel color buffer. 
 In quest'ultimo caso, il colore viene eventualmente miscelato a quello già presente qualora il \emph{blending} sia attivo.
-Il blending è una tecnica utilizzata principalmente per implementare la trasparenza: invece di sovrascrivere il color buffer con il colore del frammento candidato, i due colori vengono miscelati in base al canale \emph{alpha} $\alpha \in [0, 1]$ del frammento in arrivo.
+Il blending è una tecnica utilizzata principalmente per implementare la trasparenza: invece di sovrascrivere il color buffer con il colore del frammento candidato, i due colori vengono miscelati in base all'opacità del frammento in arrivo.
 Un esempio di funzione di blending può essere la seguente, denominata da OpenGL come \texttt{GL\_ONE\_MINUS\_SRC\_ALPHA}:
 \[
-    C_{out} = \alpha \cdot C_{src} + (1 - \alpha) \cdot C_{dst}
+    C_{out} = \alpha \cdot C_{src} + (1 - \alpha) \cdot C_{dst} \quad \text{con} \quad \alpha \in [0, 1]
 \]
 
 % ====================================================
@@ -665,8 +677,9 @@ Un esempio di funzione di blending può essere la seguente, denominata da OpenGL
 I modelli di illuminazione descrivono i fattori che determinano il colore di una superficie in un determinato punto, tramite le interazioni tra luci e superfici, le proprietà delle superfici (materiali) e la natura della radiazione luminosa incidente.
 Sono classificati in due gruppi, i modelli di illuminazione locale e i modelli di illuminazione globale.
 
-Un modello di illuminazione è detto locale quando calcola l'intensità luminosa di un singolo punto della superficie considerando esclusivamente la luce diretta dalle sorgenti luminose.
+Un modello di illuminazione è detto locale quando calcola l'intensità luminosa di un singolo punto della superficie considerando esclusivamente la luce proveniente direttamente dalle sorgenti luminose.
 Non vengono quindi calcolate ombre, riflessioni all'interno dell'ambiente e/o rifrazioni.
+Degli esempi di modelli di illuminazione locale sono il modello di Phong e il modello di Blinn-Phong, che verranno approfonditi successivamente.
 
 Un modello di illuminazione è invece detto globale quando calcola il colore in un punto considerando sia la luce diretta che quella che raggiunge il punto dopo essere stata riflessa e/o trasmessa dalle altre superfici presenti nell'ambiente circostante.
 I modelli di illuminazione globale più conosciuti sono il \emph{ray tracing}, che simula il percorso dei raggi luminosi, e il \emph{radiosity}, che modella lo scambio di energia luminosa tra superfici tramite equazioni di conservazione dell'energia.
@@ -686,7 +699,7 @@ Sebbene i modelli locali offrano semplicità e velocità di calcolo, solo con i 
         \includegraphics[width=\textwidth]{cap3/IlluminazioneGlobale}
         \caption{Illuminazione globale}
     \end{subfigure}
-    \caption[Differenza tra modelli di illuminazione locali e globali]{Immagini in cui si nota il divario tra i modelli di illuminazione locali e globali: è immediatamente evidente la differenza nella gestione delle ombre e delle riflessioni}
+    \caption[Differenza tra modelli di illuminazione locali e globali]{Immagini in cui si nota il divario tra i modelli di illuminazione locali e globali: emerge chiaramente la differenza nella gestione delle ombre e delle riflessioni}
     \label{fig:modelli_illuminazione}
 \end{figure}
 
@@ -698,22 +711,23 @@ Nei paragrafi seguenti vengono analizzati il modello di Phong e la sua variante 
 % 3.4.1 - MODELLO DI ILLUMINAZIONE DI PHONG
 % ====================================================
 \subsection{Modello di illuminazione di Phong}
-Il modello di illuminazione di Phong approssima tutti i contributi della luce in 3 componenti -- ambientale, diffusivo e speculare -- e fa uso di sorgenti di luce puntiformi, ovvero sorgenti dotate di una posizione specifica nello spazio, prive di volume e area, che emettono luce uniformemente in ogni direzione.
+Il modello di illuminazione di Phong è un modello di illuminazione locale ideato dall'informatico Bui Tuong Phong nel 1975 \cite{Phong_1975}.
+Phong approssima tutti i contributi della luce in 3 componenti -- ambientale, diffusivo e speculare -- e fa uso di sorgenti di luce puntiformi, ovvero sorgenti dotate di una posizione specifica nello spazio, prive di volume e area, che emettono luce uniformemente in ogni direzione.
 
 \subsubsection{Componente ambientale}
 Nella realtà gli oggetti che non sono direttamente colpiti dalla luce non appaiono completamente neri: questo perché vengono illuminati dalla luce riflessa dall'ambiente circostante.
 Si approssimano tutti i contributi di questi riflessi nella luce ambientale, una luce diffusa e non direzionale che colpisce ugualmente tutte le superfici da tutte le direzioni.
-La quantità di luce dell'ambiente riflessa dalla superficie dell'oggetto è determinata dal coefficiente di riflessione ambientale $k_a$: $k_a \in [0, 1]$ ed è una proprietà che caratterizza il materiale di cui la superficie è composta.
+La quantità di luce dell'ambiente riflessa dalla superficie dell'oggetto è determinata dal coefficiente di riflessione ambientale  $k_a \in [0, 1]$, ed è una proprietà che caratterizza il materiale di cui la superficie è composta.
 
-Sia $k_a$ il coefficiente di riflessione ambientale del materiale, e $I_a$ l'intensità della luce ambientale (supposta costante per tutti gli oggetti della scena), allora la componente ambientale $A$ è determinata da:
+Sia $k_a$ il coefficiente di riflessione ambientale del materiale, e $I_{amb}$ l'intensità della luce ambientale (supposta costante per tutti gli oggetti della scena), allora la componente ambientale $A$ è determinata da:
 \[
-    A = I_a \cdot k_a
+    A = I_{amb} \cdot k_a
 \]
 Gli oggetti illuminati da sola luce ambientale sono ancora uniformemente illuminati su tutta la superficie.
 
 \subsubsection{Componente diffusiva}
 Questo termine modella la riflessione lambertiana, tipica di materiali opachi e rugosi come il gesso.
-Queste superfici appaiono ugualmente luminose da qualunque punto di vista vengano osservate poiché riflettono uniformemente la luce in tutte le direzioni.
+Tali superfici appaiono ugualmente luminose da qualunque punto di vista vengano osservate poiché riflettono uniformemente la luce in tutte le direzioni.
 La luminosità dipende solo dall'angolo $\theta$, ovvero l'angolo formato dalla direzione del raggio luminoso $L$ e la normale alla superficie nel punto d'incidenza $N$ (schematizzato in \cref{fig:vettori_diffusivi}): è quindi indipendente dalla posizione dell'osservatore.
 La quantità di luce data dalla riflessione lambertiana della superficie dell'oggetto è determinata dal coefficiente di riflessione diffusiva $k_d \in [0, 1]$.
 
@@ -734,7 +748,7 @@ Nel caso in cui $N$ e $L$ siano normalizzati utilizziamo il prodotto scalare:
 \]
 
 \subsubsection{Componente speculare}
-Nel caso in cui la superficie di un oggetto non sia completamente opaca, la luce non viene riflessa ugualmente in tutte le direzioni, ma si concentra in un intervallo ristretto.
+Qualora la superficie di un oggetto non sia completamente opaca, la luce non viene riflessa ugualmente in tutte le direzioni, ma si concentra in un intervallo ristretto.
 La direzione di riflessione $R$ è geometricamente la direzione di incidenza della luce $L$ riflessa rispetto ad $N$.
 $L, R, N$ sono vettori che giacciono sullo stesso piano, e per definizione l'angolo di riflessione $\theta_R$ è uguale all'angolo di incidenza della luce $\theta_L$.
 Il vettore $V$ è la direzione di vista (ovvero il vettore dato dalla posizione della camera sottratto alla posizione del suo obiettivo), e l'angolo formato col vettore di riflessione è indicato come $\alpha$.
@@ -742,7 +756,7 @@ Tutte queste componenti sono rappresentate in \cref{fig:vettori_speculare}.
 
 Nei materiali perfettamente speculari (come gli specchi), l'osservatore vede il riflesso solo se $\alpha = 0$, quindi solo se il vettore di vista è allineato con il vettore riflessione.
 Phong trova un modo per simulare i materiali non perfettamente speculari: fa decadere rapidamente la luce riflessa all'aumentare di $\alpha$, elevando $\cos{\alpha}$ per un coefficiente $n$: si genera così un cono intorno alla direzione di riflessione (visibile in \cref{fig:cono_riflessione}), in cui il riflesso è comunque visibile.
-Questo coefficiente $n$ è detto \emph{shininess} (lucentezza), o coefficiente di riflessione speculare, e controlla la dimensione e l'intensità delle macchie di luce che appaiono sulle superfici quando è colpita dalla luce.
+Questo coefficiente $n$ è detto \emph{shininess} (lucentezza), o coefficiente di riflessione speculare, e controlla la dimensione e l'intensità delle macchie di luce che appaiono sulle superfici quando vengono illuminate.
 Nella formula $\cos^n\alpha$, l'aumento di $n$ corrisponde a una riduzione della dimensione del cono di direzioni intorno al vettore $R$ in cui la luce riflessa rimane visibile: valori alti (100 - 500) corrispondono a un riflesso nitido e puntiforme, tipico delle superfici metalliche, mentre valori bassi ($<$ 100) producono un'ampia zona di massima lucentezza più sfocata, tipica ad esempio di plastica e cera.
 La quantità di luce riflessa dalla superficie dell'oggetto è invece determinata dal coefficiente di riflessione speculare $k_s \in [0, 1]$.
 
@@ -786,11 +800,11 @@ Il modello di illuminazione di Phong unisce le tre componenti appena studiate, o
 Nel calcolo dell'illuminazione, si può voler tenere conto anche dell'attenuazione dell'intensità luminosa, ad esempio all'aumentare della sua distanza dal punto di incidenza $d_L$: $f_{att} = 1 / {d_L}^2$. 
 Unendo tutti questi contributi si ha la formula $I = A + f_{att} (D + S)$, che espansa fornisce l'equazione del modello di illuminazione di Phong, in cui i vettori utilizzati sono schematizzati in \cref{fig:vettori_phong}:
 \[
-    I = I_a \cdot k_a + f_{att} \cdot I_p [k_d (\hat{N} \cdot \hat{L}) + k_s (\hat{R} \cdot \hat{V})^n]
+    I = I_{amb} \cdot k_a + f_{att} \cdot I_p [k_d (\hat{N} \cdot \hat{L}) + k_s (\hat{R} \cdot \hat{V})^n]
 \]
-Nel caso siano presenti più luci è sufficiente sommare i termini per ogni sorgente puntiforme:
+Nel caso siano presenti più luci è sufficiente sommare le componenti diffusive e speculari per ogni sorgente puntiforme, lasciando invariata quella ambientale:
 \[
-    I = I_a \cdot k_a + \sum_{l \in luci} f_{att l} \cdot I_{pl} [k_d (\hat{N} \cdot \hat{L_l}) + k_s (\hat{R_l} \cdot \hat{V})^n]
+    I = I_{amb} \cdot k_a + \sum_{l \in luci} f_{att l} \cdot I_{pl} [k_d (\hat{N} \cdot \hat{L_l}) + k_s (\hat{R_l} \cdot \hat{V})^n]
 \]
 
 \begin{figure}[H]
@@ -804,8 +818,8 @@ Nel caso siano presenti più luci è sufficiente sommare i termini per ogni sorg
 % 3.4.2 - MODELLO DI ILLUMINAZIONE DI BLINN-PHONG
 % ====================================================
 \subsection{Modello di illuminazione di Blinn-Phong}
-Blinn propone una variante del modello di Phong per quanto riguarda la componente speculare.
-Poiché il ricalcolo continuo del vettore riflessione $R$ è computazionalmente oneroso, introduce l'\emph{halfway vector}.
+James F. Blinn, un informatico statunitense, nel 1977 propone una variante del modello di Phong per quanto riguarda il calcolo della componente speculare \cite{Blinn_1977}.
+Introduce l'\emph{halfway vector} al posto del vettore di riflessione $\hat{R}$ che, oltre a produrre risultati visivamente più accurati per superfici viste a angoli rasenti, alleggerisce la complessità computazionale del modello.
 
 L'halfway vector $H$ è un vettore a metà strada tra la direzione di vista $V$ e la luce $L$: è quindi la diagonale del parallelogramma formato da $V$ ed $L$ (visibile in \cref{fig:vettori_blinnphong}).
 Dato che sappiamo che la diagonale del parallelogramma formato da due vettori non è altro che la loro somma, il vettore $H$ si calcola:
@@ -815,19 +829,36 @@ Dato che sappiamo che la diagonale del parallelogramma formato da due vettori no
 Spostando $V$ verso $R$ accade che $H$ si avvicina a $N$.
 Nel punto di massima riflessione, ovvero $V = R$, si ha che $H$ è allineato ad $N$: l'angolo $\beta$, formato tra $N$ e $H$, approssima bene l'angolo $\alpha$.
 
-Blinn decide quindi di sostituire $(\hat{R} \cdot \hat{V})^n$ con $(\hat{N} \cdot \hat{H})^n$, creando così l'equazione del modello di illuminazione di Blinn-Phong:
-\[
-    I = I_a \cdot k_a + f_{att} \cdot I_p [k_d(\hat{N} \cdot \hat{L}) + k_s (\hat{N} \cdot \hat{H})^n]
-\]
-
-Bisogna però notare che spesso $\beta$ è più piccolo di $\alpha$ usato in Phong, tranne quando la superficie è vista da un angolo molto ripido. Per avvicinarsi di più al risultato di $(R \cdot V)^n$ di Phong, in $(N \cdot H)^{n_\beta}$ sarebbe opportuno scegliere $n_\beta > n$.
-Inoltre, mentre Phong produce sempre riflessi rotondi su una superficie piana, quelli di Blinn-Phong diventano ellittici quando la superficie viene vista da un angolo ripido, ad esempio quando il sole vicino all'orizzonte viene riflesso sulla superficie del mare.
-
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.7\textwidth]{cap3/VettoriBlinnPhong}
 	\caption{Costruzione dell'halfway vector}
     \label{fig:vettori_blinnphong}
+\end{figure}
+
+Blinn decide quindi di sostituire $(\hat{R} \cdot \hat{V})^n$ con $(\hat{N} \cdot \hat{H})^n$, creando così l'equazione del modello di illuminazione di Blinn-Phong:
+\[
+    I = I_{amb} \cdot k_a + f_{att} \cdot I_p [k_d(\hat{N} \cdot \hat{L}) + k_s (\hat{N} \cdot \hat{H})^n]
+\]
+
+Bisogna però notare che spesso $\beta$ è più piccolo di $\alpha$ usato in Phong, tranne quando la superficie è vista da un angolo molto ripido. Per avvicinarsi di più al risultato di $(R \cdot V)^n$ di Phong, in $(N \cdot H)^{n_\beta}$ sarebbe opportuno scegliere $n_\beta > n$.
+Inoltre, mentre Phong produce riflessi quasi circolari su una superficie piana, quelli di Blinn-Phong diventano ellittici quando la superficie viene vista da un angolo radente, ad esempio quando il sole vicino all'orizzonte viene riflesso sulla superficie del mare, rappresentato in \cref{fig:differenze_phong_blinn}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/RiflessoPhong.png}
+        \caption{Modello di Phong}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap3/RiflessoBlinnPhong.png}
+        \caption{Modello di Blinn-Phong}
+    \end{subfigure}
+    \caption[Confronto tra riflessione di Phong e Blinn-Phong]{Confronto dei riflessi speculari generati ad angolo radente: la formulazione di Phong produce una macchia quasi circolare, mentre il modello di Blinn-Phong introduce l'allungamento ellittico caratteristico delle superfici reali}
+    \label{fig:differenze_phong_blinn}
 \end{figure}
 
 % ====================================================
@@ -855,7 +886,7 @@ Poiché non teniamo conto che un triangolo fa parte di una geometria più comple
 Questo causa brusche variazioni delle normali ai bordi dei poligoni adiacenti, rendendo i bordi nettamente visibili: questo fenomeno prende il nome di \emph{Mach banding}.
 
 \subsubsection{Gouraud shading}
-Rappresenta la diretta evoluzione dello shading interpolativo.
+Henri Gouraud, un informatico francese, propone nel 1971 un modello di shading che rappresenta la diretta evoluzione di quello interpolativo \cite{Gouraud_1971}.
 Esegue comunque il calcolo dell'illuminazione per ogni vertice del poligono, ma invece di utilizzare la normale del poligono usa quella della superficie che sta approssimando.
 Se la normale della superficie non è nota, la si approssima con la media delle normali ai poligoni che condividono il vertice.
 Si procede poi con l'interpolazione della luce calcolata nei vertici.
@@ -863,7 +894,7 @@ Non è ideale per materiali molto riflettenti o speculari, poiché i punti luce 
 
 \subsubsection{Phong shading}
 È il modello più sofisticato e realistico ma anche più computazionalmente costoso.
-Prevede il calcolo dell'illuminazione per ogni pixel del poligono, utilizzando il vettore normale ottenuto dall'interpolazione delle normali note.
+Proposto sempre da Phong nel 1975 \cite{Phong_1975}, prevede il calcolo dell'illuminazione per ogni pixel del poligono, utilizzando il vettore normale ottenuto dall'interpolazione delle normali note.
 Promette così di gestire correttamente le riflessioni speculari, anche quando queste non colpiscono direttamente i vertici.
 
 % ====================================================
