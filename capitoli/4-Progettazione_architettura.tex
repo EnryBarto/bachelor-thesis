@@ -1,0 +1,247 @@
+\chapter{Progettazione del sistema}
+In questo capitolo viene illustrata l'architettura del sistema e le scelte progettuali che ne sono alla base.
+Partendo da una visione panoramica di come i moduli collaborano tra loro, si arriverà a descrivere nel dettaglio l'utilizzo dei \emph{design pattern} \cite{Gamma_1994} adottati per affrontare le principali sfide progettuali.
+
+% ====================================================
+%
+% 4.1 - ARCHITETTURA GENERALE
+%
+% ====================================================
+\section{Architettura generale}
+Per rendere il software il più modulare possibile è stato scelto di dividerlo in package, così da ridurre le dipendenze che aumenterebbero la complessità della manutenzione.
+Vengono riportati in \cref{fig:diagramma_package}, mettendo in risalto come la gestione di ogni dipendenza esterna principale sia delegata a un solo modulo.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap4/Package}
+    \caption[Diagramma dei package del sistema]{Diagramma dei package del sistema, in cui sono riportate anche le principali dipendenze esterne}
+    \label{fig:diagramma_package}
+\end{figure}
+
+Il cuore del sistema è contenuto nel package \texttt{core}, che racchiude le classi che gestiscono il ciclo di vita del software, dalla creazione della finestra all'interazione con l'utente.
+Al suo interno include il modulo \texttt{state}, a cui delega la gestione della macchina a stati finiti che governa il ciclo di vita dell'applicativo, che verrà illustrata nelle prossime sezioni.
+
+Tramite il modulo \texttt{io} viene isolata la dipendenza verso ROOT: contiene infatti le strutture utilizzate per rappresentare i dati degli eventi, e un manager che si interfaccia con sndsw per popolarle.
+Permette quindi di concentrare in un unico punto la lettura e la conversione dei dati da ROOT, rendendone semplice il riadattamento in caso di future modifiche a sndsw.
+
+Procedendo verso il livello di visualizzazione dei dati, si nota che \texttt{core} ha una dipendenza verso \texttt{scene}: essa include gli oggetti della scena tridimensionale -- nodi, mesh e luci -- e ne gestisce la rappresentazione.
+Poiché possiede i dati da visualizzare, dipende dal modulo \texttt{io}, e ne determina la colorazione tramite il package \texttt{colors}.
+La visualizzazione avviene grazie al modulo \texttt{rendering}, che è diviso in due sotto-moduli: \texttt{camera} che definisce come la scena viene inquadrata e proiettata e \texttt{engine}, che sfrutta le API di OpenGL per eseguire il rendering degli elementi della scena.
+Nell'eventualità di un upgrade futuro delle API grafiche, sarà quindi sufficiente riadattare le classi contenute in \texttt{engine}.
+In realtà, anche il modulo \texttt{core} presenta una dipendenza limitata a OpenGL, circoscritta all'inizializzazione del contesto e alla gestione del render loop; tutta la logica di rendering degli oggetti è invece delegata ai moduli \texttt{rendering} e \texttt{scene}.
+
+Infine, \texttt{ui} è il modulo con il maggior numero di dipendenze: questo perché per soddisfare i requisiti di usabilità, permette all'utente sia di visualizzare le informazioni testuali dei dati caricati che di modificare la scena in vari modi, ad esempio scegliendo di isolare alcune parti del rivelatore SND@LHC dalla visualizzazione.
+
+% ====================================================
+%
+% 4.2 - GESTIONE DELLA MACCHINA A STATI FINITI
+%
+% ====================================================
+\section{Gestione della macchina a stati finiti}
+L'intero software è basato su una macchina a stati finiti (\emph{Finite State Machine}, FSM) così da avere il pieno controllo sul suo flusso di esecuzione.
+Vengono ora illustrati gli stati di alto livello, riportati in \cref{fig:diagramma_stati_generale}, per poi dettagliare il funzionamento di quelli più complessi, che saranno quindi scomposti in sottostati.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{cap4/Diagramma_FSM_generale}
+    \caption[Diagramma della FSM del sistema]{Diagramma ad alto livello della FSM}
+    \label{fig:diagramma_stati_generale}
+\end{figure}
+
+La prima divisione negli stati \texttt{RUNNING} e \texttt{CLOSED}, permette di chiudere il software in qualsiasi momento del suo ciclo di vita e centralizzarne l'arresto.
+È ovvero possibile catturare l'evento di chiusura in svariati modi (chiusura finestra, pulsante nel menu, ecc\ldots), garantendo in ogni caso la corretta deallocazione delle risorse e la corretta sequenza di arresto.
+
+Il primo stato in cui si entra automaticamente all'avvio del sistema è quello di \texttt{INITIALIZATION}, in cui è richiesto all'utente di inserire numero di run ed evento per poter avviare il caricamento dei dati.
+Nel caso si presentino errori, vengono gestiti entrando in \texttt{INIT\_ERROR}, mostrandone la causa all'utente e proponendo di riprendere dal punto in cui si era interrotto.
+
+Una volta caricati i dati e inizializzati i componenti necessari, si passa nello stato \texttt{INTERACTION}.
+Qui avvengono le principali interazioni dell'utente con l'event display, tra cui il movimento della camera e il cambiamento delle opzioni di rendering.
+Possono anche essere esportate schermate della visuale corrente, entrando in \texttt{EXPORT\_IMAGE}; una volta terminato il render, si ritorna automaticamente in interazione.
+
+Durante l'interazione è possibile cambiare la run, l'evento o la geometria visualizzata nella scena: questo avviene grazie allo stato \texttt{CHANGE\_DATA}, che permette all'utente di caricare nuovi dati senza riavviare il software.
+Come per l'inizializzazione, in caso di errori questi vengono gestiti nello stato \texttt{CHANGE\_ERROR}.
+
+% ====================================================
+% 4.2.1 - INIZIALIZZAZIONE
+% ====================================================
+\subsection{Inizializzazione}
+
+\texttt{INITIALIZATION} è uno stato composto, di cui è riportato lo schema in \cref{fig:diagramma_stati_inizializzazione}.
+Nelle situazioni in cui sono richieste delle informazioni all'utente gli stati sono raddoppiati, così che nella prima fase (\texttt{CHOICE}) l'utente possa inserire i dati richiesti, per poi farli caricare al software (\texttt{LOAD}): ne fanno parte l'inserimento di run, evento e file di geometria.
+In ogni caso l'utente può scegliere di ritornare alla schermata di inserimento precedente scatenando l'evento \texttt{goBack} (tramite pressione di un pulsante).
+
+Poiché il sistema cerca di leggere il file di geometria di default per una data run, se durante il processo qualcosa va storto (ad esempio il file non esiste), viene mostrata all'utente la schermata di errore in cui si chiede all'utente di scegliere manualmente il file corretto.
+
+Al termine dell'inizializzazione viene richiesto il caricamento della geometria al framework ROOT: questo avviene solo alla fine perché una volta caricata la geometria ROOT, non può più essere sostituita se non riavviando il software.
+Se la geometria venisse caricata quando l'utente ha ancora la possibilità di cambiare run, nel caso in cui le due geometrie non dovessero corrispondere ROOT genererebbe un errore.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap4/Diagramma_FSM_init}
+    \caption{Espansione dello stato composto \texttt{INITIALIZATION}}
+    \label{fig:diagramma_stati_inizializzazione}
+\end{figure}
+
+In ogni caso, gli errori -- come visto nello schema generale di \cref{fig:diagramma_stati_generale} -- vengono gestiti tramite uno stato esterno detto \texttt{INIT\_ERROR}, in cui viene mostrata all'utente la causa scatenante (ad esempio run number inesistente), così che possa tornare indietro e rieseguire l'azione richiesta.
+
+
+% ====================================================
+% 4.2.2 - CAMBIO DATI
+% ====================================================
+\subsection{Cambio dati}
+
+Per cambiare i dati visualizzati durante l'interazione si entra nello stato composto \texttt{CHANGE\_DATA} (il cui diagramma è riportato in \cref{fig:diagramma_stati_change_data}), che rispecchia l'inizializzazione: anche in questo caso, gli stati sono sdoppiati in \texttt{CHOICE} e \texttt{LOAD}, e gli errori sono gestiti entrando nello stato esterno \texttt{CHANGE\_ERROR}.
+In questa fase si può però scegliere tramite interfaccia se cambiare il file di geometria, il numero di run o l'evento.
+Poiché un utente potrebbe voler scorrere gli eventi di una run, sarebbe troppo macchinoso dover reinserire entrambi, sprecando inoltre del tempo per il caricamento di dati già validi.
+Si è scelto quindi di dar la possibilità di immettere da zero la coppia di valori, oppure solo il numero di evento nel caso la run rimanga invariata.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap4/Diagramma_FSM_change_data}
+    \caption{Espansione dello stato composto \texttt{CHANGE\_DATA}}
+    \label{fig:diagramma_stati_change_data}
+\end{figure}
+
+Il cambio della geometria è indipendente dal cambio di run ed evento: la collaborazione potrebbe infatti necessitare di caricare file di geometria 3D corrispondenti a configurazioni diverse del rivelatore, senza che questo implichi necessariamente un cambio dei dati fisici visualizzati.
+
+% ====================================================
+%
+% 4.3 - DESIGN DETTAGLIATO
+%
+% ====================================================
+\section{Design dettagliato}
+In questa sezione vengono approfondite le principali scelte progettuali del sistema, illustrando per ciascuna il problema affrontato e la soluzione adottata.
+La progettazione fa ampiamente uso dei \emph{design pattern}: per ogni componente viene descritto il pattern adottato e il contesto specifico della sua applicazione.
+
+% ====================================================
+% 4.3.1 - OGGETTI TRIDIMENSIONALI DELLA SCENA
+% ====================================================
+\subsection{Oggetti tridimensionali della scena}
+ROOT memorizza le geometrie dei rivelatori in formato proprietario. 
+Poiché la conversione diretta di tali file avrebbe comportato un lavoro considerevole, allontanandosi inoltre dagli obiettivi di questa tesi, e considerato che le geometrie disponibili sono in numero limitato e aggiornate raramente (indicativamente una volta all'anno), si è scelto di convertirle preventivamente in formato glTF 2.0 tramite uno strumento dedicato.
+
+\subsubsection{Lo standard glTF}
+
+Il \emph{Graphics Library Transmission Format} (glTF) è uno standard open source per la condivisione di modelli e scene 3D, sotto forma di file di testo formattato in JSON.
+Organizza internamente i dati secondo una struttura ad albero (in \cref{fig:gltf_spec} è riportato l’albero dello standard glTF 2.0), di cui sono rilevanti i seguenti nodi ai fini di questo progetto:
+\begin{itemize}
+    \item scene: contiene il puntatore al nodo radice dell’albero.
+    \item node: generico nodo che contiene la matrice di trasformazione e opzionalmente una mesh e altri nodi figli.
+    \item mesh: contenitore dei dati grezzi per il rendering, quali vertici, colori, normali e indici; eventualmente può anche avere un puntatore a un materiale.
+    \item material: definisce le proprietà fisiche della superficie secondo il modello Physically Based Rendering.
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.58\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap4/Struttura_glTF}
+        \caption{Specifica glTF 2.0 \cite{Khronos_gltf_spec}}
+        \label{fig:gltf_spec}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.40\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap4/SceneObject}
+        \caption{Oggetti della scena}
+        \label{fig:diagramma_classi_object}
+    \end{subfigure}
+    \caption[Confronto tra specifica glTF e oggetti della scena]{Confronto tra la struttura dei file glTF e la rappresentazione degli oggetti della scena}
+\end{figure}
+
+Il \emph{Physically Based Rendering} (PBR) è un approccio che simula il comportamento della luce, e si compone di un colore base, coefficiente metallico (metallic) e di rugosità (roughness).
+Nel progetto viene invece utilizzato il colore base per creare un materiale -- classe \texttt{Material} -- secondo le componenti del modello di illuminazione di Blinn-Phong.
+
+\subsubsection{Struttura degli oggetti della scena}
+
+Seguendo il pattern \emph{composite}, sono state create le classi (illustrate in \cref{fig:diagramma_classi_object}) che riflettono la struttura ad albero glTF per la memorizzazione dei componenti della scena:
+\begin{itemize}
+    \item \texttt{Object} funge da componente astratto, ed è costituito dal solo nodo radice.
+    \item \texttt{Node}, potendo contenere altri \texttt{Node} figli, funge da componente composito: oltre ad avere il riferimento a una lista di mesh, contiene anche la matrice di modellazione per il nodo.
+    \item \texttt{Mesh} è la foglia, in quanto rappresenta un elemento terminale della gerarchia privo di figli.
+\end{itemize}
+
+Poiché le geometrie possono essere condivise tra più nodi della scena, i dati delle mesh sono stati disaccoppiati dal concetto logico di mesh: un oggetto \texttt{Mesh} punta a una \texttt{GpuMesh} che può essere condivisa tra più istanze, evitando la duplicazione di dati geometrici in memoria GPU.
+Lo stesso ragionamento vale per \texttt{Material}. 
+Questa soluzione corrisponde al pattern \emph{flyweight}, applicato per minimizzare il consumo di memoria nella rappresentazione di geometrie e materiali ricorrenti.
+Lo stato intrinseco è rappresentato dalle informazioni condivisibili (contenute in \texttt{GpuMesh} e \texttt{Material}), mentre lo stato estrinseco è dato dal contesto in cui l'oggetto viene utilizzato — ad esempio la matrice di modellazione contenuta in \texttt{Node}, che permette di posizionare e orientare la stessa \texttt{GpuMesh} in punti diversi della scena.
+Per garantire la condivisione dello stato intrinseco, la creazione degli oggetti \texttt{Object} è delegata alla classe \texttt{ObjectFactory}, che svolge il ruolo di FlyweightFactory.
+Per le geometrie di uso più frequente — ad esempio il cubo, utilizzato per rappresentare ogni singola hit del rivelatore — la \texttt{GpuMesh} viene istanziata una sola volta alla creazione della factory e successivamente condivisa tra tutti gli \texttt{Object} richiesti, evitando di duplicare i dati geometrici in memoria GPU anche quando il numero di istanze nella scena è elevato.
+
+
+% ====================================================
+% 4.3.2 - CARICAMENTO DEI DATI
+% ====================================================
+\subsection{Caricamento dei dati}
+Per la lettura dei dati sperimentali tramite il framework ROOT è necessario gestire un elevato numero di classi.
+In accordo con il pattern \emph{facade}, il controllo di tutte queste dipendenze è stato centralizzato nella classe \texttt{SndswEventManager}, in modo da avere un unico punto di accesso verso l'esterno del software; questo disaccoppiamento risulta evidente nella \cref{fig:diagramma_classi_modulo_io}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap4/Modulo_io}
+    \caption[Diagramma delle classi per la lettura dei dati]{Diagramma delle classi coinvolte nella lettura dei dati dal framework ROOT}
+    \label{fig:diagramma_classi_modulo_io}
+\end{figure}
+
+Comunicando il numero di run prescelto ne vengono lette le caratteristiche e salvate nella classe \texttt{RunData}, così che l'event display possa mostrare all'utente i dati della run attualmente in memoria.
+
+Il caricamento di un evento avviene invece passando le configurazioni come parametro tramite la struttura \texttt{ClusterConfiguration}, restituendo il risultato in un oggetto della classe \texttt{EventData}.
+Poiché abbiamo studiato che SND@LHC è composto da complessi sottorivelatori (classe \texttt{DetectorData}), ogni evento si compone delle hit (classe \texttt{HitData}) rilevate in ognuno di essi. 
+
+% ====================================================
+% 4.3.3 - SCELTA TIPO DI PROIEZIONE
+% ====================================================
+\subsection{Scelta tipo di proiezione}
+Dal momento che si vuol offrire all'utente la possibilità di scelta su quale proiezione utilizzare, sono state previste classi per fornire sia la proiezione ortografica che quella prospettica.
+Come studiato nel capitolo precedente, esse differiscono solo per il calcolo della matrice di proiezione: è stato quindi utilizzato il pattern \emph{template method}, i cui attori sono raffigurati in \cref{fig:diagramma_proiezioni}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap4/Proiezioni}
+    \caption[Diagramma delle classi per le proiezioni]{Diagramma delle classi per l'applicazione del pattern template method alle proiezioni}
+    \label{fig:diagramma_proiezioni}
+\end{figure}
+
+Per migliorare le performance dell'event display evitando il ricalcolo continuo della matrice di proiezione, ne viene tenuta una copia sovrascritta ad ogni cambio delle caratteristiche della proiezione.
+Poiché va ricalcolata solo al cambio dell'aspect ratio o del fov, i metodi template \texttt{setAspectRatio} e \texttt{setFov} definiti nella classe astratta \texttt{Basic\allowbreak{}Projection} richiamano il metodo astratto \texttt{computeProjectionMatrix}, ovvero l'operazione primitiva.
+Le classi concrete, in questo caso \texttt{Ortho\allowbreak{}graphicProjection} e \texttt{Perspec\allowbreak{}tive\allowbreak{}Projection}, si occupano solo di specificare l'algoritmo di calcolo della matrice nel metodo astratto sovrascritto, evitando di ripetere codice comune e semplificando l'aggiunta di nuovi tipi di proiezioni.
+
+Infine, nella proiezione ortografica è presente un metodo aggiuntivo per impostare la distanza della camera dal target: dato che questo tipo di proiezione preserva il parallelismo, il semplice avvicinamento della camera al target non produce l'effetto di zoom.
+Si rende quindi necessario cambiare le dimensioni dei piani vicino e lontano del volume di vista.
+
+% ====================================================
+% 4.3.4 - COLORAZAZIONE HIT
+% ====================================================
+\subsection{Colorazione hit}
+Per permettere all'utente di esplorare i dati da prospettive differenti, l'event display supporta diverse modalità di colorazione delle hit.
+
+La determinazione del colore avviene sulla base di due criteri:
+\begin{itemize}
+    \item la grandezza fisica di riferimento, come tempo ed energia.
+    \item la scala da adottare, ad esempio monocromatica, lineare o logaritmica.
+\end{itemize}
+La classe \texttt{ColorPalette} utilizza infatti due istanze del pattern \emph{strategy} -- illustrato in \cref{fig:diagramma_colorpalette} -- in modo da disaccoppiare questa doppia variabilità senza violare il \emph{Single Responsibility Principle} (SRP), ma centralizzando l'operazione di colorazione delle hit.
+Essa si occupa infatti di:
+\begin{itemize}
+    \item calcolare il colore per ogni hit.
+    \item restituire il range di valori della scala di riferimento, comprensivo dell'unità di misura.
+    \item restituire dei campionamenti del colore per intervalli fissati (utile per esempio per visualizzare la legenda della scala cromatica associata all'intervallo in esame).
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap4/ColorStrategy}
+    \caption[Diagramma delle classi per la colorazione delle hit]{Diagramma delle classi che illustra l'uso del doppio pattern \emph{strategy} per la gestione dei colori dell'event display}
+    \label{fig:diagramma_colorpalette}
+\end{figure}
+
+Ricoprendo quindi il ruolo di classe contesto, \texttt{ColorPalette} sfrutta le due strategie di calcolo \texttt{VariableGetter} e \texttt{ValueMapper} per, rispettivamente, scegliere la grandezza di riferimento e calcolare il colore per una hit in un certo range.
+Le strategie concrete implementate nel sistema sono quelle per basare il colore su energia o tempo nel caso del \texttt{VariableGetter}, e per calcolare le scale in maniera monocromatica, lineare o logaritmica nel caso del \texttt{ValueMapper}.
+Grazie a questa struttura risulterà molto semplice in futuro implementare nuovi modi di colorazione senza dover riscrivere tutta la logica di \texttt{ColorPalette}, ma creando solo le classi concrete con l'algoritmo voluto.
+
+
+% ====================================================
+% CONCLUSIONE CAPITOLO 4
+% ====================================================
+\bigskip
+Dal momento che le principali sfide di design sono state affrontate tramite una dettagliata progettazione, è possibile procedere con l'implementazione del sistema, per avere così una versione completa del nuovo event display.
