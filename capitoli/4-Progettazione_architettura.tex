@@ -1,6 +1,6 @@
 \chapter{Progettazione del sistema}
-In questo capitolo viene illustrata l'architettura del sistema e le scelte progettuali che ne sono alla base.
-Partendo da una visione panoramica di come i moduli collaborano tra loro, si arriverà a descrivere nel dettaglio l'utilizzo dei \emph{design pattern} \cite{Gamma_1994} adottati per affrontare le principali sfide progettuali.
+In questo capitolo vengono illustrate l'architettura del sistema e le scelte progettuali su cui esso si fonda, derivate dall'analisi dei requisiti condotta nel \cref{cap:software_esistente_requisiti}.
+Partendo da una visione d'insieme dell'interazione tra i moduli, si arriverà a descrivere nel dettaglio l'utilizzo dei \emph{design pattern} \cite{Gamma_1994} adottati per affrontare le principali sfide progettuali.
 
 % ====================================================
 %
@@ -38,6 +38,7 @@ Infine, \texttt{ui} è il modulo con il maggior numero di dipendenze: questo per
 %
 % ====================================================
 \section{Gestione della macchina a stati finiti}
+\label{sec:fsm}
 L'intero software è basato su una macchina a stati finiti (\emph{Finite State Machine}, FSM) così da avere il pieno controllo sul suo flusso di esecuzione.
 Vengono ora illustrati gli stati di alto livello, riportati in \cref{fig:diagramma_stati_generale}, per poi dettagliare il funzionamento di quelli più complessi, che saranno quindi scomposti in sottostati.
 
@@ -106,7 +107,37 @@ Il cambio della geometria è indipendente dal cambio di run ed evento: la collab
 
 % ====================================================
 %
-% 4.3 - DESIGN DETTAGLIATO
+% 4.3 - STRUTTURA DELL'APPLICAZIONE
+%
+% ====================================================
+\section{Struttura dell'applicazione}
+Al fine di garantire l'operatività del software, si rende necessaria la configurazione di una classe principale deputata al coordinamento dei moduli fondamentali del sistema.
+La classe \texttt{App}, posta all'interno del package \texttt{core}, rappresenta il punto di ingresso dell'applicazione e ne orchestra l'intero ciclo di vita, aggregando i componenti principali descritti in \cref{fig:classi_app}:
+\begin{itemize}
+    \item \texttt{AppStateManager}: mantiene lo stato corrente della FSM descritta nella \cref{sec:fsm} e ne gestisce i passaggi di stato.
+    \item \texttt{AppSettings}: raccoglie tutte le impostazioni configurabili dall'utente, condivise tra i vari componenti.
+    \item \texttt{WindowManager}: gestisce il ciclo di vita della finestra.
+    \item \texttt{Callbacks}: raccoglie le callback per la gestione degli input da tastiera e mouse, delegandoli ai componenti appropriati.
+    \item \texttt{Gui}: gestisce l'interfaccia utente.
+    \item \texttt{Scene}: contiene la scena tridimensionale, con la geometria del rivelatore e le hit dell'evento corrente.
+    \item \texttt{SndswEventManager}: si interfaccia con il framework sndsw per il caricamento dei dati fisici.
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap4/Classi_App}
+    \caption{Dettaglio delle classi gestite da App}
+    \label{fig:classi_app}
+\end{figure}
+
+Il metodo \texttt{run} contiene il render loop: cicla fino a che il software rimane in stato \texttt{RUNNING}, aggiornando tutti i componenti dell'app ed eseguendo il render di gui e scena tridimensionale.
+
+Il metodo \texttt{update}, invocato ad ogni ciclo del render loop, funge da dispatcher della FSM: ad ogni frame legge lo stato corrente e delega l'operazione corrispondente al componente appropriato -- ad esempio il caricamento di una run a \texttt{SndswEventManager}. 
+Gli errori sollevati durante il caricamento vengono catturati e notificati all'\texttt{AppStateManager}, che provvede a transitare nello stato di errore appropriato.
+
+% ====================================================
+%
+% 4.4 - DESIGN DETTAGLIATO
 %
 % ====================================================
 \section{Design dettagliato}
@@ -114,7 +145,7 @@ In questa sezione vengono approfondite le principali scelte progettuali del sist
 La progettazione fa ampiamente uso dei \emph{design pattern}: per ogni componente viene descritto il pattern adottato e il contesto specifico della sua applicazione.
 
 % ====================================================
-% 4.3.1 - OGGETTI TRIDIMENSIONALI DELLA SCENA
+% 4.4.1 - OGGETTI TRIDIMENSIONALI DELLA SCENA
 % ====================================================
 \subsection{Oggetti tridimensionali della scena}
 ROOT memorizza le geometrie dei rivelatori in formato proprietario. 
@@ -168,9 +199,8 @@ Lo stato intrinseco è rappresentato dalle informazioni condivisibili (contenute
 Per garantire la condivisione dello stato intrinseco, la creazione degli oggetti \texttt{Object} è delegata alla classe \texttt{ObjectFactory}, che svolge il ruolo di FlyweightFactory.
 Per le geometrie di uso più frequente — ad esempio il cubo, utilizzato per rappresentare ogni singola hit del rivelatore — la \texttt{GpuMesh} viene istanziata una sola volta alla creazione della factory e successivamente condivisa tra tutti gli \texttt{Object} richiesti, evitando di duplicare i dati geometrici in memoria GPU anche quando il numero di istanze nella scena è elevato.
 
-
 % ====================================================
-% 4.3.2 - CARICAMENTO DEI DATI
+% 4.4.2 - CARICAMENTO DEI DATI
 % ====================================================
 \subsection{Caricamento dei dati}
 Per la lettura dei dati sperimentali tramite il framework ROOT è necessario gestire un elevato numero di classi.
@@ -189,7 +219,7 @@ Il caricamento di un evento avviene invece passando le configurazioni come param
 Poiché abbiamo studiato che SND@LHC è composto da complessi sottorivelatori (classe \texttt{DetectorData}), ogni evento si compone delle hit (classe \texttt{HitData}) rilevate in ognuno di essi. 
 
 % ====================================================
-% 4.3.3 - SCELTA TIPO DI PROIEZIONE
+% 4.4.3 - SCELTA TIPO DI PROIEZIONE
 % ====================================================
 \subsection{Scelta tipo di proiezione}
 Dal momento che si vuol offrire all'utente la possibilità di scelta su quale proiezione utilizzare, sono state previste classi per fornire sia la proiezione ortografica che quella prospettica.
@@ -210,7 +240,7 @@ Infine, nella proiezione ortografica è presente un metodo aggiuntivo per impost
 Si rende quindi necessario cambiare le dimensioni dei piani vicino e lontano del volume di vista.
 
 % ====================================================
-% 4.3.4 - COLORAZAZIONE HIT
+% 4.4.4 - COLORAZAZIONE HIT
 % ====================================================
 \subsection{Colorazione hit}
 Per permettere all'utente di esplorare i dati da prospettive differenti, l'event display supporta diverse modalità di colorazione delle hit.
@@ -244,4 +274,5 @@ Grazie a questa struttura risulterà molto semplice in futuro implementare nuovi
 % CONCLUSIONE CAPITOLO 4
 % ====================================================
 \bigskip
+\needspace{4\baselineskip}
 Dal momento che le principali sfide di design sono state affrontate tramite una dettagliata progettazione, è possibile procedere con l'implementazione del sistema, per avere così una versione completa del nuovo event display.
