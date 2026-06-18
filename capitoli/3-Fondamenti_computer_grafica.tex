@@ -435,6 +435,7 @@ Dal momento che nelle moltiplicazioni matriciali l'ultima matrice è la prima ad
 % 3.3.2 - VISTA
 % ====================================================
 \subsection{Vista}
+\label{subsec:vista}
 In questa fase, viene posizionata e orientata nella scena una telecamera virtuale.
 La trasformazione di vista è una matrice che mappa tutti i vertici dal WCS al \emph{View Coordinate System} (VCS), il cui punto di origine è la posizione della telecamera (che convenzionalmente punta verso $-z$).
 
@@ -487,6 +488,7 @@ V =
 % 3.3.3 - PROIEZIONE
 % ====================================================
 \subsection{Proiezione}
+\label{subsec:proiezione}
 In generale, la proiezione è una trasformazione geometrica che ha come dominio uno spazio di dimensione $n$ e come codominio uno spazio di dimensione $n-1$.
 Una proiezione di un oggetto 3D è definita da un insieme di rette di proiezione dette proiettori che, partendo da un centro di proiezione comune, passano per tutti i punti dell'oggetto e intersecano un piano di proiezione per formare l'immagine bidimensionale.
 Quando i proiettori sono rette e la proiezione avviene su un piano si parla di proiezioni geometriche piane, che vengono divise in due tipologie: le proiezioni prospettiche e le proiezioni parallele.
@@ -818,6 +820,7 @@ Nel caso siano presenti più luci è sufficiente sommare le componenti diffusive
 % 3.4.2 - MODELLO DI ILLUMINAZIONE DI BLINN-PHONG
 % ====================================================
 \subsection{Modello di illuminazione di Blinn-Phong}
+\label{subsec:blinn_phong}
 James F. Blinn, un informatico statunitense, nel 1977 propone una variante del modello di Phong per quanto riguarda il calcolo della componente speculare \cite{Blinn_1977}.
 Introduce l'\emph{halfway vector} al posto del vettore di riflessione $\hat{R}$ che, oltre a produrre risultati visivamente più accurati per superfici viste a angoli rasenti, alleggerisce la complessità computazionale del modello.
 
