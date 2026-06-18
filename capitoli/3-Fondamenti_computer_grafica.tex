@@ -1,7 +1,7 @@
 \chapter{Fondamenti di computer grafica}
 
-Per poter comprendere appieno il funzionamento della pipeline grafica, è prima necessario ripassare una serie di concetti base di algebra lineare, di cui verranno presentati i punti chiave più utili ai fini del progetto.
-Queste nozioni verranno poi usate per espandere le conoscenze geometriche che sono alla base della computer grafica tridimensionale.
+Per poter comprendere appieno il funzionamento della pipeline grafica, è prima necessario ripassare una serie di concetti base di algebra lineare.
+Di questi verranno presentati i punti chiave più rilevanti ai fini del progetto, che saranno poi utilizzati per approfondire le basi geometriche della computer grafica tridimensionale.
 
 % ====================================================
 %
@@ -9,13 +9,13 @@ Queste nozioni verranno poi usate per espandere le conoscenze geometriche che so
 %
 % ====================================================
 \section{Richiami di algebra lineare}
-Innanzitutto si introducono velocemente le tre entità base necessarie per definire i concetti e le operazioni che verranno utilizzate.
+Si introducono innanzitutto le tre entità fondamentali necessarie per definire i concetti e le operazioni che verranno utilizzati nel seguito: scalari, punti e vettori.
 
 Uno \emph{scalare} è un numero utilizzato per descrivere una grandezza.
 
-Un \emph{punto} $P$ è un'entità la cui unica proprietà è la posizione rispetto a un sistema di riferimento.
+Un \emph{punto} $P$ identifica una posizione nello spazio rispetto a un sistema di riferimento. 
 
-Un \emph{vettore} $\mathbf{v}$ è un'entità caratterizzata da lunghezza (numero reale non negativo), direzione (individuata da una retta) e verso, indipendente dalla posizione nello spazio; viene rappresentato come una $n$-upla di componenti:
+Un \emph{vettore} $\mathbf{v}$ è un'entità caratterizzata da lunghezza (numero reale non negativo), direzione (individuata da una retta) e verso, indipendente dalla posizione nello spazio; in $\mathbb{R}^n$ può essere rappresentato tramite una $n$-upla di componenti:
 \[
     \mathbf{v} = \begin{bmatrix} v_1 \\ v_2 \\ v_3 \end{bmatrix}
 \]
@@ -24,8 +24,7 @@ Un \emph{vettore} $\mathbf{v}$ è un'entità caratterizzata da lunghezza (numero
 % 3.1.1 - SPAZI VETTORIALI E AFFINI
 % ====================================================
 \subsection{Spazi vettoriali e affini}
-
-Ora è possibile assemblare le entità base presentate per costruire delle strutture più complesse.
+A partire dalle entità appena introdotte è possibile definire strutture algebriche più complesse, utili per formalizzare le operazioni geometriche che verranno impiegate nella pipeline grafica.
 
 \begin{definizione}[Spazio vettoriale]
     Si definisce \emph{spazio vettoriale} $V$ una struttura algebrica formata da un insieme di vettori su cui sono definite l'addizione tra vettori e la moltiplicazione per uno scalare.
@@ -76,7 +75,7 @@ Poiché verranno utilizzati i vettori formati da numeri reali, introduciamo lo s
 Lo spazio vettoriale da solo non è sufficiente a rappresentare posizioni nello spazio: i vettori descrivono direzioni e grandezze ma non punti, rendendo necessario estendere questo concetto.
 
 \begin{definizione}[Spazio affine]
-    Uno \emph{spazio affine} è un insieme di punti che possono essere traslati da vettori di uno spazio vettoriale associato, senza che vi sia un punto di origine privilegiato.
+    Uno \emph{spazio affine} è un insieme di punti sul quale è possibile applicare traslazioni mediante i vettori di uno spazio vettoriale associato, senza che sia definito un punto di origine privilegiato.
 \end{definizione}
 
 Lo spazio euclideo è un esempio di spazio affine reale.
@@ -86,6 +85,7 @@ Con la definizione degli spazi affini si introducono quindi nuove operazioni:
     \item Somma punto-vettore (derivata dalla precedente): definisce un punto $P = Q + \mathbf{v}$
 \end{itemize}
 
+\needspace{3\baselineskip}
 \begin{osservazione}
     È importante tenere a mente che:
     \begin{itemize}
@@ -104,7 +104,7 @@ La distinzione tra punti e vettori è fondamentale nella computer grafica tridim
 Vengono riportate le definizioni dei concetti di combinazione di punti, illustrando successivamente il ruolo fondamentale che ricoprono nell'ambito della computer grafica. 
 
 \begin{definizione}[Combinazione affine]
-    Una \emph{combinazione affine} è una combinazione lineare di punti, i cui coefficienti hanno somma $= 1$.
+    Una \emph{combinazione affine} è una combinazione lineare di punti, i cui coefficienti hanno somma $1$.
     \[
         P = \alpha_0 P_0 + \cdots + \alpha_n P_n = \sum_{i=0}^{n} \alpha_i P_i \quad \text{con} \quad \sum_{i=0}^{n} \alpha_i = 1
     \]
@@ -139,8 +139,8 @@ Le coordinate baricentriche permettono infatti di interpolare sugli elementi tri
 % 3.1.3 - OPERAZIONI TRA VETTORI
 % ====================================================
 \subsection{Operazioni tra vettori} 
-Si riportano ora alcune delle operazioni fondamentali effettuate con i vettori, che verranno sfruttate all'interno della pipeline in varie occasioni, ad esempio per il calcolo dell'illuminazione.
-Trattandosi di un concetto astratto, verrà inoltre proposto uno strumento per misurarne la lunghezza.
+Si introducono ora alcune operazioni fondamentali tra vettori, che verranno utilizzate in diversi passaggi della pipeline grafica, ad esempio nel calcolo dell’illuminazione.
+Verrà inoltre richiamata la norma euclidea, che consente di misurare la lunghezza di un vettore.
 
 \begin{definizione}[Prodotto scalare]
     Si definisce \emph{prodotto scalare} un'applicazione $\mathbb{R}^n \times \mathbb{R}^n \to \mathbb{R}$ che gode delle seguenti proprietà $\forall\ \mathbf{u}, \mathbf{v}, \mathbf{w} \in \mathbb{R}^n$ e $\lambda_1, \lambda_2 \in \mathbb{R}$:
@@ -186,16 +186,16 @@ Dal momento che si lavora con vettori nello spazio, è necessario introdurre una
 %
 % ====================================================
 \section{Sistemi di riferimento e trasformazioni geometriche}
-Per descrivere oggetti e scene tridimensionali è necessario definire sistemi di riferimento e le trasformazioni che permettono di passare dall'uno all'altro.
-In questa sezione si introduce il formalismo che consente di rappresentare uniformemente punti e vettori, e di esprimere le trasformazioni geometriche come moltiplicazioni matriciali.
-In alcuni casi verrà utilizzata la notazione bidimensionale per semplicità, mantenendo invariati i concetti sottostanti.
+Per descrivere oggetti e scene tridimensionali è necessario introdurre sistemi di riferimento e trasformazioni geometriche, che consentano di esprimere la posizione degli oggetti nello spazio e di passare da un sistema di coordinate a un altro.
+In questa sezione viene presentato il formalismo delle coordinate omogenee, utile per rappresentare in modo uniforme punti e vettori e per descrivere le trasformazioni geometriche tramite moltiplicazioni matriciali.
+Per semplicità, in alcuni passaggi verrà utilizzata una notazione bidimensionale, senza perdita di generalità rispetto ai concetti illustrati.
 
 % ====================================================
 % 3.2.1 - SISTEMI DI RIFERIMENTO AFFINI E COORDINATE OMOGENEE
 % ====================================================
 \subsection{Sistemi di riferimento affini e coordinate omogenee}
 \begin{definizione}[Sistema di riferimento]
-    Un \emph{sistema di riferimento} $F$ in uno spazio affine ci consente di determinare univocamente la posizione di ogni punto dello spazio; è identificato da:
+    Un \emph{sistema di riferimento} $F$ in uno spazio affine consente di determinare univocamente la posizione di ogni punto dello spazio; è identificato da:
     \begin{itemize}
         \item una base di vettori linearmente indipendenti $\mathcal{B} = \{\mathbf{e}_1, \mathbf{e}_2, \dots, \mathbf{e}_n\}$;
         \item un punto di origine $P_0$.
@@ -231,7 +231,7 @@ In alcuni casi verrà utilizzata la notazione bidimensionale per semplicità, ma
 % ====================================================
 \subsection{Cambiamento di sistema di riferimento}
 \label{subsec:cambio_sdr}
-Si mostra ora come gli strumenti studiati permettano di mappare un sistema di riferimento in un altro, ricavando le matrici corrispondenti alle trasformazioni volute.
+Si mostra ora come il formalismo introdotto permetta di descrivere il passaggio da un sistema di riferimento a un altro mediante opportune matrici di trasformazione, che consentono di esprimere le coordinate di uno stesso punto rispetto a sistemi differenti.
 
 Dati due sistemi di riferimento affini $F_1 = (\mathbf{x}, \mathbf{y}, O)$ e $F_2 = (\mathbf{u}, \mathbf{v}, \mathbf{e})$, rappresentiamo i vettori e l'origine di $F_2$ in funzione dei vettori e dell'origine di $F_1$:
 
@@ -265,28 +265,30 @@ Dati due sistemi di riferimento affini $F_1 = (\mathbf{x}, \mathbf{y}, O)$ e $F_
 \begin{proposizione}
     \label{prop:cambio_sdr}
     Sia $\mathbf{a} = \begin{bmatrix} x_1 & y_1 & 1 \end{bmatrix}^T$ il vettore delle coordinate omogenee di un punto $P$ rispetto al sistema $F_1$, e sia $\mathbf{b} = \begin{bmatrix} x_2 & y_2 & 1 \end{bmatrix}^T$ il medesimo punto espresso rispetto a $F_2$. 
-    Data la matrice di trasformazione delle basi $M$, valgono le seguenti relazioni di cambiamento di coordinate:
+    Indicando con $M$ la matrice che esprime la base di $F_2$ rispetto a quella di $F_1$, valgono le seguenti relazioni di cambiamento di coordinate:
     \begin{itemize}
-        \item La matrice trasposta $M^T$ mappa le coordinate dal sistema $F_2$ al sistema $F_1$:
+        \item La matrice trasposta $M^T$ trasforma le coordinate dal sistema $F_2$ al sistema $F_1$:
         \[
             \mathbf{a} = M^T \mathbf{b}
         \]
-        \item La matrice inversa della trasposta $(M^T)^{-1}$ mappa le coordinate dal sistema $F_1$ al sistema $F_2$:
+        \item La matrice inversa della trasposta $(M^T)^{-1}$ trasforma le coordinate dal sistema $F_1$ al sistema $F_2$:
         \[
             \mathbf{b} = (M^T)^{-1} \mathbf{a}
         \]
     \end{itemize}
 \end{proposizione}
 
-Avendo introdotto gli strumenti per esprimere le coordinate di un punto in sistemi di riferimento diversi, è possibile entrare nel dettaglio delle trasformazioni geometriche più comuni, che verranno utilizzate nella pipeline grafica per manipolare gli oggetti della scena.
+Una volta introdotti gli strumenti per esprimere le coordinate di uno stesso punto rispetto a sistemi di riferimento differenti, è possibile passare alle trasformazioni geometriche più comuni, utilizzate nella pipeline grafica per manipolare gli oggetti della scena.
 
 % ====================================================
 % 3.2.3 - TRASFORMAZIONI GEOMETRICHE ELEMENTARI
 % ====================================================
 \subsection{Trasformazioni geometriche elementari}
-Le trasformazioni geometriche elementari (traslazione, rotazione e scalatura) possono essere espresse in modo analogo a un cambio di sistema di riferimento.
-In questo contesto, anziché cambiare gli assi di riferimento, applichiamo le matrici direttamente sulle coordinate dei punti per modificarne la posizione nello spazio.
-Alla luce di quanto visto, approfondiamo come si compongono le singole matrici di trasformazione per trasformare un punto in coordinate omogenee $P = \begin{bmatrix} P_x & P_y & 1 \end{bmatrix}$ in un altro punto $P' = \begin{bmatrix} {P'}_x & {P'}_y & 1 \end{bmatrix}$, per poi visualizzarne il risultato in \cref{fig:trasformazioni_geometriche_elementari}.
+Le trasformazioni geometriche elementari (traslazione, rotazione e scalatura) possono essere espresse mediante matrici, in modo analogo a quanto visto per i cambiamenti di sistema di riferimento.
+In questo caso, tuttavia, non si modifica il sistema di coordinate, ma si applicano le matrici direttamente alle coordinate dei punti, così da cambiarne la posizione nello spazio.
+Nel seguito si mostra come costruire le matrici associate alle singole trasformazioni e come applicarle a un punto espresso in coordinate omogenee.
+Per semplicità, si considera il caso bidimensionale, trasformando un punto $P = \begin{bmatrix} P_x & P_y & 1 \end{bmatrix}$ in un altro punto $P' = \begin{bmatrix} {P'}_x & {P'}_y & 1 \end{bmatrix}$.
+Il risultato delle diverse trasformazioni è illustrato in \cref{fig:trasformazioni_geometriche_elementari}.
 
 \subsubsection{Traslazione}
 Dato il vettore di traslazione $\mathbf{e} = \begin{bmatrix}e_x & e_y\end{bmatrix}$, otteniamo il punto $P'$ traslando $P$ del vettore $\mathbf{e}$ grazie alla matrice di traslazione $T$:
@@ -364,7 +366,7 @@ Tenendo conto che:
     \label{fig:trasformazioni_geometriche_elementari}
 \end{figure}
 
-Ora che sono stati presentati gli strumenti geometrici per rappresentare e trasformare punti e vettori, è possibile contestualizzarli all'interno del processo di rendering.
+Dopo aver introdotto gli strumenti geometrici necessari per rappresentare e trasformare punti e vettori, si può ora mostrare come tali concetti intervengano nel processo di rendering.
 
 % ====================================================
 %
@@ -383,12 +385,12 @@ Poiché all'interno del color buffer viene scritta l'informazione del colore, è
 Il modello di colore RGBA -- ovvero Red, Green, Blue, Alpha -- è un'estensione del modello RGB in cui si include una quarta componente per il canale alpha, utilizzato per indicare l'opacità del colore.
 La GPU rappresenta quindi i colori tramite la quaterna di valori RGBA, con ogni componente compresa nell'intervallo $[0, 1]$: per $\alpha = 1$ il colore è completamente opaco, mentre per $\alpha = 0$ è completamente trasparente.
 
-L'intero processo di visualizzazione può essere riassunto in quattro sottosistemi:
+L'intero processo di visualizzazione può essere schematizzato in quattro sottosistemi:
 \begin{itemize}
-    \item Applicazione: l'applicazione con cui interagisce l'utente produce le primitive geometriche tridimensionali.
-    \item Geometria: le primitive vengono sottoposte a una sequenza di trasformazioni, passando da un sistema di riferimento a un altro premoltiplicando per apposite matrici, che permettono di passare dai vertici della scena 3D a coordinate normalizzate.
+    \item Applicazione: produce le primitive geometriche tridimensionali a partire dai dati e dalle interazioni dell’utente.
+    \item Geometria: applica alle primitive una sequenza di trasformazioni matriciali, che consentono di passare dai sistemi di riferimento della scena 3D alle coordinate normalizzate utilizzate dalla pipeline grafica.
     \item Rasterizzazione: converte le primitive geometriche risultanti in  frammenti da visualizzare sullo schermo tramite appositi algoritmi.
-    \item Visualizzazione: il dispositivo di output (ad esempio un monitor) mostra l'immagine creata.
+    \item Visualizzazione: mostra sul dispositivo di output, ad esempio un monitor, l'immagine finale generata.
 \end{itemize}
 
 Durante le fasi di geometria e rasterizzazione, a partire da OpenGL 2.0, il programmatore può intervenire all'interno della pipeline tramite dei programmi scritti in linguaggio OpenGL Shading Language (GLSL), che prendono il nome di \emph{shader}.
@@ -417,14 +419,16 @@ In \cref{fig:pipeline} è possibile visualizzare dove intervengono durante il pr
     \label{fig:pipeline}
 \end{figure}
 
-Poiché nelle sezioni precedenti abbiamo studiato e analizzato gli strumenti per manipolare punti e vettori, vediamo come essi vengono sfruttati all'interno della pipeline grafica: per il sottosistema geometrico analizzeremo ogni trasformazione di sistema di riferimento, mentre per quello di rasterizzazione descriveremo il processo di conversione delle primitive in frammenti.
+Dopo aver introdotto gli strumenti necessari per rappresentare e trasformare punti e vettori, è possibile analizzarne l’impiego all’interno della pipeline grafica.
+Nel sottosistema geometrico tali strumenti permettono di descrivere le trasformazioni tra i diversi sistemi di riferimento; nel sottosistema di rasterizzazione, invece, intervengono nella conversione delle primitive geometriche in frammenti.
 
 % ====================================================
 % 3.3.1 - MODELLAZIONE
 % ====================================================
 \subsection{Modellazione}
-Inizialmente, ogni oggetto è modellato in un proprio sistema di riferimento, detto \emph{Object Coordinate System} (OCS): vengono poi posizionati nella scena tridimensionale, il cui sistema di riferimento è detto \emph{World Coordinate System} (WCS).
-Questa fase è detta di modellazione, e avviene applicando a ogni vertice le trasformazioni studiate, ovvero scalatura, rotazione e infine traslazione.
+Inizialmente, ogni oggetto è modellato in un proprio sistema di riferimento, detto \emph{Object Coordinate System} (OCS).
+Per essere inserito nella scena tridimensionale, l’oggetto viene poi trasformato nel sistema di riferimento globale, detto \emph{World Coordinate System} (WCS).
+Questa fase è detta di \emph{modellazione}, e consiste nell'applicare ai vertici dell'oggetto una sequenza di trasformazioni geometriche, tipicamente scalatura, rotazione e traslazione.
 Poiché le trasformazioni geometriche sono associative ma non commutative, è necessario che vengano applicate nell'ordine corretto.
 Dal momento che nelle moltiplicazioni matriciali l'ultima matrice è la prima ad agire, la matrice di modellazione è composta nella seguente maniera:
 \[
@@ -436,8 +440,9 @@ Dal momento che nelle moltiplicazioni matriciali l'ultima matrice è la prima ad
 % ====================================================
 \subsection{Vista}
 \label{subsec:vista}
-In questa fase, viene posizionata e orientata nella scena una telecamera virtuale.
-La trasformazione di vista è una matrice che mappa tutti i vertici dal WCS al \emph{View Coordinate System} (VCS), il cui punto di origine è la posizione della telecamera (che convenzionalmente punta verso $-z$).
+In questa fase, viene posizionata e orientata nella scena una telecamera virtuale, che determina il punto di vista da cui la scena viene osservata.
+La trasformazione di vista è una matrice che trasforma tutti i vertici dal WCS al \emph{View Coordinate System} (VCS), cioè il sistema di riferimento solidale con la camera.
+In tale sistema, l’origine coincide con la posizione della camera e, per convenzione, la direzione di osservazione è orientata lungo l’asse $-z$.
 
 Uno dei modelli di camera virtuale più intuitivi e utilizzati, è quello della camera \emph{look at}, che si basa su quattro informazioni:
 \begin{itemize}
@@ -465,7 +470,7 @@ L'asse $\hat{\mathbf{v}}$ è a sua volta perpendicolare a $\hat{\mathbf{w}}$ e $
     \hat{\mathbf{v}} = \hat{\mathbf{w}} \times \hat{\mathbf{u}}
 \]
 
-Definiamo quindi il sistema di riferimento in coordinate di vista $VCS (\hat{\mathbf{u}}, \hat{\mathbf{v}}, \hat{\mathbf{w}}, C)$, ovvero i tre assi appena trovati con la telecamera all'origine. 
+Si definisce quindi il View Coordinate System come il sistema di riferimento $VCS (\hat{\mathbf{u}}, \hat{\mathbf{v}}, \hat{\mathbf{w}}, C)$, avente origine nella posizione della camera $C$ e assi individuati dai versori $\hat{\mathbf{u}}, \hat{\mathbf{v}}$ e $\hat{\mathbf{w}}$. 
 Conoscendo questi vettori risulta semplice calcolare la matrice di vista.
 Come visto nella \cref{subsec:cambio_sdr} per il cambio di sistema di riferimento, la matrice di trasformazione delle basi che esprime il $VCS (\hat{\mathbf{u}}, \hat{\mathbf{v}}, \hat{\mathbf{w}}, C)$ in termini del $WCS (\hat{\mathbf{x}}, \hat{\mathbf{y}}, \hat{\mathbf{z}}, O)$ è:
 \[
@@ -478,7 +483,7 @@ M =
 \end{bmatrix}
 \]
 
-Poiché la nostra matrice di vista $V$ dovrà trasformare i punti da WCS a VCS, per la \cref{prop:cambio_sdr} è composta come:
+Poiché la matrice di vista $V$ dovrà trasformare i punti da WCS a VCS, per la \cref{prop:cambio_sdr} è composta come:
 \[
 V =
 (M^T)^{-1}
@@ -489,13 +494,17 @@ V =
 % ====================================================
 \subsection{Proiezione}
 \label{subsec:proiezione}
-In generale, la proiezione è una trasformazione geometrica che ha come dominio uno spazio di dimensione $n$ e come codominio uno spazio di dimensione $n-1$.
-Una proiezione di un oggetto 3D è definita da un insieme di rette di proiezione dette proiettori che, partendo da un centro di proiezione comune, passano per tutti i punti dell'oggetto e intersecano un piano di proiezione per formare l'immagine bidimensionale.
-Quando i proiettori sono rette e la proiezione avviene su un piano si parla di proiezioni geometriche piane, che vengono divise in due tipologie: le proiezioni prospettiche e le proiezioni parallele.
+In generale, una proiezione è una trasformazione geometrica che ha come dominio uno spazio di dimensione $n$ e come codominio uno spazio di dimensione $n-1$.
+Nel caso della grafica tridimensionale, la proiezione consente di rappresentare un oggetto 3D su un piano bidimensionale.
 
-L'operazione di proiezione nella pipeline grafica viene divisa in due fasi: la determinazione del volume di vista -- ovvero la regione di spazio compresa tra due piani, detti piano vicino e piano lontano, che la camera virtuale è in grado di inquadrare in un dato momento -- e la sua mappatura in un cubo canonico (trattata in questa sezione), e la riduzione da spazio 3D a 2D (trattata nella sezione successiva).
+Tale rappresentazione si ottiene mediante un insieme di rette di proiezione, dette proiettori, che attraversano i punti dell’oggetto e intersecano il piano di proiezione, determinando così l’immagine risultante.
+Quando i proiettori sono rette e la superficie di proiezione è un piano, si parla di proiezioni geometriche piane.
+Queste si distinguono principalmente in due categorie: proiezioni prospettiche e proiezioni parallele
 
-In questa fase, grazie alla matrice di proiezione $P$, si passa dal VCS al sistema \emph{Normalized Device Coordinates} (NDC), un cubo canonico dai lati di lunghezza 2 centrato nell'origine tale che $x, y, z \in [-1, 1]$, così da semplificare sensibilmente i calcoli svolti negli stadi successivi.
+Nella pipeline grafica, l’operazione di proiezione può essere distinta in due fasi: la prima consiste nella definizione del volume di vista e nella sua mappatura in un cubo canonico, trattate in questa sezione; la seconda riguarda la riduzione della rappresentazione tridimensionale a immagine bidimensionale, affrontata nella sezione successiva.
+Il volume di vista è la regione di spazio inquadrata dalla camera virtuale, delimitata da due piani, detti piano vicino (\emph{near plane}) e piano lontano (\emph{far plane}).
+
+Nella prima fase della proiezione, mediante la matrice di proiezione $P$, le coordinate dei vertici vengono trasformate dal View Coordinate System (VCS) al sistema delle \emph{Normalized Device Coordinates} (NDC), un cubo canonico dai lati di lunghezza 2 centrato nell'origine tale che $x, y, z \in [-1, 1]$, così da semplificare sensibilmente i calcoli svolti negli stadi successivi.
 Al termine della moltiplicazione per la matrice di proiezione, la  pipeline riporta automaticamente i punti in coordinate cartesiane (quindi con la quarta coordinata $w = 1$)  dividendo tutte le componenti per $w$, operazione detta \emph{perspective divide}.
 
 \subsubsection{Proiezioni parallele}
@@ -504,7 +513,8 @@ Poiché vengono mantenute le distanze, linee parallele nella realtà lo sono anc
 
 Si dividono a loro volta in due classi, le proiezioni oblique e quelle ortografiche.
 Nelle proiezioni oblique i proiettori possono formare un angolo qualsiasi col piano di proiezione: ne è un esempio la cavaliera, utilizzata nel disegno tecnico, in cui la direzione di proiezione forma un angolo di 45 gradi con il piano di proiezione.
-Nelle proiezioni ortografiche invece, la direzione di proiezione coincide con la normale al piano di proiezione: in questo caso il volume di vista corrisponde a un parallelepipedo (visibile in \cref{fig:proiezione_ortografica}), che risulta semplice da trasformare nel cubo canonico poiché è sufficiente traslarne il centroide nell'origine per poi scalarne i vertici in $[-1, 1]$.
+Nelle proiezioni ortografiche invece, la direzione di proiezione coincide con la normale al piano di proiezione: in questo caso il volume di vista corrisponde a un parallelepipedo (visibile in \cref{fig:proiezione_ortografica}).
+La sua trasformazione nel cubo canonico delle NDC può essere ottenuta mediante due operazioni: una traslazione, che porta il centro del volume di vista nell’origine, e una scalatura, che riporta le coordinate dei suoi vertici nell’intervallo $[-1, 1]$.
 Dati i vertici del parallelepipedo, il suo centroide è identificato dal punto:
 \[
     C = 
@@ -529,7 +539,7 @@ Mentre i fattori di scala per ottenere lati di lunghezza 2 saranno:
     \end{bmatrix}
     = \begin{bmatrix} s_x & s_y & s_z \end{bmatrix}
 \]
-Otteniamo così la matrice di proiezione ortografica come la composizione della matrice di scala e di traslazione:
+La matrice di proiezione ortografica si ottiene quindi componendo la matrice di scalatura con quella di traslazione:
 \[
     P_{ortho} =
     \underbrace{
@@ -569,20 +579,22 @@ Dall'ultima riga della matrice notiamo che la coordinata $w$ viene sempre manten
 
 \subsubsection{Proiezioni prospettiche}
 Nelle proiezioni prospettiche il centro di proiezione si trova a distanza finita dal piano di proiezione: gli oggetti più vicini all'osservatore risulteranno più grandi e viceversa.
-Il volume di vista è un tronco di piramide (visibile in \cref{fig:proiezione_prospettica}) che dovrà essere trasformato in parallelepipedo, in cui i punti del piano vicino fungono da riferimento e quelli del piano lontano vengono compressi in un rettangolo più piccolo: il parallelepipedo dovrà essere infine trasformato nel cubo normalizzato tramite una proiezione ortografica.
+Il volume di vista è un tronco di piramide (visibile in \cref{fig:proiezione_prospettica}); per ricondurre tale volume al cubo canonico delle NDC, si procede in due passaggi.
+Anzitutto il tronco di piramide viene trasformato in un parallelepipedo, comprimendo progressivamente i punti in funzione della loro distanza dalla camera.
+Successivamente, il parallelepipedo ottenuto viene normalizzato nel cubo canonico mediante una trasformazione analoga a quella utilizzata per la proiezione ortografica. 
 
-Detta $d$ la distanza del piano di proiezione dal centro di proiezione, vogliamo che i punti $P = \begin{bmatrix} x & y & z & 1 \end{bmatrix}$ vengano mappati in altri punti in cui la grandezza dipende dalla distanza: l'obiettivo è quindi costruire una matrice $M_{persp}$ tale che, dopo la perspective divide, si ottenga $x' = x \cdot d / z$ e $y' = y \cdot d /z$.
+Detta $d$ la distanza del piano di proiezione dal centro di proiezione, si vuole che i punti $P = \begin{bmatrix} x & y & z & 1 \end{bmatrix}$ vengano mappati in altri punti in cui la grandezza dipende dalla distanza: l'obiettivo è quindi costruire una matrice $M_{persp}$ tale che, dopo la perspective divide, si ottenga $x' = x \cdot d / z$ e $y' = y \cdot d /z$.
 
 Per ottenere questa divisione per $\frac{z}{d}$, è sufficiente che la quarta riga della matrice produca $w = \frac{z}{d}$: la quarta riga della matrice è quindi $\begin{bmatrix} 0 & 0 & \frac{1}{d} & 0 \end{bmatrix}$.
 Le prime due righe lasciano invece $x$ e $y$ inalterati, poiché la divisione per $w$ penserà a scalarle correttamente.
 
 Rimane da determinare la terza riga della matrice, che deve rimappare $z$ nell'intervallo $[-1, 1]$ del cubo canonico.
 Essa non può dipendere da $x$ e $y$ (altrimenti la profondità di un punto cambierebbe in base alla sua posizione orizzontale o verticale), assumendo quindi necessariamente la forma $\begin{bmatrix} 0 & 0 & a & b \end{bmatrix}$, dove $a$ e $b$ sono due incognite.
-Notiamo che, dopo la perspective divide, la coordinata $z$ risultante è:
+Dopo la perspective divide, la coordinata normalizzata $z_{NDC}$ risulta:
 \[
     z_{NDC} = \frac{az + b}{z/d} = \frac{(az + b)d}{z}
 \]
-Imponendo le condizioni per cui il piano vicino deve essere mappato in $z = -1$ e il piano lontano in $z = +1$, e assumendo che il piano di proiezione corrisponda al piano vicino ($d = near$):
+Imponendo che il piano vicino venga mappato in $z = -1$ e il piano lontano in $z = +1$, e assumendo che il piano di proiezione corrisponda al piano vicino ($d = near$):
 \[
     \begin{cases} 
         \dfrac{(a \cdot near + b) \cdot d}{near} = -1 \\[10pt]
@@ -626,8 +638,9 @@ Una volta trasformato il volume di vista in un parallelepipedo, è sufficiente a
 % 3.3.4 - CLIPPING E VIEWPORT 
 % ====================================================
 \subsection{Clipping e viewport}
-Una volta ottenuto il cubo in coordinate NDC, viene eseguito il \emph{clipping}, in cui le porzioni di primitive geometriche che non rientrano nel volume di vista vengono scartate dalla pipeline: questo permette di eseguire i calcoli successivi solo per i vertici che rientrano effettivamente nell'area da visualizzare.
-Il risultato di quest'operazione è schematizzato per una scena bidimensionale in \cref{fig:clipping}.
+Dopo la trasformazione nel sistema delle Normalized Device Coordinates (NDC), la pipeline esegue il \emph{clipping}, cioè l’eliminazione delle porzioni di primitive geometriche esterne al volume di vista.
+In questo modo, le fasi successive operano solo sulle parti della scena effettivamente visibili.
+Il risultato di questa operazione è schematizzato, per una scena bidimensionale, in \cref{fig:clipping}.
 
 \begin{figure}[H]
 	\centering
@@ -636,7 +649,8 @@ Il risultato di quest'operazione è schematizzato per una scena bidimensionale i
     \label{fig:clipping}
 \end{figure}
 
-Infine i valori delle coordinate $x$ e $y$ passano dal sistema NDC al sistema di \emph{viewport}, ovvero in coordinate dell'effettiva area di visualizzazione in pixel, di cui è necessario conoscere l'origine del sistema di riferimento $(x_0, y_0)$ e l'altezza e larghezza dell'area $(height, width)$:
+Infine le coordinate $x$ e $y$, espresse nel sistema NDC, vengono trasformate nel sistema di \emph{viewport}, cioè nel sistema di coordinate in pixel dell’area effettivamente visualizzata sullo schermo.
+La trasformazione dipende l’origine della viewport, indicata con $(x_0, y_0)$, e dalle sue dimensioni, indicate con $width$ e $height$:
 \[
     x_{vp} = \frac{width}{2} \cdot x_{NDC} + \left(x_0 + \frac{width}{2}\right)
 \]
@@ -644,16 +658,16 @@ Infine i valori delle coordinate $x$ e $y$ passano dal sistema NDC al sistema di
     y_{vp} = \frac{height}{2} \cdot y_{NDC} + \left(y_0 + \frac{height}{2}\right)
 \]
 
-A questo punto della pipeline termina il sottosistema geometrico, per passare al sottosistema di rasterizzazione.
+A questo punto termina il sottosistema geometrico della pipeline e l’elaborazione passa alla rasterizzazione.
 
 % ====================================================
 % 3.3.5 - RASTERIZZAZIONE 
 % ====================================================
 \subsection{Rasterizzazione}
 Il sottosistema raster è l'ultima fase della pipeline di rendering.
-Il processo di rasterizzazione si occupa di convertire le primitive geometriche (punti, linee, poligoni) definite in coordinate di viewport nella loro rappresentazione discreta composta da frammenti: ne è riportato un esempio in \cref{fig:rasterizzazione}.
-Nel passaggio dai vertici ai frammenti, la GPU interpola tutti i dati dei vertici per ogni frammento grazie alle coordinate baricentriche, discusse in precedenza.
-Dopo la produzione dei frammenti interviene il \emph{fragment shader}, utilizzato principalmente per calcolarne il colore.
+Il processo di rasterizzazione si occupa di convertire le primitive geometriche (punti, linee, poligoni) espresse in coordinate di viewport in una rappresentazione discreta composta da frammenti, come mostrato in \cref{fig:rasterizzazione}.
+Nel passaggio dai vertici ai frammenti, la GPU interpola per ciascun frammento gli attributi associati ai vertici della primitiva, utilizzando le coordinate baricentriche introdotte in precedenza.
+Una volta generati i frammenti, interviene il \emph{fragment shader}, il cui compito principale è determinarne il colore.
 
 \begin{figure}[ht]
 	\centering
@@ -679,14 +693,15 @@ Un esempio di funzione di blending può essere la seguente, denominata da OpenGL
 I modelli di illuminazione descrivono i fattori che determinano il colore di una superficie in un determinato punto, tramite le interazioni tra luci e superfici, le proprietà delle superfici (materiali) e la natura della radiazione luminosa incidente.
 Sono classificati in due gruppi, i modelli di illuminazione locale e i modelli di illuminazione globale.
 
-Un modello di illuminazione è detto locale quando calcola l'intensità luminosa di un singolo punto della superficie considerando esclusivamente la luce proveniente direttamente dalle sorgenti luminose.
+Un modello di illuminazione locale calcola l'intensità luminosa in un singolo punto della superficie considerando esclusivamente il contributo diretto delle sorgenti luminose.
 Non vengono quindi calcolate ombre, riflessioni all'interno dell'ambiente e/o rifrazioni.
-Degli esempi di modelli di illuminazione locale sono il modello di Phong e il modello di Blinn-Phong, che verranno approfonditi successivamente.
+Esempi di modelli di illuminazione locale sono il modello di Phong e il modello di Blinn-Phong, che verranno approfonditi successivamente.
 
-Un modello di illuminazione è invece detto globale quando calcola il colore in un punto considerando sia la luce diretta che quella che raggiunge il punto dopo essere stata riflessa e/o trasmessa dalle altre superfici presenti nell'ambiente circostante.
+Un modello di illuminazione globale, invece, calcola il colore in un punto considerando sia la luce diretta che quella che raggiunge il punto dopo essere stata riflessa e/o trasmessa dalle altre superfici presenti nell'ambiente circostante.
 I modelli di illuminazione globale più conosciuti sono il \emph{ray tracing}, che simula il percorso dei raggi luminosi, e il \emph{radiosity}, che modella lo scambio di energia luminosa tra superfici tramite equazioni di conservazione dell'energia.
 
-Sebbene i modelli locali offrano semplicità e velocità di calcolo, solo con i modelli globali si può ottenere il fotorealismo: le differenze tra i modelli sono visibili nelle immagini a confronto in \cref{fig:modelli_illuminazione}.
+Sebbene i modelli locali siano caratterizzati da maggiore semplicità e minore costo computazionale, i modelli globali consentono di ottenere risultati più vicini al fotorealismo, poiché tengono conto anche dei contributi indiretti della luce.
+Le differenze tra le due categorie sono illustrate nel confronto riportato in \cref{fig:modelli_illuminazione}.
 
 \begin{figure}[H]
     \centering
@@ -705,7 +720,7 @@ Sebbene i modelli locali offrano semplicità e velocità di calcolo, solo con i 
     \label{fig:modelli_illuminazione}
 \end{figure}
 
-Mentre il calcolo dell'illuminazione si occupa di definire l'intensità luminosa di un punto in base alle proprietà della luce e del materiale, lo \emph{shading} specifica come tale luce viene effettivamente utilizzata per colorare i pixel dell'immagine finale.
+Mentre il calcolo dell'illuminazione si occupa di definire l'intensità luminosa di un punto in base alle proprietà della luce e del materiale, lo \emph{shading} specifica come tale informazione viene effettivamente utilizzata per colorare i pixel dell'immagine finale.
 
 Nei paragrafi seguenti vengono analizzati il modello di Phong e la sua variante migliorata di Blinn-Phong, per poi illustrare come questi vengono applicati attraverso i principali modelli di shading.
 
@@ -748,6 +763,7 @@ Nel caso in cui $N$ e $L$ siano normalizzati utilizziamo il prodotto scalare:
 \[
     D = I_p \cdot k_d \cdot (\hat{N} \cdot \hat{L})
 \]
+dove la notazione $\hat{\mathbf{v}}$ indica la normalizzazione del vettore $\mathbf{v}$.
 
 \subsubsection{Componente speculare}
 Qualora la superficie di un oggetto non sia completamente opaca, la luce non viene riflessa ugualmente in tutte le direzioni, ma si concentra in un intervallo ristretto.
@@ -904,4 +920,4 @@ Promette così di gestire correttamente le riflessioni speculari, anche quando q
 % CONCLUSIONE CAPITOLO 3
 % ====================================================
 \bigskip
-Disponendo ora degli strumenti necessari alla comprensione della pipeline grafica, è possibile procedere con la progettazione dell'architettura del software.
+I concetti introdotti in questo capitolo costituiscono la base teorica necessaria per comprendere le scelte progettuali e implementative del nuovo event display 3D, che verranno descritte nel capitolo successivo.
