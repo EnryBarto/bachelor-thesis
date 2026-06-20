@@ -101,6 +101,7 @@ La distinzione tra punti e vettori è fondamentale nella computer grafica tridim
 % 3.1.2 - COMBINAZIONI E SIMPLESSI
 % ====================================================
 \subsection{Combinazioni e simplessi}
+\label{subsec:combinazioni_simplessi}
 Vengono riportate le definizioni dei concetti di combinazione di punti, illustrando successivamente il ruolo fondamentale che ricoprono nell'ambito della computer grafica. 
 
 \begin{definizione}[Combinazione affine]
@@ -680,9 +681,10 @@ Una volta terminata l'elaborazione dei frammenti, tramite il \emph{depth test} l
 In quest'ultimo caso, il colore viene eventualmente miscelato a quello già presente qualora il \emph{blending} sia attivo.
 Il blending è una tecnica utilizzata principalmente per implementare la trasparenza: invece di sovrascrivere il color buffer con il colore del frammento candidato, i due colori vengono miscelati in base all'opacità del frammento in arrivo.
 Un esempio di funzione di blending può essere la seguente, denominata da OpenGL come \texttt{GL\_ONE\_MINUS\_SRC\_ALPHA}:
-\[
+\begin{equation}
     C_{out} = \alpha \cdot C_{src} + (1 - \alpha) \cdot C_{dst} \quad \text{con} \quad \alpha \in [0, 1]
-\]
+    \label{eq:blending}
+\end{equation}
 
 % ====================================================
 %
@@ -856,9 +858,10 @@ Nel punto di massima riflessione, ovvero $V = R$, si ha che $H$ è allineato ad 
 \end{figure}
 
 Blinn decide quindi di sostituire $(\hat{R} \cdot \hat{V})^n$ con $(\hat{N} \cdot \hat{H})^n$, creando così l'equazione del modello di illuminazione di Blinn-Phong:
-\[
+\begin{equation}
     I = I_{amb} \cdot k_a + f_{att} \cdot I_p [k_d(\hat{N} \cdot \hat{L}) + k_s (\hat{N} \cdot \hat{H})^n]
-\]
+    \label{eq:blinn_phong}
+\end{equation}
 
 Bisogna però notare che spesso $\beta$ è più piccolo di $\alpha$ usato in Phong, tranne quando la superficie è vista da un angolo molto ripido. Per avvicinarsi di più al risultato di $(R \cdot V)^n$ di Phong, in $(N \cdot H)^{n_\beta}$ sarebbe opportuno scegliere $n_\beta > n$.
 Inoltre, mentre Phong produce riflessi quasi circolari su una superficie piana, quelli di Blinn-Phong diventano ellittici quando la superficie viene vista da un angolo radente, ad esempio quando il sole vicino all'orizzonte viene riflesso sulla superficie del mare, rappresentato in \cref{fig:differenze_phong_blinn}.
@@ -884,6 +887,7 @@ Inoltre, mentre Phong produce riflessi quasi circolari su una superficie piana, 
 % 3.4.3 - MODELLI DI SHADING
 % ====================================================
 \subsection{Modelli di shading}
+\label{subsec:shading}
 I modelli di shading rappresentano il processo matematico e algoritmico utilizzato per determinare il colore di tutti i pixel che ricoprono una superficie, applicando un determinato modello di illuminazione.
 Si differenziano principalmente per la frequenza con cui viene ricalcolato il modello di illuminazione, dando diversi effetti visibili in \cref{fig:modelli_shading}.
 

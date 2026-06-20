@@ -1,0 +1,426 @@
+\chapter{Implementazione del software}
+Definita la teoria necessaria a comprendere la pipeline grafica ed effettuate le scelte progettuali per i principali punti critici del sistema, è ora possibile procedere con l'implementazione dell'event display. Verranno illustrate le librerie utilizzate, alcuni passaggi algoritmici rilevanti accompagnati da porzioni di codice commentato, gli shader realizzati e le ottimizzazioni introdotte.
+
+% ====================================================
+%
+% 5.1 - TECNOLOGIE E STRUMENTI
+%
+% ====================================================
+\section{Tecnologie e strumenti}
+Si è scelto di implementare il nuovo event display in C++, linguaggio già ampiamente utilizzato in sndsw.
+Rispetto a Python -- l'altro linguaggio principale del framework -- il C++ offre prestazioni superiori grazie alla compilazione nativa e alla gestione diretta della memoria, caratteristiche particolarmente rilevanti per un'applicazione di rendering interattivo.
+Inoltre, le principali librerie grafiche utilizzate nel progetto, che verranno esposte nel paragrafo successivo, espongono API native in C e C++.
+
+% ====================================================
+% 5.1.1 - LIBRERIE UTILIZZATE
+% ====================================================
+\subsection{Librerie utilizzate}
+Dal momento che il CERN adotta la filosofia del \emph{Free and Open-Source Software} (FOSS), la ricerca delle librerie ha richiesto di porre particolare attenzione alle licenze adottate.
+Si riportano quelle utilizzate in \cref{tab:librerie}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Libreria} & \textbf{Licenza} & \textbf{Scopo} \\
+        \midrule
+        GLAD    & MIT   & Loader per le funzioni OpenGL \\
+        GLFW    & zlib  & Gestione finestra e input \\
+        GLM     & MIT   & Matematica vettoriale e matriciale \\
+        Assimp  & BSD 3 & Parsing file glTF \\
+        Dear ImGui      & MIT  & Interfaccia utente \\
+        ImGuiFileDialog & MIT  & File browser \\
+        stb\_image      & MIT  & Caricamento e salvataggio immagini \\
+        \bottomrule
+    \end{tabular}
+    \caption{Librerie utilizzate nel progetto}
+    \label{tab:librerie}
+\end{table}
+
+Le librerie GLAD e Dear ImGui sono state integrate direttamente nella cartella \texttt{external/}: nel caso di GLAD perché i file vengono generati tramite un apposito servizio web, nel caso di Dear ImGui perché gli stessi sviluppatori raccomandano l'inclusione diretta dei sorgenti.
+Le restanti dipendenze sono gestite tramite il modulo CMake \texttt{FetchContent}, che le scarica automaticamente durante la configurazione del progetto.
+
+% ====================================================
+%
+% 5.2 - CARICAMENTO DATI SPERIMENTALI
+%
+% ====================================================
+\section{Caricamento dati sperimentali}
+Il caricamento dei dati tramite la classe \texttt{SndswEventManager} avviene in tre fasi, ognuna implementata in un apposito metodo: lettura della run, della geometria e dell'evento.
+Questo processo è orchestrato dalla FSM (descritta nella \cref{sec:fsm}) tramite la classe \texttt{App}: i dati restituiti da \texttt{SndswEventManager} vengono quindi passati alla \texttt{Scene} per l'effettiva visualizzazione.
+
+% ====================================================
+% 5.2.1 - CARICAMENTO RUN E GEOMETRIA
+% ====================================================
+\subsection{Caricamento run e geometria}
+All'interno del metodo \texttt{loadRun(runNumber)}, viene inizialmente e\-stratto il nome del file della geometria richiesta. 
+Questo approccio consente di verificare preventivamente la mancata corrispondenza con la geometria eventualmente già presente in memoria, sollevando, se necessario, l'eccezione personalizzata \texttt{Geometry\allowbreak{}Mismatch\allowbreak{}Exception}. 
+Successivamente, l'interfaccia fa uso del framework \texttt{sndsw} per caricare la run all'interno di un oggetto \texttt{TChain}, la struttura dati nativa di ROOT preposta alla gestione dei dati distribuiti su più file. 
+Dalla \texttt{TChain} vengono infine estratti i metadati necessari a istanziare l'oggetto \texttt{RunData}, restituito al chiamante del metodo.
+Nel \cref{lst:loadrun} è riportato lo scheletro del codice che esegue quanto spiegato.
+
+\lstinputlisting[
+    style=cppstyle,
+    caption={Integrazione con il framework \texttt{sndsw} ed estrazione dei dati della run in \texttt{SndswEventManager}},
+    label={lst:loadrun}
+]{cap5/LoadRun.cpp}
+
+Solo dopo aver caricato per la prima volta una run, va inizializzata la geometria tramite il metodo \texttt{loadGeometry}, così da predisporre i sottorivelatori corretti per essere successivamente popolati con i dati degli eventi.
+
+% ====================================================
+% 5.2.2 - CARICAMENTO E CLUSTERING DEGLI EVENTI
+% ====================================================
+\subsection{Caricamento e clustering degli eventi}
+Poiché la maggior parte dei sottorivelatori acquisisce dati in due dimensioni, mostrare graficamente ogni singola hit comporterebbe un inutile sovraccarico della scena: per evitare confusione, si è scelto di applicare algoritmi di clustering che raggruppano le attivazioni vicine.
+Per mantenere il sistema flessibile, l'utente può comunque personalizzare i parametri di soglia che regolano la formazione di questi cluster.
+
+Quando run e geometria sono stati entrambi inizializzati, è possibile procedere con il caricamento dell'evento utilizzando il metodo \texttt{loadEvent(eventNumber, clusterConfiguration)}.
+Dopo aver controllato la validità del numero, viene richiesto a ROOT di leggerne i dati dallo storage.
+Si procede poi a ciclare su tutti i piani di ogni sottorivelatore, invocando la funzione di clustering con le configurazioni richieste ed istanziando oggetti delle classi \texttt{DetectorData} e \texttt{HitData} che verranno restituiti all'interno di \texttt{EventData}.
+
+Nel \cref{lst:loadevent} è riportato, a titolo di esempio, il processo di clustering per i piani SciFi: le hit vengono prima raggruppate in cluster tramite \texttt{ClustersPositions}, per poi essere tradotte in oggetti \texttt{HitData} e aggiunte al \texttt{DetectorData} corrispondente.
+Lo stesso schema si ripete per ciascun sottorivelatore.
+
+\lstinputlisting[
+    float=htb,
+    style=cppstyle,
+    caption={Dettaglio di creazione e lettura dei dati dei cluster per i piani SciFi},
+    label={lst:loadevent}
+]{cap5/LoadEvent.cpp}
+
+% ====================================================
+%
+% 5.3 - SCENA E CAMERA
+%
+% ====================================================
+\section{Scena e camera}
+La classe \texttt{Scene} è il coordinatore degli oggetti da renderizzare: possiede il riferimento agli oggetti tridimensionali della geometria e delle hit, oltre alla camera e la proiezione.
+
+% ====================================================
+% 5.3.1 - Costruzione della scena
+% ====================================================
+\subsection{Costruzione della scena}
+La costruzione degli oggetti di scena viene sempre avviata dal loop di rendering principale della classe \texttt{App} durante gli appositi stati di \texttt{LOAD}.
+
+\subsubsection{Caricamento geometria glTF}
+Per caricare la geometria, l'app richiede all'\texttt{AppStateManager} il percorso del file che ne contiene la mesh, indipendentemente dal fatto che si tratti di quella predefinita o di quella selezionata dall'utente.
+Il percorso viene poi passato alla scena, tramite il metodo \texttt{Scene::loadGeometry\allowbreak{}(path)}: al suo interno la scena lo inoltra alla \texttt{ObjectFactory} per creare un \texttt{Object}, grazie al metodo \texttt{ObjectFactory::getFromFile(path)}.
+
+La factory utilizza la libreria assimp per leggere dal file tutte le mesh e i materiali che contiene, creando le liste con gli oggetti \texttt{Material} e \texttt{GpuMesh} che andranno condivisi (in accordo con il pattern illustrato nella \cref{subsec:oggetti_tridimensionali_scena}).
+Viene quindi invocato il costruttore di \texttt{Object} con la scena assimp e le due liste: a partire dai dati in essa contenuti, viene avviata la costruzione ricorsiva dell'albero dei nodi, associando a ciascuno le mesh e i materiali condivisi (vedi \cref{lst:loadnode}).
+
+\lstinputlisting[
+    float=ht,
+    style=cppstyle,
+    caption={Creazione ricorsiva dei nodi utilizzando la libreria assimp},
+    label={lst:loadnode}
+]{cap5/Node.cpp}
+
+\subsubsection{Caricamento dati sperimentali}
+Nelle sezioni precedenti è stato illustrato il processo di acquisizione dei dati tramite il framework sndsw.
+Quando l'app ha ottenuto l'oggetto \texttt{EventData} da \texttt{SndswEventManager}, lo passa alla scena, così che possa essere utilizzato per la creazione degli oggetti da visualizzare.
+Analogamente al caricamento della geometria, viene sempre impiegata l'\texttt{ObjectFactory} che restituisce l'\texttt{Object} contenente tutte le hit, a partire dai dati dell'evento e la \texttt{ColorPalette} da utilizzare per la determinazione dei colori.
+
+La factory provvede a creare un albero il cui primo livello contiene un nodo per ogni sottorivelatore, associando ogni hit a una \texttt{Mesh}.
+Questa suddivisione rende agevole la navigazione dell'albero dei nodi tramite interfaccia grafica.
+Per ogni hit, la \texttt{GpuMesh} del cubo -- istanziata una sola volta nella factory -- viene condivisa tra tutte le istanze delle \texttt{Mesh}, ciascuna posizionata e scalata tramite la propria matrice di modellazione in base a posizione e raggio contenuti in \texttt{HitData}.
+
+% ====================================================
+% 5.3.2 - COLORAZIONE DELLE HIT
+% ====================================================
+\subsection{Colorazione delle hit}
+Durante il caricamento dell'evento, il metodo \texttt{Scene::setEvent} provvede a creare la palette che definirà i colori delle hit.
+Sulla base delle impostazioni scelte dall'utente tramite l'interfaccia grafica, verranno istanziati i due oggetti strategy \texttt{VariableGetter} e \texttt{ValueMapper}, utilizzati per la creazione della \texttt{ColorPalette} che viene poi passata alla \texttt{ObjectFactory}.
+
+La factory, durante la creazione di ogni mesh, non dovrà fare altro che assegnarle il colore restituito dal metodo \texttt{getColor} della \texttt{Color\allowbreak{}Palette} ricevuta come parametro.
+L'attribuzione del colore avviene tramite la creazione di un oggetto \texttt{Material}: esso consente infatti di creare un materiale per il modello di illuminazione di Blinn-Phong a partire dal colore base.
+Nel \cref{lst:materiale} è riportato come viene creato un materiale a cui si assegna un'importante componente diffusiva, con dei riflessi tendenti al bianco.
+La bassa shininess utilizzata produce riflessi diffusi su una vasta area anziché concentrati in un unico punto, tipici di una superficie leggermente opaca.
+
+\lstinputlisting[
+    style=cppstyle,
+    caption={Creazione del materiale per il modello di illuminazione di Blinn-Phong a partire da un colore base},
+    label={lst:materiale}
+]{cap5/Material.cpp}
+
+% ====================================================
+% 5.3.3 - CAMERA E PROIEZIONI
+% ====================================================
+\subsection{Camera e proiezioni}
+La gestione della camera e della proiezione da utilizzare è cen\-tralizza\-ta nella classe \texttt{ViewPort}.
+Essa contiene infatti un oggetto \texttt{Camera} e uno \texttt{Projection}, fungendo quindi da fornitore delle matrici di vista e proiezione.
+Per tenerli aggiornati espone il metodo \texttt{ViewPort::update()}, da richiamare a ogni esecuzione del ciclo di rendering, in cui aggiorna la proiezione in caso di variazione delle dimensioni della finestra e sposta la camera in caso di interazione dell'utente.
+
+\subsubsection{Camera}
+La camera utilizzata nel progetto segue il modello look at illustrato nella \cref{subsec:vista}: i suoi attributi sono quindi la posizione, il target osservato e il versore che definisce l'up del mondo, da cui è possibile ricavare tutti gli altri vettori necessari.
+Ogni tipo di utilizzo della camera si traduce in operazioni geometriche su questi tre attributi: si riporta l'esempio dello spostamento parallelo nel \cref{lst:muovi_camera_parallela}, ovvero quello utilizzato per spostare la camera e il target lungo il piano individuato dai versori up e right, preservandone la distanza reciproca.
+
+\lstinputlisting[
+    style=cppstyle,
+    caption={Operazioni che permettono lo spostamento della camera lungo il piano parallelo alla vista corrente},
+    label={lst:muovi_camera_parallela}
+]{cap5/CameraMoveParallel.cpp}
+
+Dal momento che non avrebbe senso ricalcolare la matrice di vista a ogni ciclo di rendering, ne viene salvata una copia a ogni sua modifica.
+Ogni metodo modifica infatti solo i tre attributi della camera, per poi invocare il metodo \texttt{Camera::recomputeMatrix()} che ricalcola la matrice di vista sfruttando la funzione \texttt{lookAt(position, target, worldUp)} della libreria glm.
+
+\subsubsection{Proiezioni}
+Come studiato nella \cref{subsec:proiezione}, l'elaborazione si differenzia a seconda che si tratti di una configurazione ortografica o prospettica: le classi di implementazione sono rispettivamente \texttt{OrthographicProjec\allowbreak{}tion} e \texttt{PerspectiveProjection}.
+La classe \texttt{BasicProjection} sfrutta un sistema di caching della propria matrice identico a quello della camera, così da aggiornarla solo alla modifica delle dimensioni della finestra.
+In entrambi i casi vengono utilizzate le funzioni messe a disposizione dalla libreria glm -- \texttt{ortho} e \texttt{perspective} -- che necessitano però di informazioni diverse.
+Mentre la prospettica richiede il campo di vista, il rapporto d'aspetto della finestra e la distanza dai due piani vicino e lontano, per l'ortografica sono necessarie le dimensioni dei due piani e la loro distanza dal punto di vista.
+In quest'ultimo caso, l'estensione di tali superfici è calcolata sulla base del campo visivo e della distanza dal target, così da simulare l'effetto di zoom anche per la proiezione ortografica.
+Nel \cref{lst:proiezioni} è riportata l'implementazione per i due tipi di proiezione.
+
+\lstinputlisting[
+    float=htb,
+    style=cppstyle,
+    caption={Calcolo delle matrici di proiezione per entrambi i tipi previsti},
+    label={lst:proiezioni}
+]{cap5/Projections.cpp}
+
+% ====================================================
+%
+% 5.4 - MOTORE DI RENDERING
+%
+% ====================================================
+\section{Motore di rendering}
+I dati di cui eseguire il rendering sono memorizzati in appositi buffer, i cui puntatori sono salvati nella classe \texttt{GpuMesh}.
+Prima di eseguire la chiamata ad OpenGL in cui si chiede di renderizzare le primitive contenute in un certo buffer, è necessario specificare quali shader utilizzare e fornire loro i dati aggiuntivi necessari.
+
+Nel software sviluppato, i sorgenti degli shader vengono compilati dalla classe \texttt{ShaderMaker}: da quel momento risiederanno quindi nella GPU associati a un \emph{program ID}, memorizzato come attributo della classe \texttt{Shader}.
+Il rendering avviene quindi in tre fasi:
+\begin{itemize}
+    \item attivazione di uno shader.
+    \item passaggio delle variabili allo shader.
+    \item chiamata di render OpenGL su un buffer.
+\end{itemize}
+
+Dal momento che ogni chiamata alle API grafiche OpenGL ha un costo non indifferente, verranno illustrati nelle sezioni successive la gestione dei buffer della GPU e le ottimizzazioni introdotte per ridurre tali chiamate.
+
+% ====================================================
+% 5.4.1 - GESTIONE DELLE MESH SULLA GPU
+% ====================================================
+\subsection{Gestione delle mesh sulla GPU}
+Per ogni vertice da visualizzare è necessario memorizzare le informazioni associate -- posizione, colore e vettore normale -- ciascuna salvata in un \emph{Vertex Buffer Object} (VBO) identificato da un indice detto \emph{layer}, così da renderle accessibili agli shader.
+Per accorpare un insieme di VBO in un unico oggetto, riducendo le chiamate al driver grafico, viene utilizzato il \emph{Vertex Array Object} (VAO).
+
+Molti vertici sono inoltre condivisi dai triangoli in cui vengono suddivise le superfici: invece di duplicarne le informazioni, a ciascuno viene associato un indice.
+La lista degli indici da utilizzare per il rendering viene memorizzata in un \emph{Element Buffer Object} (EBO), anch'esso contenuto nel VAO.
+Per eseguire il rendering di una geometria è quindi sufficiente attivare il VAO e richiedere il disegno degli indici memorizzati nell'EBO.
+Il processo di creazione di questi buffer e la sequenza di rendering sono riportati nel \cref{lst:init_vao}; poiché si lavora con triangoli, la \texttt{renderMode} utilizzata è sempre \texttt{GL\_TRIANGLES}.
+
+\lstinputlisting[
+    float=htb!,
+    style=cppstyle,
+    caption={Istruzioni OpenGL per la creazione di VAO, VBO ed EBO, e per eseguirne il rendering},
+    label={lst:init_vao}
+]{cap5/GpuMesh.cpp}
+
+% ====================================================
+% 5.4.2 - OTTIMIZZAZIONI
+% ====================================================
+\subsection{Ottimizzazioni}
+Per rendere l'interazione con l'utente il più fluida possibile, sono state introdotte alcune ottimizzazioni: una punta a diminuire il peso della navigazione dell'albero degli oggetti e dei nodi, mentre l'altra a minimizzare il numero di chiamate al driver grafico per gli shader.
+
+\subsubsection{Precalcolo delle matrici di modellazione}
+La struttura del file glTF prevede che ogni nodo trasformi i suoi figli applicandogli la propria matrice di modellazione.
+La trasformazione finale di una mesh è quindi data dalla moltiplicazione successiva di tutte le matrici dei nodi da cui discende.
+
+Dal momento che il software non prevede la modifica interattiva di specifici nodi della geometria, la matrice di ogni mesh rimane invariata per tutto il ciclo di vita dell'oggetto.
+Per questo motivo si è deciso di precalcolare la matrice di modellazione alla creazione dell'oggetto; \texttt{Object} innesca il calcolo ricorsivo con il metodo \texttt{updateGlobalModelMatrix} del suo nodo radice, così che la trasformazione finale venga salvata come attributo degli oggetti \texttt{Mesh}.
+La funzione ricorsiva dei nodi è riportata nel \cref{lst:cache_matrice_modellazione}.
+
+\lstinputlisting[
+    float=htb,
+    style=cppstyle,
+    caption={Sistema di aggiornamento ricorsivo della cache della matrice di modellazione per le \texttt{Mesh}},
+    label={lst:cache_matrice_modellazione}
+]{cap5/UpdateModelMatrix.cpp}
+
+\subsubsection{Riduzione delle chiamate per gli shader}
+Le variabili che gli shader in esecuzione sulla GPU richiedono dall'esterno, ovvero dall'applicazione, sono dette \emph{uniform}. Inizialmente era previsto che a ogni mesh venissero passate tutte le uniform richieste, assegnandole singolarmente prima di ciascuna chiamata di rendering.
+
+La GPU è però una macchina a stati: una volta impostato lo shader da utilizzare e assegnate le relative uniform, queste rimangono valide per tutte le chiamate di rendering successive, fino alla loro prossima modifica o al cambio di shader attivo. Questa osservazione permette di dividere le uniform in due gruppi, in base alla frequenza con cui il loro valore cambia effettivamente nel corso di un frame:
+\begin{itemize}
+    \item le globali sono quelle che restano invariate per l'intero ciclo di rendering di un frame, come le matrici di vista e proiezione, e le proprietà delle luci.
+    \item le locali sono invece quelle che cambiano per ogni mesh renderizzata, come la matrice di modellazione e il materiale della superficie.
+\end{itemize}
+
+Ne consegue che assegnare nuovamente le uniform globali per ciascuna mesh sia un'operazione superflua, dato che il loro valore non cambia tra una chiamata di rendering e la successiva. Il metodo per passare le uniform allo shader è stato quindi diviso in due: \texttt{bindGlobalUniforms}, invocato una sola volta per ogni oggetto subito dopo l'attivazione del relativo shader, e \texttt{bindLocalUniforms}, invocato invece per ciascuna mesh prima della rispettiva chiamata di rendering. Questa separazione permette di ridurre considerevolmente il numero di chiamate al driver grafico necessarie a ogni frame.
+
+% ====================================================
+%
+% 5.5 - SHADING: ILLUMINAZIONE E TRASPARENZA
+%
+% ====================================================
+\section{Shading: illuminazione e trasparenza}
+In un \emph{event display}, le particelle rilevate devono essere visibili all'interno dei rivelatori: diventa quindi fondamentale rendere trasparenti le geometrie esterne, che altrimenti occulterebbero ciò che avviene al loro interno.
+Inoltre, l'inserimento di un sistema di illuminazione è essenziale per aiutare l'utente a percepire la profondità e la forma degli oggetti, evitando l'effetto piatto che si avrebbe applicando un unico colore uniforme a tutte le superfici.
+Il modello di illuminazione adottato è il modello di Blinn-Phong, descritto 
+in \cref{subsec:blinn_phong}, che offre un buon compromesso tra realismo visivo e semplicità computazionale, adatto a un'applicazione interattiva come un event display.
+
+Nel progetto sono stati sviluppati diversi shader per gestire i differenti elementi della scena; tuttavia, nei prossimi paragrafi verrà presentato il codice dello shader più completo, che integra al suo interno sia la logica per il calcolo dell'illuminazione sia la gestione della trasparenza.
+
+La tecnica di shading adottata è quella di Phong: come si vedrà nelle sezioni successive, l'applicazione del modello di illuminazione avviene all'interno del fragment shader, per ogni frammento. 
+Questa scelta consente di calcolare correttamente i riflessi speculari: adottando il Gouraud shading, ad esempio, questi andrebbero persi qualora ricadessero all'interno di un poligono senza colpirne i vertici, circostanza frequente nel caso di mesh composte da pochi vertici distanti tra loro, come i parallelepipedi utilizzati per rappresentare le hit (vedi \cref{subsec:shading}).
+
+% ====================================================
+% 5.5.1 - VERTEX SHADER
+% ====================================================
+\subsection{Vertex shader}
+All'interno del vertex shader, ovvero quello eseguito per ogni vertice presente nel VBO, vengono preparati i dati che saranno utilizzati successivamente per il calcolo del colore.
+I vettori richiesti dal modello di illuminazione sono stati inseriti nella struttura \texttt{IlluminationData}, in modo che contenga i vettori normali ($N$), di vista ($V$) e la direzione di ogni luce ($L_i$).
+Tutti i calcoli per l'illuminazione sono eseguiti in VCS, così che il calcolo di $V = {Pos}_{camera} - {Pos}_{vertice}$ si semplifica in $V = -{Pos}_{vertice}$ dal momento che la camera è l'origine del VCS.
+
+Nel \cref{lst:vert_shader}, è riportato il codice del vertex shader, in cui:
+\begin{itemize}
+    \item \texttt{aPos} e \texttt{vertexNormal} sono le coordinate e la normale del vertice in OCS prese dai VBO.
+    \item \texttt{Model}, \texttt{View}, \texttt{Projection}, \texttt{lights[]} e \texttt{numLights} sono le matrici di trasformazione e le informazioni delle luci passate dall'applicazione come uniform.
+    \item \texttt{vLocalPos} e \texttt{vIlluminationData} sono le variabili di  output verso il geometry shader, contenenti rispettivamente la posizione nelle coordinate OCS del vertice (usata per la trasparenza) e i vettori d'illuminazione calcolati in VCS.
+\end{itemize}
+
+È importante notare che, nel calcolo del vettore $N$ in coordinate VCS, non viene applicata direttamente la matrice di trasformazione $V \cdot M$.
+Al contrario, viene calcolata la trasposta dell'inversa della sua sottomatrice $3\times3$ superiore sinistra, ovvero $\left((V \cdot M)_{3\times3}\right)^{-T}$.
+Questo accorgimento si rende necessario poiché, in presenza di trasformazioni di scala non uniforme, l'applicazione diretta della matrice di modellazione e vista farebbe perdere la perpendicolarità del vettore normale rispetto alla superficie, compromettendo la correttezza dei successivi calcoli di illuminazione.
+
+\lstinputlisting[
+    float = htb,
+    style=glslstyle,
+    caption={Vertex shader: trasformazione del vertice in Clip Space e calcolo dei vettori d'illuminazione in VCS},
+    label={lst:vert_shader}
+]{cap5/TransparentPhong.vert}
+
+% ====================================================
+% 5.5.2 - GEOMETRY SHADER
+% ====================================================
+\subsection{Geometry shader}
+Il calcolo della trasparenza avviene facendo in modo che più un punto si allontana dai lati del triangolo, più viene reso trasparente.
+Questo controllo diventa più semplice se si hanno a disposizione le coordinate baricentriche del frammento, studiate nella \cref{subsec:combinazioni_simplessi}.
+
+È importante notare che nel passaggio dal geometry al fragment shader (o dal vertex nel caso il geometry non sia utilizzato), la GPU interpola automaticamente tutte le variabili di output dello shader, così che i dati calcolati per ogni vertice siano giusti per ogni frammento.
+
+Nel geometry shader è disponibile la primitiva geometrica completa, ossia tutti e tre i vertici del triangolo. Per generare le coordinate baricentriche è quindi sufficiente impostare a $1$ una componente diversa di un vettore $\in \mathbb{R}^3$ per ciascun vertice.
+L'interpolazione automatica della GPU farà sì che ogni frammento avrà le sue coordinate baricentriche rispetto ai vertici del triangolo a cui appartiene.
+Gli altri dati vengono copiati invariati dal vertice corrispondente, così che il rasterizzatore possa interpolarli correttamente tra i frammenti del triangolo.
+Quanto descritto è riportato nel \cref{lst:geom_shader}.
+
+\lstinputlisting[
+    float=htb,
+    style=glslstyle,
+    caption={Geometry shader: assegnazione delle coordinate baricentriche e inoltro dei dati al fragment shader},
+    label={lst:geom_shader}
+]{cap5/TransparentPhong.geom}
+
+% ====================================================
+% 5.5.3 - FRAGMENT SHADER
+% ====================================================
+\subsection{Fragment shader}
+Lo scopo del fragment shader è la produzione del colore effettivo di ogni frammento della primitiva.
+Nell'implementazione proposta, il calcolo avviene in due fasi: l'applicazione del modello di illuminazione di Blinn-Phong per trovare il colore di base, e l'utilizzo delle coordinate baricentriche per la trasparenza.
+
+\subsubsection{Applicazione del modello di Blinn-Phong}
+Dal momento che i vettori necessari al modello di illuminazione sono già forniti dagli shader precedenti, i calcoli eseguiti dallo shader nel \cref{lst:frag_shader_illuminazione} corrispondono direttamente all'\cref{eq:blinn_phong} del modello di Blinn-Phong.
+Il fattore di attenuazione non viene calcolato, in quanto non apporterebbe informazioni visive aggiuntive per un event display.
+La correzione della shininess per il fattore $4$ è utilizzata per compensare il minore angolo $\beta$ prodotto da Blinn-Phong, come evidenziato nella \cref{subsec:blinn_phong}.
+
+\lstinputlisting[
+    float=htb,
+    style=glslstyle,
+    caption={Fragment shader: applicazione del modello di illuminazione di Blinn-Phong},
+    label={lst:frag_shader_illuminazione}
+]{cap5/TransparentPhongIlluminazione.frag}
+
+\subsubsection{Calcolo della trasparenza}
+La trasparenza viene calcolata sfruttando le coordinate baricentriche 
+interpolate: queste valgono $0$ sul lato opposto al vertice corrispondente e $1$ sul vertice stesso, quindi un frammento vicino a un bordo avrà almeno una coordinata baricentrica prossima a zero.
+
+\texttt{fwidth} calcola la derivata di variabili interpolate dal rasterizzatore: il valore restituito è proporzionale alla velocità di variazione della variabile tra frammenti adiacenti.
+Il risultato sulle coordinate baricentriche è grande vicino ai bordi, dove le coordinate variano rapidamente, e piccolo all'interno del triangolo.
+
+\texttt{smoothstep(edge0, edge1, x)} restituisce $0$ se $x < \texttt{edge0}$, $1$ se $x > \texttt{edge1}$, e una interpolazione cubica tra i due estremi altrimenti.
+Applicata alle coordinate baricentriche, usa $\texttt{d} \cdot \texttt{uEdgeThickness}$ come soglia superiore: \texttt{uEdgeThickness} è una variabile scelta dall'utente passata come uniform, e serve per aumentare il numero di frammenti considerati vicini al bordo.
+Vicino ai bordi, \texttt{barycentric} è piccolo e \texttt{d} è grande, quindi il frammento cade sotto la soglia e il risultato è $0$; all'interno del triangolo, \texttt{barycentric} è grande e \texttt{d} è piccolo, quindi il frammento supera la soglia e il risultato è $1$.
+
+Poiché è disponibile un valore di vicinanza a ogni lato, prendendo il minimo delle tre componenti si ottiene \texttt{edgeFactor}, che vale $0$ se il frammento è vicino a qualsiasi bordo del triangolo.
+
+Infine, \texttt{mix} interpola tra \texttt{uEdgeAlpha} e \texttt{uFaceAlpha} in base a \texttt{edge\allowbreak{}Factor}, producendo l'alpha finale del frammento: anche \texttt{uEdgeAlpha} e \texttt{uFaceAlpha} sono due uniform, che corrispondono al canale alpha richiesto ai bordi e all'interno delle facce del triangolo.
+
+Assemblando il colore calcolato con il modello di illuminazione, salvato in \texttt{baseColor}, e la trasparenza appena calcolata in \texttt{finalAlpha}, si ottiene il colore finale prodotto come output dello shader per il frammento.
+Il calcolo completo è riportato nel \cref{lst:frag_shader_trasparenza}.
+
+\lstinputlisting[
+    style=glslstyle,
+    caption={Fragment shader: calcolo della trasparenza e produzione del colore finale del frammento},
+    label={lst:frag_shader_trasparenza}
+]{cap5/TransparentPhongTrasparenza.frag}
+
+% ====================================================
+% 5.5.4 - TRASPARENZA E ALGORITMO DEL PITTORE
+% ====================================================
+\subsection{Trasparenza e algoritmo del pittore}
+Per ottenere una trasparenza corretta sono necessari due accorgimenti distinti, oltre al calcolo del canale alpha tramite shader.
+
+Il primo è disabilitare la scrittura nel depth buffer: se una mesh trasparente scrivesse i propri valori di profondità, le mesh opache retrostanti fallirebbero il depth test e verrebbero scartate, risultando nascoste anche se in realtà dovrebbero essere visibili attraverso la superficie semitrasparente.
+
+Il secondo è abilitare il blending, che permette alla GPU di miscelare il colore del frammento in arrivo con quello già presente nel color buffer; nel software è stata utilizzata la funzione standard \texttt{GL\_ONE\_MINUS\_SRC\_\allowbreak{}ALPHA} (già vista in \cref{eq:blending}).
+È tuttavia importante osservare che il blending non è commutativo: l'ordine in cui i frammenti vengono miscelati influenza il colore finale, poiché il colore già nel buffer viene usato come destinazione e quello del frammento in arrivo come sorgente.
+
+Per risolvere questo problema è stato implementato l'algoritmo del pittore (\emph{painter's algorithm}), che consiste nel disegnare le geometrie dalla più lontana alla più vicina, così che si coprano correttamente.
+A ogni ciclo di rendering, se la camera ha subito uno spostamento, le mesh vengono riordinate in base alla distanza dell'osservatore dal proprio punto di ancoraggio (\texttt{anchorPosition}), calcolato come il centro della mesh.
+
+Per poter ordinare le mesh di un oggetto, è stata aggiunta una lista di \texttt{Mesh} all'interno di \texttt{Object}, contenente tutte le foglie dell'albero dei nodi, così da renderne possibile l'ordinamento senza dover visitare ricorsivamente l'albero a ogni frame; si può quindi eseguire il render seguendo la lista tramite il metodo \texttt{Object::renderBuffered}.
+Nel \cref{lst:ordina_mesh} è riportata l'implementazione del metodo \texttt{Object::sortMeshes}, che riceve la posizione dell'osservatore e riordina la lista delle mesh usando \texttt{std::sort}.
+Per efficienza, il confronto avviene utilizzando \texttt{glm::\allowbreak{}distance2}, che calcola il quadrato della distanza evitando la radice quadrata, non necessaria ai fini del confronto.
+
+\lstinputlisting[
+    float=htb,
+    style=cppstyle,
+    caption={Ordinamento delle mesh per distanza dal punto scelto},
+    label={lst:ordina_mesh}
+]{cap5/SortMeshes.cpp}
+
+% ====================================================
+%
+% 5.6 - INTERFACCIA E CONTROLLI UTENTE
+%
+% ====================================================
+\section{Interfaccia e controlli utente}
+L'utente può interagire con l'applicazione principalmente mediante due modalità, a seconda dell'operazione richiesta: l'interfaccia grafica a finestre prodotta con la libreria Dear ImGui o l'interazione diretta con la scena attraverso scorciatoie da tastiera e trascinamento del mouse sull'area di disegno.
+
+% ====================================================
+% 5.6.1 - INTERFACCIA GRAFICA CON DEAR IMGUI
+% ====================================================
+\subsection{Interfaccia grafica con Dear ImGui}
+L'interfaccia grafica è realizzata tramite la libreria Dear ImGui, una \emph{immediate mode GUI} in cui l'intera interfaccia viene ridisegnata a ogni frame a partire dallo stato dell'applicazione.
+È gestita interamente dalla classe \texttt{Ui}, che ha a disposizione il riferimento all'\texttt{AppStateManager} così da disegnare finestre coerenti con lo stato corrente del software.
+Tramite i riferimenti alle classi \texttt{Scene} e \texttt{AppSettings}, permette all'utente di visualizzare i dati caricati nell'event display -- run, evento e metadati associati -- e di modificare le principali impostazioni di visualizzazione, come la modalità di colorazione delle hit, il tipo di proiezione e la trasparenza delle geometrie.
+
+Per la selezione dei file di geometria è stata integrata la libreria \texttt{ImGuiFileDialog}, che estende Dear ImGui con un file browser nativo, consentendo all'utente di navigare il filesystem e selezionare il file .gltf desiderato direttamente dall'interfaccia grafica, senza dover specificare il percorso tramite riga di comando.
+
+% ====================================================
+% 5.6.2 - CONTROLLO DELLA SCENA DA TASTIERA E MOUSE
+% ====================================================
+\subsection{Controllo della scena da tastiera e mouse}
+L'interazione diretta è gestita dalla classe \texttt{Callback}, che si occupa degli eventi generati dall'utente (catturati tramite GLFW): pressione di tasti, clic e scroll del mouse, ridimensionamento e chiusura della finestra.
+
+La manipolazione della scena tridimensionale -- rotazione, traslazione e zoom -- avviene invece tramite polling: anziché accodare ogni singolo evento del mouse, lo stato dei dispositivi di input viene letto una volta per frame all'interno del metodo \texttt{update} della classe \texttt{Viewport}.
+Questo approccio è particolarmente vantaggioso in caso di frame rate ridotto, ad esempio durante l'esecuzione remota con inoltro della finestra grafica, poiché garantisce che la camera risponda sempre allo stato attuale dell'input senza accumulare eventi in coda.
+
+Nel \cref{lst:polling} è riportata la parte del metodo \texttt{Viewport::update} che gestisce la manipolazione della camera. 
+Da notare la condizione \texttt{isPointer\allowbreak{}UsedByGui()}: quando l'utente sta interagendo con le finestre dell'interfaccia grafica, l'input del mouse non viene propagato alla camera, evitando interferenze tra i due sistemi.
+La modalità di interazione dipende inoltre dal tasto modificatore: il semplice trascinamento ruota la scena tramite trackball, mentre tenendo premuto Shift si ottiene una traslazione parallela al piano di vista.
+
+\lstinputlisting[
+    style=cppstyle,
+    caption={Polling dell'input nel metodo \texttt{Viewport::update}},
+    label={lst:polling}
+]{cap5/ViewportUpdate.cpp}
+
+% ====================================================
+% CONCLUSIONE CAPITOLO 5
+% ====================================================
+\bigskip
+\needspace{4\baselineskip}
+Completata l'implementazione del sistema, è possibile verificare come i requisiti individuati nel \cref{cap:software_esistente_requisiti} siano stati soddisfatti.
+Nel prossimo capitolo verranno presentate le funzionalità del nuovo event display attraverso una serie di esempi di utilizzo con dati reali dell'esperimento SND@LHC.

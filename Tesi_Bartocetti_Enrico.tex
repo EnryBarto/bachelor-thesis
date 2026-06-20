@@ -29,6 +29,7 @@
 \usepackage{xurl} % Migliora le interruzioni di riga degli URL, soprattutto per la bibliografia
 \usepackage{thmtools}
 \usepackage{wrapfig}
+\usepackage{booktabs}
 \usepackage{tikz}
 
 \usetikzlibrary{positioning}
@@ -66,9 +67,37 @@
 \cfoot{}
 
 % Configurazioni Listing
+\renewcommand{\lstlistingname}{Listato}
+
 \lstset{
-    aboveskip=20pt,
-    belowskip=20pt
+    aboveskip=15pt,
+    belowskip=10pt
+}
+
+\lstset{inputpath={resources/code/}}
+
+\lstdefinelanguage{GLSL}{
+    morekeywords=[1]{ % Tipi
+        void, float, int, bool, uint,
+        vec2, vec3, vec4,
+        mat2, mat3, mat4,
+        ivec2, ivec3, ivec4,
+        sampler2D, samplerCube,
+        in, out, uniform, layout
+    },
+    morekeywords=[2]{ % Funzioni vettoriali/matriciali
+        normalize, dot, cross, reflect, refract,
+        transpose, inverse, length, distance,
+        mix, clamp, smoothstep, step,
+        max, min, pow, abs, fwidth
+    },
+    morekeywords=[3]{ % Built-in variables
+        gl_Position, gl_FragCoord
+    },
+    sensitive=true,
+    morecomment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]",
 }
 
 \lstdefinestyle{myBash}{
@@ -82,6 +111,33 @@
     columns=flexible,
     frame=single,
     rulecolor=\color{gray!40},
+}
+
+\lstdefinestyle{cppstyle}{
+    language=C++,
+    backgroundcolor=\color{gray!10},
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray!40},
+    showstringspaces=false,
+    captionpos=b
+}
+
+\lstdefinestyle{glslstyle}{
+    style=cppstyle,
+    language=GLSL,
+    keywordstyle=[1]\color{blue}\bfseries,
+    keywordstyle=[2]\color{teal}\bfseries,
+    keywordstyle=[3]\color{purple}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
 }
 
 % Configurazioni per matematica
@@ -180,6 +236,7 @@
 \include{capitoli/2-Software_esistente_requisiti}
 \include{capitoli/3-Fondamenti_computer_grafica}
 \include{capitoli/4-Progettazione_architettura}
+\include{capitoli/5-Implementazione_software}
 \include{capitoli/Conclusioni}
 
 
