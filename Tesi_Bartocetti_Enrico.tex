@@ -67,6 +67,7 @@
 \cfoot{}
 
 % Configurazioni Listing
+\renewcommand{\lstlistlistingname}{Elenco dei listati}
 \renewcommand{\lstlistingname}{Listato}
 
 \lstset{
@@ -220,6 +221,11 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{Elenco delle figure}
 \listoffigures % Indice delle figure
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Elenco dei listati}
+\lstlistoflistings % Indice dei listing
 
 \cleardoublepage
 \linenumbers

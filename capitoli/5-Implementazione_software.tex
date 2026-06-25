@@ -1,5 +1,6 @@
 \chapter{Implementazione del software}
-Definita la teoria necessaria a comprendere la pipeline grafica ed effettuate le scelte progettuali per i principali punti critici del sistema, è ora possibile procedere con l'implementazione dell'event display. Verranno illustrate le librerie utilizzate, alcuni passaggi algoritmici rilevanti accompagnati da porzioni di codice commentato, gli shader realizzati e le ottimizzazioni introdotte.
+Dopo aver introdotto i fondamenti teorici necessari alla comprensione della pipeline grafica e aver definito le principali scelte progettuali del sistema, è possibile passare all'implementazione dell'event display.
+In questo capitolo verranno illustrate le librerie utilizzate, alcuni passaggi algoritmici rilevanti accompagnati da porzioni di codice commentato, gli shader realizzati e le ottimizzazioni introdotte.
 
 % ====================================================
 %
@@ -8,15 +9,15 @@ Definita la teoria necessaria a comprendere la pipeline grafica ed effettuate le
 % ====================================================
 \section{Tecnologie e strumenti}
 Si è scelto di implementare il nuovo event display in C++, linguaggio già ampiamente utilizzato in sndsw.
-Rispetto a Python -- l'altro linguaggio principale del framework -- il C++ offre prestazioni superiori grazie alla compilazione nativa e alla gestione diretta della memoria, caratteristiche particolarmente rilevanti per un'applicazione di rendering interattivo.
-Inoltre, le principali librerie grafiche utilizzate nel progetto, che verranno esposte nel paragrafo successivo, espongono API native in C e C++.
+Rispetto a Python -- l'altro linguaggio principale del framework -- C++ offre prestazioni superiori grazie alla compilazione nativa e alla gestione diretta della memoria, caratteristiche particolarmente rilevanti per un'applicazione di rendering interattivo.
+Inoltre, le principali librerie grafiche utilizzate nel progetto, descritte nel paragrafo successivo, espongono API native in C e C++.
 
 % ====================================================
 % 5.1.1 - LIBRERIE UTILIZZATE
 % ====================================================
 \subsection{Librerie utilizzate}
-Dal momento che il CERN adotta la filosofia del \emph{Free and Open-Source Software} (FOSS), la ricerca delle librerie ha richiesto di porre particolare attenzione alle licenze adottate.
-Si riportano quelle utilizzate in \cref{tab:librerie}.
+Poiché il CERN promuove la filosofia del \emph{Free and Open-Source Software} (FOSS), nella scelta delle librerie è stata posta particolare attenzione alle licenze adottate.
+In \cref{tab:librerie} sono riportate quelle utilizzate nel progetto.
 
 \begin{table}[ht]
     \centering
@@ -53,19 +54,20 @@ Questo processo è orchestrato dalla FSM (descritta nella \cref{sec:fsm}) tramit
 % 5.2.1 - CARICAMENTO RUN E GEOMETRIA
 % ====================================================
 \subsection{Caricamento run e geometria}
-All'interno del metodo \texttt{loadRun(runNumber)}, viene inizialmente e\-stratto il nome del file della geometria richiesta. 
-Questo approccio consente di verificare preventivamente la mancata corrispondenza con la geometria eventualmente già presente in memoria, sollevando, se necessario, l'eccezione personalizzata \texttt{Geometry\allowbreak{}Mismatch\allowbreak{}Exception}. 
-Successivamente, l'interfaccia fa uso del framework \texttt{sndsw} per caricare la run all'interno di un oggetto \texttt{TChain}, la struttura dati nativa di ROOT preposta alla gestione dei dati distribuiti su più file. 
+All'interno del metodo \texttt{loadRun(runNumber)}, viene inizialmente e\-stratto il nome del file della geometria richiesta.
+Questo approccio consente di verificare preventivamente la mancata corrispondenza con la geometria eventualmente già presente in memoria, sollevando, se necessario, l'eccezione personalizzata \texttt{Geometry\allowbreak{}Mismatch\allowbreak{}Exception}.
+Successivamente, l'interfaccia fa uso del framework sndsw per caricare la run all'interno di un oggetto \texttt{TChain}, la struttura dati nativa di ROOT preposta alla gestione dei dati distribuiti su più file.
 Dalla \texttt{TChain} vengono infine estratti i metadati necessari a istanziare l'oggetto \texttt{RunData}, restituito al chiamante del metodo.
 Nel \cref{lst:loadrun} è riportato lo scheletro del codice che esegue quanto spiegato.
 
 \lstinputlisting[
     style=cppstyle,
-    caption={Integrazione con il framework \texttt{sndsw} ed estrazione dei dati della run in \texttt{SndswEventManager}},
+    caption={[Integrazione con sndsw ed estrazione dei dati della run]Integrazione con il framework sndsw ed estrazione dei dati della run in \texttt{SndswEventManager}},
     label={lst:loadrun}
 ]{cap5/LoadRun.cpp}
 
-Solo dopo aver caricato per la prima volta una run, va inizializzata la geometria tramite il metodo \texttt{loadGeometry}, così da predisporre i sottorivelatori corretti per essere successivamente popolati con i dati degli eventi.
+L'inizializzazione della geometria tramite il metodo \texttt{loadGeometry} avviene solo dopo il primo caricamento di una run.
+In questo modo vengono predisposti i sottorivelatori corrispondenti alla configurazione selezionata, che potranno poi essere popolati con i dati dei singoli eventi.
 
 % ====================================================
 % 5.2.2 - CARICAMENTO E CLUSTERING DEGLI EVENTI
@@ -103,11 +105,11 @@ La classe \texttt{Scene} è il coordinatore degli oggetti da renderizzare: possi
 La costruzione degli oggetti di scena viene sempre avviata dal loop di rendering principale della classe \texttt{App} durante gli appositi stati di \texttt{LOAD}.
 
 \subsubsection{Caricamento geometria glTF}
-Per caricare la geometria, l'app richiede all'\texttt{AppStateManager} il percorso del file che ne contiene la mesh, indipendentemente dal fatto che si tratti di quella predefinita o di quella selezionata dall'utente.
-Il percorso viene poi passato alla scena, tramite il metodo \texttt{Scene::loadGeometry\allowbreak{}(path)}: al suo interno la scena lo inoltra alla \texttt{ObjectFactory} per creare un \texttt{Object}, grazie al metodo \texttt{ObjectFactory::getFromFile(path)}.
+Per caricare la geometria, \texttt{App} richiede all'\texttt{AppStateManager} il percorso del file che ne contiene la mesh, indipendentemente dal fatto che si tratti della geometria predefinita o di quella selezionata dall'utente.
+Il percorso viene poi passato alla scena, tramite il metodo \texttt{Scene::load\allowbreak{}Geometry\allowbreak{}(path)}: al suo interno la scena lo inoltra alla \texttt{ObjectFactory} per creare un \texttt{Object}, invocando il metodo \texttt{ObjectFactory::getFromFile\allowbreak{}(path)}.
 
-La factory utilizza la libreria assimp per leggere dal file tutte le mesh e i materiali che contiene, creando le liste con gli oggetti \texttt{Material} e \texttt{GpuMesh} che andranno condivisi (in accordo con il pattern illustrato nella \cref{subsec:oggetti_tridimensionali_scena}).
-Viene quindi invocato il costruttore di \texttt{Object} con la scena assimp e le due liste: a partire dai dati in essa contenuti, viene avviata la costruzione ricorsiva dell'albero dei nodi, associando a ciascuno le mesh e i materiali condivisi (vedi \cref{lst:loadnode}).
+La factory utilizza la libreria assimp per leggere dal file tutte le mesh e i materiali che contiene, creando le liste con gli oggetti \texttt{Material} e \texttt{GpuMesh} che verranno condivisi (in accordo con il pattern illustrato nella \cref{subsec:oggetti_tridimensionali_scena}).
+Viene quindi invocato il costruttore di \texttt{Object} a cui sono passate la scena caricata da assimp e le due liste condivise. A partire da questi dati, viene costruito ricorsivamente l'albero dei nodi, associando a ciascun nodo le mesh e i materiali condivisi, come mostrato nel \cref{lst:loadnode}.
 
 \lstinputlisting[
     float=ht,
@@ -118,12 +120,13 @@ Viene quindi invocato il costruttore di \texttt{Object} con la scena assimp e le
 
 \subsubsection{Caricamento dati sperimentali}
 Nelle sezioni precedenti è stato illustrato il processo di acquisizione dei dati tramite il framework sndsw.
-Quando l'app ha ottenuto l'oggetto \texttt{EventData} da \texttt{SndswEventManager}, lo passa alla scena, così che possa essere utilizzato per la creazione degli oggetti da visualizzare.
-Analogamente al caricamento della geometria, viene sempre impiegata l'\texttt{ObjectFactory} che restituisce l'\texttt{Object} contenente tutte le hit, a partire dai dati dell'evento e la \texttt{ColorPalette} da utilizzare per la determinazione dei colori.
+Quando \texttt{App} ha ottenuto l'oggetto \texttt{EventData} da \texttt{SndswEventManager}, lo passa alla scena, affinché possa essere utilizzato per la creazione degli oggetti da visualizzare.
+Analogamente a quanto avviene per il caricamento della geometria, anche in questo caso viene utilizzata l'\texttt{ObjectFactory} che restituisce l'\texttt{Object} contenente tutte le hit.
+Tale oggetto viene costruito a partire dai dati contenuti in \texttt{EventData} e dalla \texttt{ColorPalette} selezionata, utilizzata per determinare il colore associato a ciascuna hit.
 
-La factory provvede a creare un albero il cui primo livello contiene un nodo per ogni sottorivelatore, associando ogni hit a una \texttt{Mesh}.
+La factory costruisce un albero di nodi il cui primo livello contiene un nodo per ciascun sottorivelatore, associando ogni hit a una \texttt{Mesh}.
 Questa suddivisione rende agevole la navigazione dell'albero dei nodi tramite interfaccia grafica.
-Per ogni hit, la \texttt{GpuMesh} del cubo -- istanziata una sola volta nella factory -- viene condivisa tra tutte le istanze delle \texttt{Mesh}, ciascuna posizionata e scalata tramite la propria matrice di modellazione in base a posizione e raggio contenuti in \texttt{HitData}.
+Per rappresentare le hit viene utilizzata la \texttt{GpuMesh} del cubo -- istanziata una sola volta nella factory -- e condivisa tra tutte le istanze delle \texttt{Mesh}, ciascuna posizionata e scalata tramite la propria matrice di modellazione in base a posizione e raggio contenuti in \texttt{HitData}.
 
 % ====================================================
 % 5.3.2 - COLORAZIONE DELLE HIT
@@ -148,8 +151,8 @@ La bassa shininess utilizzata produce riflessi diffusi su una vasta area anzich�
 % ====================================================
 \subsection{Camera e proiezioni}
 La gestione della camera e della proiezione da utilizzare è cen\-tralizza\-ta nella classe \texttt{ViewPort}.
-Essa contiene infatti un oggetto \texttt{Camera} e uno \texttt{Projection}, fungendo quindi da fornitore delle matrici di vista e proiezione.
-Per tenerli aggiornati espone il metodo \texttt{ViewPort::update()}, da richiamare a ogni esecuzione del ciclo di rendering, in cui aggiorna la proiezione in caso di variazione delle dimensioni della finestra e sposta la camera in caso di interazione dell'utente.
+Essa contiene infatti un oggetto \texttt{Camera} e un oggetto \texttt{Projection}, e fornisce quindi le matrici di vista e di proiezione necessarie al rendering della scena.
+Per mantenerle aggiornate espone il metodo \texttt{ViewPort::update()}, da richiamare a ogni esecuzione del ciclo di rendering, in cui aggiorna la proiezione in caso di variazione delle dimensioni della finestra e sposta la camera in caso di interazione dell'utente.
 
 \subsubsection{Camera}
 La camera utilizzata nel progetto segue il modello look at illustrato nella \cref{subsec:vista}: i suoi attributi sono quindi la posizione, il target osservato e il versore che definisce l'up del mondo, da cui è possibile ricavare tutti gli altri vettori necessari.
@@ -161,12 +164,12 @@ Ogni tipo di utilizzo della camera si traduce in operazioni geometriche su quest
     label={lst:muovi_camera_parallela}
 ]{cap5/CameraMoveParallel.cpp}
 
-Dal momento che non avrebbe senso ricalcolare la matrice di vista a ogni ciclo di rendering, ne viene salvata una copia a ogni sua modifica.
-Ogni metodo modifica infatti solo i tre attributi della camera, per poi invocare il metodo \texttt{Camera::recomputeMatrix()} che ricalcola la matrice di vista sfruttando la funzione \texttt{lookAt(position, target, worldUp)} della libreria glm.
+Per evitare di ricalcolare la matrice di vista a ogni iterazione del ciclo di rendering, ne viene salvata una copia aggiornata.
+Tale matrice viene ricalcolata solo quando cambiano i parametri della camera: i metodi di interazione modificano infatti posizione, target e worldUp, invocando poi \texttt{Camera::recomputeMatrix()}, che ricostruisce la matrice di vista tramite la funzione \texttt{lookAt(position, target, worldUp)} della libreria glm.
 
 \subsubsection{Proiezioni}
-Come studiato nella \cref{subsec:proiezione}, l'elaborazione si differenzia a seconda che si tratti di una configurazione ortografica o prospettica: le classi di implementazione sono rispettivamente \texttt{OrthographicProjec\allowbreak{}tion} e \texttt{PerspectiveProjection}.
-La classe \texttt{BasicProjection} sfrutta un sistema di caching della propria matrice identico a quello della camera, così da aggiornarla solo alla modifica delle dimensioni della finestra.
+Come discusso nella \cref{subsec:proiezione}, il calcolo della matrice di proiezione dipende dal tipo di proiezione adottato, ortografica o prospettica: le classi di implementazione sono rispettivamente \texttt{OrthographicProjec\allowbreak{}tion} e \texttt{PerspectiveProjection}.
+La classe \texttt{BasicProjection} utilizza un meccanismo di caching analogo a quello adottato per la camera: la matrice di proiezione viene memorizzata e ricalcolata solo quando cambiano le dimensioni della finestra.
 In entrambi i casi vengono utilizzate le funzioni messe a disposizione dalla libreria glm -- \texttt{ortho} e \texttt{perspective} -- che necessitano però di informazioni diverse.
 Mentre la prospettica richiede il campo di vista, il rapporto d'aspetto della finestra e la distanza dai due piani vicino e lontano, per l'ortografica sono necessarie le dimensioni dei due piani e la loro distanza dal punto di vista.
 In quest'ultimo caso, l'estensione di tali superfici è calcolata sulla base del campo visivo e della distanza dal target, così da simulare l'effetto di zoom anche per la proiezione ortografica.
@@ -185,8 +188,8 @@ Nel \cref{lst:proiezioni} è riportata l'implementazione per i due tipi di proie
 %
 % ====================================================
 \section{Motore di rendering}
-I dati di cui eseguire il rendering sono memorizzati in appositi buffer, i cui puntatori sono salvati nella classe \texttt{GpuMesh}.
-Prima di eseguire la chiamata ad OpenGL in cui si chiede di renderizzare le primitive contenute in un certo buffer, è necessario specificare quali shader utilizzare e fornire loro i dati aggiuntivi necessari.
+I dati da renderizzare sono memorizzati in appositi buffer, i cui puntatori sono salvati nella classe \texttt{GpuMesh}.
+Prima di eseguire la chiamata ad OpenGL per il rendering delle primitive contenute in un buffer, è necessario selezionare gli shader da utilizzare e fornire loro i dati aggiuntivi richiesti.
 
 Nel software sviluppato, i sorgenti degli shader vengono compilati dalla classe \texttt{ShaderMaker}: da quel momento risiederanno quindi nella GPU associati a un \emph{program ID}, memorizzato come attributo della classe \texttt{Shader}.
 Il rendering avviene quindi in tre fasi:
@@ -221,14 +224,15 @@ Il processo di creazione di questi buffer e la sequenza di rendering sono riport
 % 5.4.2 - OTTIMIZZAZIONI
 % ====================================================
 \subsection{Ottimizzazioni}
-Per rendere l'interazione con l'utente il più fluida possibile, sono state introdotte alcune ottimizzazioni: una punta a diminuire il peso della navigazione dell'albero degli oggetti e dei nodi, mentre l'altra a minimizzare il numero di chiamate al driver grafico per gli shader.
+Per rendere l'interazione con l'utente il più fluida possibile, sono state introdotte alcune ottimizzazioni: la prima punta a diminuire il peso della navigazione dell'albero degli oggetti e dei nodi della scena, la seconda, invece, ha l'obiettivo di minimizzare il numero di chiamate al driver grafico durante la gestione degli shader.
 
 \subsubsection{Precalcolo delle matrici di modellazione}
 La struttura del file glTF prevede che ogni nodo trasformi i suoi figli applicandogli la propria matrice di modellazione.
 La trasformazione finale di una mesh è quindi data dalla moltiplicazione successiva di tutte le matrici dei nodi da cui discende.
 
 Dal momento che il software non prevede la modifica interattiva di specifici nodi della geometria, la matrice di ogni mesh rimane invariata per tutto il ciclo di vita dell'oggetto.
-Per questo motivo si è deciso di precalcolare la matrice di modellazione alla creazione dell'oggetto; \texttt{Object} innesca il calcolo ricorsivo con il metodo \texttt{updateGlobalModelMatrix} del suo nodo radice, così che la trasformazione finale venga salvata come attributo degli oggetti \texttt{Mesh}.
+Per questo motivo, si è scelto di precalcolare la matrice di modellazione finale al momento della creazione dell'oggetto.
+\texttt{Object} innesca il calcolo ricorsivo con il metodo \texttt{updateGlobalModelMatrix} del suo nodo radice, così che la trasformazione finale venga salvata come attributo degli oggetti \texttt{Mesh}.
 La funzione ricorsiva dei nodi è riportata nel \cref{lst:cache_matrice_modellazione}.
 
 \lstinputlisting[
@@ -239,15 +243,17 @@ La funzione ricorsiva dei nodi è riportata nel \cref{lst:cache_matrice_modellaz
 ]{cap5/UpdateModelMatrix.cpp}
 
 \subsubsection{Riduzione delle chiamate per gli shader}
-Le variabili che gli shader in esecuzione sulla GPU richiedono dall'esterno, ovvero dall'applicazione, sono dette \emph{uniform}. Inizialmente era previsto che a ogni mesh venissero passate tutte le uniform richieste, assegnandole singolarmente prima di ciascuna chiamata di rendering.
+Le variabili esterne richieste dagli shader in esecuzione sulla GPU, e fornite dall'applicazione, sono dette \emph{uniform}.
+Inizialmente era previsto che, per ogni mesh, venissero impostate singolarmente tutte le uniform necessarie prima di ciascuna chiamata di rendering.
 
-La GPU è però una macchina a stati: una volta impostato lo shader da utilizzare e assegnate le relative uniform, queste rimangono valide per tutte le chiamate di rendering successive, fino alla loro prossima modifica o al cambio di shader attivo. Questa osservazione permette di dividere le uniform in due gruppi, in base alla frequenza con cui il loro valore cambia effettivamente nel corso di un frame:
+Tuttavia, OpenGL si basa su una macchina a stati: una volta selezionato uno shader e assegnati i valori delle relative uniform, questi rimangono validi per tutte le chiamate di rendering successive, fino alla loro prossima modifica o al cambio di shader attivo. Questa osservazione permette di dividere le uniform in due gruppi, in base alla frequenza con cui il loro valore cambia effettivamente nel corso di un frame:
 \begin{itemize}
     \item le globali sono quelle che restano invariate per l'intero ciclo di rendering di un frame, come le matrici di vista e proiezione, e le proprietà delle luci.
     \item le locali sono invece quelle che cambiano per ogni mesh renderizzata, come la matrice di modellazione e il materiale della superficie.
 \end{itemize}
 
-Ne consegue che assegnare nuovamente le uniform globali per ciascuna mesh sia un'operazione superflua, dato che il loro valore non cambia tra una chiamata di rendering e la successiva. Il metodo per passare le uniform allo shader è stato quindi diviso in due: \texttt{bindGlobalUniforms}, invocato una sola volta per ogni oggetto subito dopo l'attivazione del relativo shader, e \texttt{bindLocalUniforms}, invocato invece per ciascuna mesh prima della rispettiva chiamata di rendering. Questa separazione permette di ridurre considerevolmente il numero di chiamate al driver grafico necessarie a ogni frame.
+Ne consegue che assegnare nuovamente le uniform globali per ciascuna mesh sia un'operazione superflua, dato che il loro valore non cambia tra una chiamata di rendering e la successiva.
+Il metodo per passare le uniform allo shader è stato quindi diviso in due: \texttt{bindGlobalUniforms}, invocato una sola volta per ogni oggetto subito dopo l'attivazione del relativo shader, e \texttt{bindLocalUniforms}, invocato invece per ciascuna mesh prima della rispettiva chiamata di rendering. Questa separazione permette di ridurre considerevolmente il numero di chiamate al driver grafico necessarie a ogni frame.
 
 % ====================================================
 %
@@ -255,14 +261,13 @@ Ne consegue che assegnare nuovamente le uniform globali per ciascuna mesh sia un
 %
 % ====================================================
 \section{Shading: illuminazione e trasparenza}
-In un \emph{event display}, le particelle rilevate devono essere visibili all'interno dei rivelatori: diventa quindi fondamentale rendere trasparenti le geometrie esterne, che altrimenti occulterebbero ciò che avviene al loro interno.
-Inoltre, l'inserimento di un sistema di illuminazione è essenziale per aiutare l'utente a percepire la profondità e la forma degli oggetti, evitando l'effetto piatto che si avrebbe applicando un unico colore uniforme a tutte le superfici.
-Il modello di illuminazione adottato è il modello di Blinn-Phong, descritto 
-in \cref{subsec:blinn_phong}, che offre un buon compromesso tra realismo visivo e semplicità computazionale, adatto a un'applicazione interattiva come un event display.
+In un \emph{event display}, i segnali dei rivelatori devono essere visibili al loro interno: diventa quindi fondamentale rendere trasparenti le geometrie esterne, che altrimenti occulterebbero le informazioni in esse contenute.
+Inoltre, l'inserimento di un sistema di illuminazione è essenziale per migliorare la percezione della profondità e della forma degli oggetti, evitando l'effetto piatto prodotto dall'applicazione di un colore uniforme alle superfici.
+Il modello di illuminazione adottato è il modello di Blinn-Phong, descritto in \cref{subsec:blinn_phong}, che offre un buon compromesso tra realismo visivo e semplicità computazionale, adatto a un'applicazione interattiva come un event display.
 
 Nel progetto sono stati sviluppati diversi shader per gestire i differenti elementi della scena; tuttavia, nei prossimi paragrafi verrà presentato il codice dello shader più completo, che integra al suo interno sia la logica per il calcolo dell'illuminazione sia la gestione della trasparenza.
 
-La tecnica di shading adottata è quella di Phong: come si vedrà nelle sezioni successive, l'applicazione del modello di illuminazione avviene all'interno del fragment shader, per ogni frammento. 
+La tecnica di shading adottata è quella di Phong: come si vedrà nelle sezioni successive, l'applicazione del modello di illuminazione avviene all'interno del fragment shader, per ogni frammento.
 Questa scelta consente di calcolare correttamente i riflessi speculari: adottando il Gouraud shading, ad esempio, questi andrebbero persi qualora ricadessero all'interno di un poligono senza colpirne i vertici, circostanza frequente nel caso di mesh composte da pochi vertici distanti tra loro, come i parallelepipedi utilizzati per rappresentare le hit (vedi \cref{subsec:shading}).
 
 % ====================================================
@@ -271,7 +276,7 @@ Questa scelta consente di calcolare correttamente i riflessi speculari: adottand
 \subsection{Vertex shader}
 All'interno del vertex shader, ovvero quello eseguito per ogni vertice presente nel VBO, vengono preparati i dati che saranno utilizzati successivamente per il calcolo del colore.
 I vettori richiesti dal modello di illuminazione sono stati inseriti nella struttura \texttt{IlluminationData}, in modo che contenga i vettori normali ($N$), di vista ($V$) e la direzione di ogni luce ($L_i$).
-Tutti i calcoli per l'illuminazione sono eseguiti in VCS, così che il calcolo di $V = {Pos}_{camera} - {Pos}_{vertice}$ si semplifica in $V = -{Pos}_{vertice}$ dal momento che la camera è l'origine del VCS.
+Tutti i calcoli per l'illuminazione sono eseguiti in VCS, così che il calcolo di $V = {Pos}_{camera} - {Pos}_{vertice}$ si semplifica in $V = -{Pos}_{vertice}$ dal momento che la camera è l'origine del VCS.\@
 
 Nel \cref{lst:vert_shader}, è riportato il codice del vertex shader, in cui:
 \begin{itemize}
@@ -295,15 +300,16 @@ Questo accorgimento si rende necessario poiché, in presenza di trasformazioni d
 % 5.5.2 - GEOMETRY SHADER
 % ====================================================
 \subsection{Geometry shader}
-Il calcolo della trasparenza avviene facendo in modo che più un punto si allontana dai lati del triangolo, più viene reso trasparente.
-Questo controllo diventa più semplice se si hanno a disposizione le coordinate baricentriche del frammento, studiate nella \cref{subsec:combinazioni_simplessi}.
+Il calcolo della trasparenza viene effettuato rendendo un frammento tanto più trasparente quanto maggiore è la sua distanza dai lati del triangolo.
+Questa operazione risulta più semplice disponendo delle coordinate baricentriche del frammento, introdotte nella \cref{subsec:combinazioni_simplessi}.
 
-È importante notare che nel passaggio dal geometry al fragment shader (o dal vertex nel caso il geometry non sia utilizzato), la GPU interpola automaticamente tutte le variabili di output dello shader, così che i dati calcolati per ogni vertice siano giusti per ogni frammento.
+È importante notare che nel passaggio dal geometry al fragment shader (o dal vertex nel caso il geometry non sia utilizzato), la GPU interpola automaticamente tutte le variabili di output dello shader, così che i valori definiti sui vertici della primitiva vengono interpolati per ciascun frammento generato dalla rasterizzazione.
 
-Nel geometry shader è disponibile la primitiva geometrica completa, ossia tutti e tre i vertici del triangolo. Per generare le coordinate baricentriche è quindi sufficiente impostare a $1$ una componente diversa di un vettore $\in \mathbb{R}^3$ per ciascun vertice.
-L'interpolazione automatica della GPU farà sì che ogni frammento avrà le sue coordinate baricentriche rispetto ai vertici del triangolo a cui appartiene.
-Gli altri dati vengono copiati invariati dal vertice corrispondente, così che il rasterizzatore possa interpolarli correttamente tra i frammenti del triangolo.
-Quanto descritto è riportato nel \cref{lst:geom_shader}.
+Nel geometry shader è disponibile la primitiva geometrica completa, ossia tutti e tre i vertici del triangolo.
+Per generare le coordinate baricentriche è sufficiente impostare a $1$ una componente diversa di un vettore $\in \mathbb{R}^3$ per ciascun vertice: al primo vertice viene assegnato $(1, 0, 0)$, al secondo $(0, 1, 0)$ e al terzo $(0, 0, 1)$.
+Grazie all'interpolazione automatica eseguita dalla GPU durante la rasterizzazione, ogni frammento riceve così le proprie coordinate baricentriche rispetto ai vertici del triangolo di appartenenza.
+Gli altri attributi associati ai vertici vengono inoltrati senza modifiche, in modo che il rasterizzatore possa interpolarli correttamente sui frammenti generati.
+Il procedimento descritto è riportato nel \cref{lst:geom_shader}.
 
 \lstinputlisting[
     float=htb,
@@ -316,12 +322,12 @@ Quanto descritto è riportato nel \cref{lst:geom_shader}.
 % 5.5.3 - FRAGMENT SHADER
 % ====================================================
 \subsection{Fragment shader}
-Lo scopo del fragment shader è la produzione del colore effettivo di ogni frammento della primitiva.
-Nell'implementazione proposta, il calcolo avviene in due fasi: l'applicazione del modello di illuminazione di Blinn-Phong per trovare il colore di base, e l'utilizzo delle coordinate baricentriche per la trasparenza.
+Il fragment shader ha il compito di determinare il colore finale di ciascun frammento della primitiva.
+Nell'implementazione proposta, il calcolo avviene in due fasi: l'applicazione del modello di illuminazione di Blinn-Phong per trovare il colore di base del frammento, e l'utilizzo delle coordinate baricentriche per la trasparenza.
 
 \subsubsection{Applicazione del modello di Blinn-Phong}
 Dal momento che i vettori necessari al modello di illuminazione sono già forniti dagli shader precedenti, i calcoli eseguiti dallo shader nel \cref{lst:frag_shader_illuminazione} corrispondono direttamente all'\cref{eq:blinn_phong} del modello di Blinn-Phong.
-Il fattore di attenuazione non viene calcolato, in quanto non apporterebbe informazioni visive aggiuntive per un event display.
+Il fattore di attenuazione non viene calcolato, in quanto non apporterebbe un contributo visivo significativo per un event display.
 La correzione della shininess per il fattore $4$ è utilizzata per compensare il minore angolo $\beta$ prodotto da Blinn-Phong, come evidenziato nella \cref{subsec:blinn_phong}.
 
 \lstinputlisting[
@@ -332,24 +338,27 @@ La correzione della shininess per il fattore $4$ è utilizzata per compensare il
 ]{cap5/TransparentPhongIlluminazione.frag}
 
 \subsubsection{Calcolo della trasparenza}
-La trasparenza viene calcolata sfruttando le coordinate baricentriche 
+La trasparenza viene calcolata sfruttando le coordinate baricentriche
 interpolate: queste valgono $0$ sul lato opposto al vertice corrispondente e $1$ sul vertice stesso, quindi un frammento vicino a un bordo avrà almeno una coordinata baricentrica prossima a zero.
 
 \texttt{fwidth} calcola la derivata di variabili interpolate dal rasterizzatore: il valore restituito è proporzionale alla velocità di variazione della variabile tra frammenti adiacenti.
 Il risultato sulle coordinate baricentriche è grande vicino ai bordi, dove le coordinate variano rapidamente, e piccolo all'interno del triangolo.
 
-\texttt{smoothstep(edge0, edge1, x)} restituisce $0$ se $x < \texttt{edge0}$, $1$ se $x > \texttt{edge1}$, e una interpolazione cubica tra i due estremi altrimenti.
-Applicata alle coordinate baricentriche, usa $\texttt{d} \cdot \texttt{uEdgeThickness}$ come soglia superiore: \texttt{uEdgeThickness} è una variabile scelta dall'utente passata come uniform, e serve per aumentare il numero di frammenti considerati vicini al bordo.
-Vicino ai bordi, \texttt{barycentric} è piccolo e \texttt{d} è grande, quindi il frammento cade sotto la soglia e il risultato è $0$; all'interno del triangolo, \texttt{barycentric} è grande e \texttt{d} è piccolo, quindi il frammento supera la soglia e il risultato è $1$.
+\texttt{smoothstep(edge0, edge1, x)} restituisce $0$ se $x < \texttt{edge0}$, $1$ se $x > \texttt{edge1}$, e, per valori intermedi, un'interpolazione cubica regolare tra i due estremi.
+Nel caso in esame, la funzione viene applicata alle coordinate baricentriche del frammento, utilizzando $\texttt{d} \cdot \texttt{uEdgeThickness}$ come soglia superiore: \texttt{uEdgeThickness} è una variabile scelta dall'utente passata come uniform, e serve per aumentare il numero di frammenti considerati vicini al bordo.
+In prossimità dei lati del triangolo, almeno una coordinata baricentrica assume un valore piccolo; di conseguenza il frammento ricade sotto la soglia e il valore restituito da \texttt{smoothstep} tende a $0$.
+All'interno del triangolo, invece, le coordinate baricentriche risultano maggiori e il valore restituito tende a $1$. In questo modo è possibile distinguere gradualmente i frammenti vicini ai bordi da quelli più interni.
 
-Poiché è disponibile un valore di vicinanza a ogni lato, prendendo il minimo delle tre componenti si ottiene \texttt{edgeFactor}, che vale $0$ se il frammento è vicino a qualsiasi bordo del triangolo.
+Poiché per ciascun frammento è disponibile un valore che ne esprime la vicinanza a ciascun lato del triangolo, il valore \texttt{edgeFactor} viene ottenuto prendendo il minimo tra le tre componenti calcolate.
+In questo modo, \texttt{edgeFactor} assume valori prossimi a $0$ quando il frammento si trova vicino ad almeno uno dei bordi del triangolo, e valori prossimi a 1 quando si trova nella parte interna della faccia.
 
-Infine, \texttt{mix} interpola tra \texttt{uEdgeAlpha} e \texttt{uFaceAlpha} in base a \texttt{edge\allowbreak{}Factor}, producendo l'alpha finale del frammento: anche \texttt{uEdgeAlpha} e \texttt{uFaceAlpha} sono due uniform, che corrispondono al canale alpha richiesto ai bordi e all'interno delle facce del triangolo.
+Infine, \texttt{mix} interpola tra \texttt{uEdgeAlpha} e \texttt{uFaceAlpha} in base al valore di \texttt{edge\allowbreak{}Factor}, producendo il valore finale del canale alpha del frammento: anche \texttt{uEdgeAlpha} e \texttt{uFaceAlpha} sono due uniform, che corrispondono al canale alpha richiesto ai bordi e all'interno delle facce del triangolo.
 
 Assemblando il colore calcolato con il modello di illuminazione, salvato in \texttt{baseColor}, e la trasparenza appena calcolata in \texttt{finalAlpha}, si ottiene il colore finale prodotto come output dello shader per il frammento.
 Il calcolo completo è riportato nel \cref{lst:frag_shader_trasparenza}.
 
 \lstinputlisting[
+    float=htb,
     style=glslstyle,
     caption={Fragment shader: calcolo della trasparenza e produzione del colore finale del frammento},
     label={lst:frag_shader_trasparenza}
@@ -359,11 +368,12 @@ Il calcolo completo è riportato nel \cref{lst:frag_shader_trasparenza}.
 % 5.5.4 - TRASPARENZA E ALGORITMO DEL PITTORE
 % ====================================================
 \subsection{Trasparenza e algoritmo del pittore}
-Per ottenere una trasparenza corretta sono necessari due accorgimenti distinti, oltre al calcolo del canale alpha tramite shader.
+Per ottenere una gestione corretta della trasparenza sono necessari due accorgimenti distinti, oltre al calcolo del canale alpha nello shader.
 
-Il primo è disabilitare la scrittura nel depth buffer: se una mesh trasparente scrivesse i propri valori di profondità, le mesh opache retrostanti fallirebbero il depth test e verrebbero scartate, risultando nascoste anche se in realtà dovrebbero essere visibili attraverso la superficie semitrasparente.
+Il primo consiste nel disabilitare la scrittura nel depth buffer per le mesh trasparenti.
+Se una superficie semitrasparente scrivesse i propri valori di profondità, le mesh opache poste dietro di essa fallirebbero il depth test e verrebbero scartate, risultando nascoste anche quando dovrebbero essere visibili attraverso la superficie semitrasparente.
 
-Il secondo è abilitare il blending, che permette alla GPU di miscelare il colore del frammento in arrivo con quello già presente nel color buffer; nel software è stata utilizzata la funzione standard \texttt{GL\_ONE\_MINUS\_SRC\_\allowbreak{}ALPHA} (già vista in \cref{eq:blending}).
+Il secondo accorgimento consiste nell'abilitare il blending, che consente alla GPU di miscelare il colore del frammento in arrivo con quello già presente nel color buffer; nel software è stata utilizzata la funzione standard \texttt{GL\_ONE\_MINUS\_SRC\_\allowbreak{}ALPHA} (già vista in \cref{eq:blending}).
 È tuttavia importante osservare che il blending non è commutativo: l'ordine in cui i frammenti vengono miscelati influenza il colore finale, poiché il colore già nel buffer viene usato come destinazione e quello del frammento in arrivo come sorgente.
 
 Per risolvere questo problema è stato implementato l'algoritmo del pittore (\emph{painter's algorithm}), che consiste nel disegnare le geometrie dalla più lontana alla più vicina, così che si coprano correttamente.
@@ -374,7 +384,6 @@ Nel \cref{lst:ordina_mesh} è riportata l'implementazione del metodo \texttt{Obj
 Per efficienza, il confronto avviene utilizzando \texttt{glm::\allowbreak{}distance2}, che calcola il quadrato della distanza evitando la radice quadrata, non necessaria ai fini del confronto.
 
 \lstinputlisting[
-    float=htb,
     style=cppstyle,
     caption={Ordinamento delle mesh per distanza dal punto scelto},
     label={lst:ordina_mesh}
@@ -407,11 +416,12 @@ L'interazione diretta è gestita dalla classe \texttt{Callback}, che si occupa d
 La manipolazione della scena tridimensionale -- rotazione, traslazione e zoom -- avviene invece tramite polling: anziché accodare ogni singolo evento del mouse, lo stato dei dispositivi di input viene letto una volta per frame all'interno del metodo \texttt{update} della classe \texttt{Viewport}.
 Questo approccio è particolarmente vantaggioso in caso di frame rate ridotto, ad esempio durante l'esecuzione remota con inoltro della finestra grafica, poiché garantisce che la camera risponda sempre allo stato attuale dell'input senza accumulare eventi in coda.
 
-Nel \cref{lst:polling} è riportata la parte del metodo \texttt{Viewport::update} che gestisce la manipolazione della camera. 
+Nel \cref{lst:polling} è riportata la parte del metodo \texttt{Viewport::update} che gestisce la manipolazione della camera.
 Da notare la condizione \texttt{isPointer\allowbreak{}UsedByGui()}: quando l'utente sta interagendo con le finestre dell'interfaccia grafica, l'input del mouse non viene propagato alla camera, evitando interferenze tra i due sistemi.
 La modalità di interazione dipende inoltre dal tasto modificatore: il semplice trascinamento ruota la scena tramite trackball, mentre tenendo premuto Shift si ottiene una traslazione parallela al piano di vista.
 
 \lstinputlisting[
+    float=htb,
     style=cppstyle,
     caption={Polling dell'input nel metodo \texttt{Viewport::update}},
     label={lst:polling}
@@ -422,5 +432,5 @@ La modalità di interazione dipende inoltre dal tasto modificatore: il semplice 
 % ====================================================
 \bigskip
 \needspace{4\baselineskip}
-Completata l'implementazione del sistema, è possibile verificare come i requisiti individuati nel \cref{cap:software_esistente_requisiti} siano stati soddisfatti.
-Nel prossimo capitolo verranno presentate le funzionalità del nuovo event display attraverso una serie di esempi di utilizzo con dati reali dell'esperimento SND@LHC.
+Conclusa l'implementazione del sistema, il passo successivo consiste nel verificare il soddisfacimento dei requisiti individuati nel \cref{cap:software_esistente_requisiti}.
+A tale scopo, nel capitolo seguente verranno presentate le principali funzionalità del nuovo event display mediante esempi di utilizzo basati su dati reali dell'esperimento SND@LHC.
