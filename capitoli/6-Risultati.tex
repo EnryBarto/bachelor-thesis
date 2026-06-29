@@ -1,0 +1,219 @@
+\chapter{Validazione e risultati ottenuti}
+In questo capitolo il sistema viene validato su dati sperimentali reali, verificando come le funzionalità implementate rispondano ai requisiti individuati nel \cref{cap:software_esistente_requisiti}.
+Dopo una descrizione dei dati utilizzati, vengono presentate le principali funzionalità dell'event display attraverso schermate commentate, per poi concludere con una verifica dei requisiti e una discussione dei risultati ottenuti.
+
+Gli esempi mostrati nelle sezioni successive fanno riferimento alla run \texttt{5262}, evento \texttt{112104442}, acquisita il 16 novembre 2022 durante la Run 3 di LHC.
+I dati di questa run appartengono al dataset utilizzato dalla collaborazione per la prima osservazione di interazioni di neutrini senza muoni nello stato finale, pubblicata su \textit{Physical Review Letters} nel giugno 2025 \cite{SND_Observation}.
+La scelta di questo evento consente inoltre un confronto diretto con il software preesistente, del quale era già stato mostrato l'output in \cref{fig:vecchio_display}.
+
+% ====================================================
+%
+% 6.1 - FUNZIONALITA' DEL SISTEMA
+%
+% ====================================================
+\section{Funzionalità del sistema}
+Vengono ora illustrate le principali funzionalità dell'event display attraverso esempi su dati reali.
+
+% ====================================================
+% 6.1.1 - SELEZIONE DELL'EVENTO
+% ====================================================
+\subsection{Selezione dell'evento}
+La selezione dell'evento da visualizzare avviene attraverso due schermate successive.
+Nella prima l'utente inserisce il numero di run (\cref{fig:scelta_run}); nella seconda vengono mostrati i metadati della run caricata e viene richiesto il numero di evento, insieme alle configurazioni per il clustering e la colorazione delle hit (\cref{fig:scelta_evento}), che verranno illustrate successivamente.
+
+Le stesse schermate sono inoltre accessibili durante l'interazione tramite apposite voci di menu, consentendo di cambiare i dati visualizzati senza riavviare il software.
+Per rendere la navigazione di eventi sequenziali il più agevole possibile, durante l'interazione è possibile scorrere gli eventi consecutivi in avanti e indietro rispettivamente utilizzando i pulsanti \texttt{K} e \texttt{J} della tastiera.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/SceltaRun}
+        \caption{Scelta run}
+        \label{fig:scelta_run}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/SceltaEvento}
+        \caption{Scelta evento}
+        \label{fig:scelta_evento}
+    \end{subfigure}
+    \caption{Selezione dei dati da visualizzare}
+\end{figure}
+
+Qualora il file di geometria predefinito non venga trovato, il sistema notifica l'errore indicando esplicitamente il file richiesto per la run selezionata (\cref{fig:errore_geometria}).
+Consente poi di selezionarne manualmente uno alternativo tramite un file browser (\cref{fig:scelta_geometria}), riprendendo l'inizializzazione senza richiedere il riavvio del software.
+Il file browser rimane inoltre accessibile durante l'interazione per caricare geometrie alternative.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/GeometriaRichiesta}
+        \caption{Geometria richiesta}
+        \label{fig:errore_geometria}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/GeometriaManuale}
+        \caption{Scelta manuale geometria}
+        \label{fig:scelta_geometria}
+    \end{subfigure}
+    \caption[Geometria predefinita non trovata]{Gestione del file di geometria non trovato nel percorso predefinito}
+\end{figure}
+
+Questa modalità di selezione soddisfa il requisito funzionale di selezionare run ed evento tramite interfaccia, eliminando la necessità di conoscere il sistema di archiviazione EOS e i comandi da shell illustrati nel \cref{lst:vecchio_display}.
+
+% ====================================================
+% 6.1.2 - CONFIGURAZIONE CLUSTER E COLORAZIONE
+% ====================================================
+\subsection{Configurazione cluster e colorazione}
+Le opzioni di clustering e colorazione (\cref{fig:cluster_config}) sono accessibili nella schermata di selezione dell'evento e possono essere modificate in qualsiasi momento durante l'interazione, anche mantenendo invariato il numero di evento.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap6/ConfigurazioniCluster}
+    \caption[Configurazione dei cluster]{Configurazione dell'algoritmo di clustering e della scala di colore nella schermata di selezione evento}
+    \label{fig:cluster_config}
+\end{figure}
+
+Per il clustering, i parametri configurabili sono il numero minimo di hit necessarie a formare un cluster e la distanza massima consentita tra hit adiacenti.
+Raggruppare le hit vicine riduce l'affollamento visivo della scena, preservando le informazioni fisicamente rilevanti.
+Data la differente risoluzione di ogni sottorivelatore, studiata nel \cref{cap:snd}, è messo a disposizione un set di parametri per ognuno di essi.
+Durante l'interazione i parametri utilizzati sono riportati in una finestra, visualizzata in \cref{fig:visualizza_cluster}.
+Per evitare di doverli impostare singolarmente ad ogni utilizzo del display, sono presenti dei valori predefiniti, scelti dalla collaborazione durante la fase di analisi.
+
+Per la colorazione, è possibile scegliere la grandezza fisica di riferimento -- energia o tempo -- e la scala cromatica da applicare: lineare, logaritmica o monocromatica.
+Questa flessibilità consente di evidenziare aspetti diversi dell'evento a seconda dell'analisi in corso.
+È possibile abilitare la visualizzazione della scala (mostrata in \cref{fig:scala_colore}), così da semplificare l'associazione di ogni colore al valore di riferimento.
+
+\begin{figure}[htb]
+    \centering
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/ConfigurazioneCluster}
+        \caption{Configurazioni del clustering}
+        \label{fig:visualizza_cluster}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/ScalaColore}
+        \caption{Scala colore}
+        \label{fig:scala_colore}
+    \end{subfigure}
+    \hfill
+    \caption{Visualizzazione configurazioni dei dati caricati}
+\end{figure}
+
+Nel complesso, le due opzioni soddisfano rispettivamente i requisiti di selezionare le possibili configurazioni dei dati da caricare e di visualizzare l'energia depositata in modo coerente con i dati letti tramite ROOT.
+
+% ====================================================
+% 6.1.3 - INTERAZIONE CON LA SCENA
+% ====================================================
+\subsection{Interazione con la scena}
+Una volta caricati i dati, è possibile interagire liberamente con la scena tridimensionale tramite rotazione, traslazione e zoom, soddisfacendo il requisito di osservare la geometria del rivelatore da prospettive arbitrarie.
+I controlli sono accessibili tramite il puntatore e lo scroll del mouse, con il tasto Shift come modificatore per la traslazione.
+Sono inoltre disponibili quattro viste predefinite -- frontale, laterale, dall'alto e isometrica -- richiamabili tramite appositi tasti della tastiera, ciascuna delle quali attiva automaticamente la proiezione ortografica.
+In \cref{fig:viste_predefinite} sono riportate le viste dall'alto e laterale, corrispondenti alle proiezioni già presenti nel software preesistente.
+
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[b]{0.8\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/VistaAlto}
+        \caption{Vista dall'alto}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.8\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/VistaLaterale}
+        \caption{Vista laterale}
+    \end{subfigure}
+    \caption{Attivazione delle viste predefinite}
+    \label{fig:viste_predefinite}
+\end{figure}
+
+\subsubsection{Visibilità dei nodi}
+Il pannello \texttt{Scene} (\cref{fig:pannello_scene}), accessibile in qualsiasi momento durante l'interazione, espone l'albero dei nodi della scena diviso in due sezioni: la geometria del rivelatore (\texttt{SND}) e le hit dell'evento (\texttt{HITS}).
+Per ciascun nodo è disponibile una checkbox che ne abilita o disabilita la visualizzazione a runtime, consentendo di isolare singoli sottorivelatori senza ricaricare i dati.
+
+\begin{figure}[htb]
+    \centering
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/NodiGeometria}
+        \caption{Albero della geometria}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/NodiHit}
+        \caption{Albero delle hit}
+    \end{subfigure}
+    \hfill
+    \caption[Pannello degli alberi dei nodi]{Le due sezioni del pannello \texttt{Scene}: la geometria del rivelatore e le hit dell'evento}
+    \label{fig:pannello_scene}
+\end{figure}
+
+% ====================================================
+% 6.1.4 - ILLUMINAZIONE E TRASPARENZA
+% ====================================================
+\subsection{Illuminazione e trasparenza}
+Un menu dedicato consente all'utente di attivare e disattivare l'illuminazione e la trasparenza, oltre a configurarne i parametri: per la trasparenza è possibile regolare separatamente l'opacità dei bordi e delle facce dei poligoni; per l'illuminazione è possibile modificare le proprietà delle sorgenti luminose puntiformi.
+
+Il confronto tra la scena illuminata e non è apprezzabile nella \cref{fig:confronto_illuminazione}: sebbene non prevista tra i requisiti iniziali, senza illuminazione le hit appaiono come solidi uniformemente colorati, mentre, con l'illuminazione attiva, il calcolo della luce incidente rende distinguibili le singole facce, migliorando la percezione della profondità e della forma degli oggetti nella scena.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/NonIlluminato}
+        \caption{Illuminazione disattivata}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/Illuminato}
+        \caption{Illuminazione attivata}
+    \end{subfigure}
+    \caption[Confronto tra illuminazione attivata e disattivata]{Confronto di parte del rivelatore con illuminazione attivata e disattivata}
+    \label{fig:confronto_illuminazione}
+\end{figure}
+
+% ====================================================
+%
+% 6.2 - VERIFICA DEI REQUISITI
+%
+% ====================================================
+\section{Verifica dei requisiti}
+Sulla base delle funzionalità presentate nella sezione precedente, tutti i requisiti funzionali individuati nel \cref{cap:software_esistente_requisiti} risultano soddisfatti.
+La selezione di run ed evento avviene tramite schermate di inserimento guidato, eliminando la necessità di conoscere il sistema di archiviazione EOS e i comandi da shell del software preesistente.
+L'interazione con la scena è gestita tramite mouse e tastiera, con viste predefinite richiamabili istantaneamente.
+La visualizzazione dell'energia depositata è supportata attraverso la colorazione delle hit per energia o tempo, con scala cromatica configurabile.
+Infine, i parametri di clustering e la modalità di colorazione costituiscono le configurazioni dei dati selezionabili dall'utente.
+
+Anche i requisiti non funzionali sono rispettati.
+La fluidità dell'interazione è garantita dalle ottimizzazioni discusse nella \cref{subsec:ottimizzazioni}: il precalcolo delle matrici di modellazione e la riduzione delle chiamate al driver grafico consentono di raggiungere 40-60 FPS con illuminazione e trasparenza attive, un valore in linea con lo standard di fluidità delle applicazioni interattive moderne.
+Il ridimensionamento della finestra è gestito tramite le callback di GLFW, che aggiornano automaticamente l'area di disegno e il rapporto d'aspetto della proiezione, rendendo l'interfaccia adattabile a qualsiasi configurazione dello schermo.
+La navigazione tra eventi consecutivi è resa agevole dai tasti \texttt{J} e \texttt{K}, che consentono di scorrere gli eventi in avanti e indietro senza dover reinserire i dati ogni volta.
+L'interazione intuitiva è infine garantita dalla barra menu, che espone tutte le funzionalità disponibili riportando accanto a ciascuna la scorciatoia da tastiera corrispondente, così da non richiedere all'utente la memorizzazione di comandi.
+
+Nella \cref{fig:schermata_completa} è riportata l'intera schermata del software mostrata all'utente durante l'interazione con la scena, in cui sono visibili la barra menu con un sottomenu aperto e le indicazioni dello stato corrente e il numero di FPS, i pannelli informativi con i metadati dell'evento e la palette utilizzata, e la finestra contenente le impostazioni grafiche del software.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{cap6/Interfaccia}
+    \caption{Interfaccia completa dell'event display}
+    \label{fig:schermata_completa}
+\end{figure}
+
+% ====================================================
+% CONCLUSIONE CAPITOLO 6
+% ====================================================
+\bigskip
+I risultati ottenuti verranno ripresi nelle conclusioni, dove saranno discussi i limiti ancora presenti e i possibili sviluppi futuri del sistema.
