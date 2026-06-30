@@ -91,21 +91,19 @@ Questa flessibilità consente di evidenziare aspetti diversi dell'evento a secon
 
 \begin{figure}[htb]
     \centering
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
+    \begin{subfigure}[t]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{cap6/ConfigurazioneCluster}
         \caption{Configurazioni del clustering}
         \label{fig:visualizza_cluster}
     \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.35\textwidth}
+    \hspace{1.5cm}
+    \begin{subfigure}[t]{0.35\textwidth}
         \centering
         \includegraphics[width=\textwidth]{cap6/ScalaColore}
         \caption{Scala colore}
         \label{fig:scala_colore}
     \end{subfigure}
-    \hfill
     \caption{Visualizzazione configurazioni dei dati caricati}
 \end{figure}
 
@@ -213,8 +211,37 @@ Nella \cref{fig:schermata_completa} è riportata l'intera schermata del software
 \end{figure}
 
 % ====================================================
+%
+% 6.3 - CONFRONTO CON IL SOFTWARE PREESISTENTE
+%
+% ====================================================
+\section{Confronto con il software preesistente}
+Viene ora mostrato un confronto diretto tra l'output ottenuto dall'event display attualmente in uso dalla collaborazione (in \cref{fig:display_preesistente}) e quello ottenuto tramite la funzione \texttt{Export Image} del nuovo software (in \cref{fig:display_nuovo}).
+
+È evidente come la rappresentazione tridimensionale renda molto più immediata la comprensione dell'evento rilevato dal rivelatore, evitando all'utente di dover ricostruire mentalmente la posizione dei segnali a partire dalle due proiezioni bidimensionali separate.
+A differenza del software preesistente, vincolato alle sole viste frontale e laterale, la possibilità di scegliere liberamente l'angolazione consente di osservare la distribuzione delle hit dal punto di vista più informativo, adattandosi di volta in volta al singolo caso di studio.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.55\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap2/Display2D}
+        \caption{Event display 2D}
+        \label{fig:display_preesistente}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.43\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap6/OutputDisplay}
+        \caption{Event display 3D}
+        \label{fig:display_nuovo}
+    \end{subfigure}
+    \caption[Confronto tra software attuale e preesistente]{Confronto tra l'event display 2D del software preesistente e l'event display 3D del software sviluppato, relativi al medesimo evento (run \texttt{5262}, evento \texttt{112104442})}
+\end{figure}
+
+
+% ====================================================
 % CONCLUSIONE CAPITOLO 6
 % ====================================================
 \bigskip
-\needspace{2\baselineskip}
 I risultati ottenuti verranno ripresi nelle conclusioni, dove saranno discussi i limiti ancora presenti e i possibili sviluppi futuri del sistema.
