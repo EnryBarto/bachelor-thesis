@@ -43,11 +43,11 @@ Per soddisfare i requisiti di usabilità, esso consente sia di visualizzare le i
 \section{Gestione della macchina a stati finiti}
 \label{sec:fsm}
 L'intero software è basato su una macchina a stati finiti (\emph{Finite State Machine}, FSM) così da avere il pieno controllo sul suo flusso di esecuzione.
-In questa sezione vengono presentati gli stati di alto livello, riportati in \cref{fig:diagramma_stati_generale}; successivamente saranno approfonditi gli stati più complessi, che verranno scomposti nei relativi sottostati. 
+In questa sezione vengono presentati gli stati di alto livello, riportati in \cref{fig:diagramma_stati_generale}; successivamente saranno approfonditi gli stati più complessi, che verranno scomposti nei relativi sottostati.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{cap4/Diagramma_FSM_generale}
+    \includegraphics[width=0.85\textwidth]{cap4/Diagramma_FSM_generale}
     \caption[Diagramma della FSM del sistema]{Diagramma ad alto livello della FSM}
     \label{fig:diagramma_stati_generale}
 \end{figure}
@@ -84,7 +84,7 @@ Se la geometria venisse caricata quando l'utente ha ancora la possibilità di ca
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\textwidth]{cap4/Diagramma_FSM_init}
+    \includegraphics[width=0.97\textwidth]{cap4/Diagramma_FSM_init}
     \caption{Espansione dello stato composto \texttt{INITIALIZATION}}
     \label{fig:diagramma_stati_inizializzazione}
 \end{figure}
@@ -102,9 +102,9 @@ In questa fase si può però scegliere tramite interfaccia se cambiare il file d
 Poiché può essere necessario scorrere più eventi appartenenti alla stessa run, sarebbe poco efficiente richiedere ogni volta l’inserimento dell’intera coppia (run number, event number) e ricaricare dati già validi.
 Per questo motivo, il sistema consente sia di specificare nuovamente entrambi i valori, sia di modificare soltanto il numero di evento nel caso in cui la run rimanga invariata.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{cap4/Diagramma_FSM_change_data}
+    \includegraphics[width=0.88\textwidth]{cap4/Diagramma_FSM_change_data}
     \caption{Espansione dello stato composto \texttt{CHANGE\_DATA}}
     \label{fig:diagramma_stati_change_data}
 \end{figure}
@@ -221,10 +221,11 @@ In accordo con il pattern \emph{Facade}, il controllo di tutte queste dipendenze
     \label{fig:diagramma_classi_modulo_io}
 \end{figure}
 
+\needspace{2\baselineskip}
 Comunicando il numero di run prescelto ne vengono lette le caratteristiche e salvate nella classe \texttt{RunData}, così che l'event display possa mostrare all'utente i dati della run attualmente in memoria.
 
 Il caricamento di un evento avviene invece passando le configurazioni come parametro tramite la struttura \texttt{ClusterConfiguration}, restituendo il risultato in un oggetto della classe \texttt{EventData}.
-Come discusso nella \cref{sec:struttura_snd}, SND@LHC è composto da complessi sottorivelatori (classe \texttt{DetectorData}), ogni evento si compone delle hit (classe \texttt{HitData}) rilevate in ognuno di essi. 
+Come discusso nella \cref{sec:struttura_snd}, SND@LHC è composto da complessi sottorivelatori (classe \texttt{DetectorData}), ogni evento si compone delle hit (classe \texttt{HitData}) rilevate in ognuno di essi.
 
 % ====================================================
 % 4.4.3 - SCELTA TIPO DI PROIEZIONE
@@ -244,7 +245,7 @@ Gli attori del pattern sono illustrati in \cref{fig:diagramma_proiezioni}.
 
 Per migliorare le performance dell'event display evitando il ricalcolo continuo della matrice di proiezione, ne viene tenuta una copia sovrascritta ad ogni cambio delle caratteristiche della proiezione.
 Poiché va ricalcolata solo al cambio dell'aspect ratio o del fov, i metodi template \texttt{setAspectRatio} e \texttt{setFov} definiti nella classe astratta \texttt{Basic\allowbreak{}Projection} richiamano il metodo astratto \texttt{computeProjectionMatrix}, ovvero l'operazione primitiva.
-Le classi concrete, in questo caso \texttt{Ortho\allowbreak{}graphicProjection} e \texttt{Perspec\allowbreak{}tive\allowbreak{}Projection}, si occupano solo di specificare l'algoritmo di calcolo della matrice nel metodo astratto sovrascritto, evitando di ripetere codice comune e semplificando l'aggiunta di nuovi tipi di proiezioni.
+Le classi concrete, in questo caso \texttt{Ortho\allowbreak{}graphicProjec\allowbreak{}tion} e \texttt{Perspec\allowbreak{}tive\allowbreak{}Projection}, si occupano solo di specificare l'algoritmo di calcolo della matrice nel metodo astratto sovrascritto, evitando di ripetere codice comune e semplificando l'aggiunta di nuovi tipi di proiezioni.
 
 Infine, nella proiezione ortografica è presente un metodo aggiuntivo per impostare la distanza della camera dal target: dato che questo tipo di proiezione preserva il parallelismo, il semplice avvicinamento della camera al target non produce l'effetto di zoom.
 Si rende quindi necessario cambiare le dimensioni dei piani vicino e lontano del volume di vista.

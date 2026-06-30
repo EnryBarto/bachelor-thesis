@@ -705,7 +705,7 @@ I modelli di illuminazione globale più conosciuti sono il \emph{ray tracing}, c
 Sebbene i modelli locali siano caratterizzati da maggiore semplicità e minore costo computazionale, i modelli globali consentono di ottenere risultati più vicini al fotorealismo, poiché tengono conto anche dei contributi indiretti della luce.
 Le differenze tra le due categorie sono illustrate nel confronto riportato in \cref{fig:modelli_illuminazione}.
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.64\textwidth}
         \centering
@@ -868,13 +868,13 @@ Inoltre, mentre Phong produce riflessi quasi circolari su una superficie piana, 
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.49\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{cap3/RiflessoPhong.png}
         \caption{Modello di Phong}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.49\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{cap3/RiflessoBlinnPhong.png}
         \caption{Modello di Blinn-Phong}
@@ -891,7 +891,7 @@ Inoltre, mentre Phong produce riflessi quasi circolari su una superficie piana, 
 I modelli di shading rappresentano il processo matematico e algoritmico utilizzato per determinare il colore di tutti i pixel che ricoprono una superficie, applicando un determinato modello di illuminazione.
 Si differenziano principalmente per la frequenza con cui viene ricalcolato il modello di illuminazione, dando diversi effetti visibili in \cref{fig:modelli_shading}.
 
-\begin{figure}[ht]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{cap3/Shading_models}
 	\caption[Diversi modelli di shading a confronto]{Confronto tra i principali modelli di shading; lo shading interpolativo, non rappresentato, si colloca concettualmente tra flat e Gouraud shading}

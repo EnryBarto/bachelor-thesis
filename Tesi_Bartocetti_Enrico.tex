@@ -188,12 +188,12 @@
     includehead,
     vmarginratio=1:1, % Centra verticalmente il blocco delle 33 righe
     bindingoffset=7mm, % Spazio per la rilegatura
-    inner=35mm,       % Margine interno (lato rilegatura)
-    outer=40mm        % Margine esterno
+    inner=36mm,       % Margine interno (lato rilegatura)
+    outer=36mm        % Margine esterno
 }
 %Per la riga di intestazione
 \setlength{\headwidth}{\textwidth}
-\addtolength{\headwidth}{20pt} % Circa 7 mm
+\addtolength{\headwidth}{18pt} % Circa 7 mm
 
 % Vecchia gestione margini alterni:
 % \setlength{\oddsidemargin}{30pt}
@@ -202,16 +202,14 @@
 
 % ====================================================
 %
-% DEDICA, INDICI E INTRO
+% DEDICA, ABSTRACT, INDICI E INTRO
 %
 % ====================================================
 \cleardoublepage
-\thispagestyle{empty}
-\vspace*{6.5cm}
-\begin{flushright}
-    \large \em
-    Questa è la \textsc{Dedica}.
-\end{flushright}
+\include{capitoli/Dedica}
+
+\cleardoublepage
+\include{capitoli/Abstract}
 
 \cleardoublepage
 \pagenumbering{roman}
@@ -228,7 +226,6 @@
 \lstlistoflistings % Indice dei listing
 
 \cleardoublepage
-\linenumbers
 \include{capitoli/0-Introduzione}
 
 % ====================================================

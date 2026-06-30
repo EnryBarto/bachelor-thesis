@@ -76,7 +76,7 @@ In questo modo vengono predisposti i sottorivelatori corrispondenti alla configu
 Poiché la maggior parte dei sottorivelatori acquisisce dati in due dimensioni, mostrare graficamente ogni singola hit comporterebbe un inutile sovraccarico della scena: per evitare confusione, si è scelto di applicare algoritmi di clustering che raggruppano le attivazioni vicine.
 Per mantenere il sistema flessibile, l'utente può comunque personalizzare i parametri di soglia che regolano la formazione di questi cluster.
 
-Quando run e geometria sono stati entrambi inizializzati, è possibile procedere con il caricamento dell'evento utilizzando il metodo \texttt{loadEvent(eventNumber, clusterConfiguration)}.
+Quando run e geometria sono stati entrambi inizializzati, è possibile procedere con il caricamento dell'evento utilizzando il metodo \texttt{loadEvent\allowbreak{}(eventNumber, clusterConfiguration)}.
 Dopo aver controllato la validità del numero, viene richiesto a ROOT di leggerne i dati dallo storage.
 Si procede poi a ciclare su tutti i piani di ogni sottorivelatore, invocando la funzione di clustering con le configurazioni richieste ed istanziando oggetti delle classi \texttt{DetectorData} e \texttt{HitData} che verranno restituiti all'interno di \texttt{EventData}.
 
@@ -214,7 +214,6 @@ Per eseguire il rendering di una geometria è quindi sufficiente attivare il VAO
 Il processo di creazione di questi buffer e la sequenza di rendering sono riportati nel \cref{lst:init_vao}; poiché si lavora con triangoli, la \texttt{renderMode} utilizzata è sempre \texttt{GL\_TRIANGLES}.
 
 \lstinputlisting[
-    float=htb!,
     style=cppstyle,
     caption={Istruzioni OpenGL per la creazione di VAO, VBO ed EBO, e per eseguirne il rendering},
     label={lst:init_vao}
@@ -359,7 +358,6 @@ Assemblando il colore calcolato con il modello di illuminazione, salvato in \tex
 Il calcolo completo è riportato nel \cref{lst:frag_shader_trasparenza}.
 
 \lstinputlisting[
-    float=htb,
     style=glslstyle,
     caption={Fragment shader: calcolo della trasparenza e produzione del colore finale del frammento},
     label={lst:frag_shader_trasparenza}
@@ -406,7 +404,7 @@ L'interfaccia grafica è realizzata tramite la libreria Dear ImGui, una \emph{im
 È gestita interamente dalla classe \texttt{Ui}, che ha a disposizione il riferimento all'\texttt{AppStateManager} così da disegnare finestre coerenti con lo stato corrente del software.
 Tramite i riferimenti alle classi \texttt{Scene} e \texttt{AppSettings}, permette all'utente di visualizzare i dati caricati nell'event display -- run, evento e metadati associati -- e di modificare le principali impostazioni di visualizzazione, come la modalità di colorazione delle hit, il tipo di proiezione e la trasparenza delle geometrie.
 
-Per la selezione dei file di geometria è stata integrata la libreria \texttt{ImGuiFileDialog}, che estende Dear ImGui con un file browser nativo, consentendo all'utente di navigare il filesystem e selezionare il file .gltf desiderato direttamente dall'interfaccia grafica, senza dover specificare il percorso tramite riga di comando.
+Per la selezione dei file di geometria è stata integrata la libreria \texttt{ImGui\allowbreak{}FileDialog}, che estende Dear ImGui con un file browser nativo, consentendo all'utente di navigare il filesystem e selezionare il file .gltf desiderato direttamente dall'interfaccia grafica, senza dover specificare il percorso tramite riga di comando.
 
 % ====================================================
 % 5.6.2 - CONTROLLO DELLA SCENA DA TASTIERA E MOUSE

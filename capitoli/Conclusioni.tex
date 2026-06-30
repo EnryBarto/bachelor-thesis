@@ -1,3 +1,54 @@
 \chapter*{Conclusioni}
 \addcontentsline{toc}{chapter}{Conclusioni}
-Testo conclusivo.
+\markboth{Conclusioni}{Conclusioni}
+Si è affrontato l'intero processo di creazione del nuovo event display, partendo dai requisiti richiesti dalla collaborazione fino ad arrivare a una versione funzionante del software, dettagliando la sua progettazione e le conoscenze matematiche che ne sono alla base, per mostrarne infine il risultato concreto.
+
+Come visto nel \cref{cap:risultati}, tutti i requisiti stabiliti in fase di analisi sono stati ampiamente soddisfatti, creando un event display dall'interfaccia user friendly e interamente funzionante.
+È quindi ora possibile analizzarne i limiti, proponendo anche alcune possibili estensioni future.
+
+% ====================================================
+%
+% LIMITI
+%
+% ====================================================
+\section*{Limiti}
+\addcontentsline{toc}{section}{Limiti}
+Pur soddisfacendo i requisiti individuati in fase di analisi, il sistema sviluppato presenta alcuni limiti, in parte già introdotti nei capitoli precedenti.
+
+
+Uno dei più impattanti è la dipendenza da uno strumento esterno per la conversione dei file di geometria dal formato proprietario di ROOT allo standard glTF, come discusso nella \cref{subsec:oggetti_tridimensionali_scena}.
+
+Inoltre, data la dipendenza diretta dal framework sndsw, è possibile eseguire l'event display solo in ambienti in cui sndsw può essere compilato.
+Dal momento che la collaborazione ha perfezionato la compilazione solo sui server remoti del CERN, l'utilizzo del software avviene esclusivamente con forwarding del display X11 tramite ssh o tramite connessione al display remoto VNC.
+
+% ====================================================
+%
+% SVILUPPI FUTURI
+%
+% ====================================================
+\section*{Sviluppi futuri}
+\addcontentsline{toc}{section}{Sviluppi futuri}
+Il sistema sviluppato si presta a diverse estensioni future.
+
+Una prima possibilità riguarda l'aggiunta della selezione dei cluster con il click del puntatore.
+Questa funzionalità risulterebbe comoda per visualizzare nel dettaglio le informazioni dei cluster, rendendo sempre più agevole lo studio degli eventi tramite l'interazione col software.
+
+Potrebbe anche essere utile introdurre uno slider temporale che agisce da filtro, per visualizzare l'evoluzione delle hit nel tempo, agevolando lo studio della dinamica degli eventi registrati.
+
+Il software potrebbe inoltre essere esteso per eseguire il rendering in locale anche quando i dati sono ospitati su un server remoto, tramite un'architettura client-server che disaccoppi il visualizzatore dal caricamento dei dati.
+La lettura dei dati sperimentali continuerebbe ad avvenire sul server remoto, dove sndsw è eseguibile, ma verrebbe esposta tramite un processo dedicato; il visualizzatore diventerebbe invece un applicativo client eseguito in locale, che riceve i dati già letti tramite rete e si occupa interamente del rendering.
+In questo modo, l'interazione con la scena avverrebbe interamente in locale, eliminando il lag introdotto dal forwarding del display e limitando la comunicazione di rete al solo trasferimento dei dati.
+
+Infine, durante il \texttt{Long Shutdown 3} (2026-2030), oltre allo studio dei dati raccolti durante l'operatività del rivelatore, è prevista l'evoluzione di SND@LHC in SND@HL-LHC -- ovvero \emph{High Luminosity LHC}.
+Il sistema dovrà quindi essere mantenuto e adattato alla nuova configurazione, sfruttando la modularità dell'architettura progettata: per la geometria sarà sufficiente convertire i nuovi file ROOT, mentre andrà riadattato il modulo \texttt{io} per leggere i dati secondo le nuove strutture previste da SND@HL-LHC.
+
+% ====================================================
+%
+% CONCLUSIONE TESI
+%
+% ====================================================
+\bigskip
+L'applicativo sviluppato è stato presentato alla collaborazione durante la \texttt{25th SND@LHC Collaboration Meeting}, tenutasi al CERN nel periodo 23-25 giugno 2026, riscuotendo un riscontro molto positivo da parte dei partecipanti.
+In particolare, è stato espresso un forte interesse nell'utilizzare da subito il software per scopi di divulgazione, nell'ambito del progetto \textit{Open Science} del CERN, e nell'avere in futuro una nuova versione del sistema adattata al rivelatore SND@HL-LHC.
+
+Questo riscontro conferma come il lavoro svolto non si limiti a un progetto fine a se stesso, ma costituisca un contributo concreto e duraturo per la collaborazione SND@LHC.

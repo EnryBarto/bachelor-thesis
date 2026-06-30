@@ -1,4 +1,5 @@
 \chapter{Validazione e risultati ottenuti}
+\label{cap:risultati}
 In questo capitolo il sistema viene validato su dati sperimentali reali, verificando come le funzionalità implementate rispondano ai requisiti individuati nel \cref{cap:software_esistente_requisiti}.
 Dopo una descrizione dei dati utilizzati, vengono presentate le principali funzionalità dell'event display attraverso schermate commentate, per poi concludere con una verifica dei requisiti e una discussione dei risultati ottenuti.
 
@@ -64,7 +65,7 @@ Il file browser rimane inoltre accessibile durante l'interazione per caricare ge
     \caption[Geometria predefinita non trovata]{Gestione del file di geometria non trovato nel percorso predefinito}
 \end{figure}
 
-Questa modalità di selezione soddisfa il requisito funzionale di selezionare run ed evento tramite interfaccia, eliminando la necessità di conoscere il sistema di archiviazione EOS e i comandi da shell illustrati nel \cref{lst:vecchio_display}.
+Questa modalità di selezione soddisfa il requisito di selezionare run ed evento tramite interfaccia, eliminando la necessità di conoscere il sistema di archiviazione EOS e i comandi da shell illustrati nel \cref{lst:vecchio_display}.
 
 % ====================================================
 % 6.1.2 - CONFIGURAZIONE CLUSTER E COLORAZIONE
@@ -118,15 +119,15 @@ I controlli sono accessibili tramite il puntatore e lo scroll del mouse, con il 
 Sono inoltre disponibili quattro viste predefinite -- frontale, laterale, dall'alto e isometrica -- richiamabili tramite appositi tasti della tastiera, ciascuna delle quali attiva automaticamente la proiezione ortografica.
 In \cref{fig:viste_predefinite} sono riportate le viste dall'alto e laterale, corrispondenti alle proiezioni già presenti nel software preesistente.
 
-\begin{figure}[htb]
+\begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.8\textwidth}
+    \begin{subfigure}[b]{\textwidth}
         \centering
         \includegraphics[width=\textwidth]{cap6/VistaAlto}
         \caption{Vista dall'alto}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.8\textwidth}
+    \begin{subfigure}[b]{\textwidth}
         \centering
         \includegraphics[width=\textwidth]{cap6/VistaLaterale}
         \caption{Vista laterale}
@@ -139,16 +140,16 @@ In \cref{fig:viste_predefinite} sono riportate le viste dall'alto e laterale, co
 Il pannello \texttt{Scene} (\cref{fig:pannello_scene}), accessibile in qualsiasi momento durante l'interazione, espone l'albero dei nodi della scena diviso in due sezioni: la geometria del rivelatore (\texttt{SND}) e le hit dell'evento (\texttt{HITS}).
 Per ciascun nodo è disponibile una checkbox che ne abilita o disabilita la visualizzazione a runtime, consentendo di isolare singoli sottorivelatori senza ricaricare i dati.
 
-\begin{figure}[htb]
+\begin{figure}[H]
     \centering
     \hfill
-    \begin{subfigure}[b]{0.45\textwidth}
+    \begin{subfigure}[b]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{cap6/NodiGeometria}
         \caption{Albero della geometria}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.45\textwidth}
+    \begin{subfigure}[b]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{cap6/NodiHit}
         \caption{Albero delle hit}
@@ -166,7 +167,7 @@ Un menu dedicato consente all'utente di attivare o disattivare l'illuminazione e
 
 Il confronto tra la scena illuminata e non è apprezzabile nella \cref{fig:confronto_illuminazione}: sebbene non prevista tra i requisiti iniziali, essa contribuisce in modo significativo alla leggibilità della scena: senza illuminazione, le hit appaiono come solidi uniformemente colorati; con l'illuminazione attiva, il calcolo della luce incidente rende distinguibili le singole facce, migliorando la percezione della profondità e della forma degli oggetti nella scena.
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \centering
@@ -203,7 +204,7 @@ L'interazione intuitiva è infine garantita dalla barra menu, che espone tutte l
 
 Nella \cref{fig:schermata_completa} è riportata l'intera schermata del software mostrata all'utente durante l'interazione con la scena, in cui sono visibili la barra menu con un sottomenu aperto e le indicazioni dello stato corrente e il numero di FPS, i pannelli informativi con i metadati dell'evento e la palette utilizzata, e la finestra contenente le impostazioni grafiche del software.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{cap6/Interfaccia}
     \caption{Interfaccia completa dell'event display}

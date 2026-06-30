@@ -1,3 +1,22 @@
 \chapter*{Introduzione}
 \addcontentsline{toc}{chapter}{Introduzione}
-Testo dell'introduzione.
+\markboth{Introduzione}{}
+SND@LHC è un esperimento di fisica delle particelle situato al CERN, che ha come obiettivo lo studio delle interazioni dei neutrini in un intervallo di energie precedentemente inesplorato.
+Lo studio di queste particelle offre infatti una nuova chiave di lettura su fenomeni che vanno oltre il Modello Standard, la teoria attualmente alla base della fisica delle particelle.
+
+La collaborazione di SND@LHC, tra i vari strumenti software a disposizione per la ricostruzione e lo studio degli eventi, utilizza un event display.
+Un event display è un software grafico che permette di visualizzare i segnali letti dai sensori all'interno del rivelatore, così da ricostruire quanto accaduto.
+Il software attuale è però affetto da alcune significative limitazioni.
+Mette innanzitutto a disposizione solo due viste fisse, ovvero le proiezioni bidimensionali laterali e dall'alto del rivelatore, impedendo qualsiasi interazione con la geometria.
+È inoltre affetto da gravi carenze di usabilità: il suo avvio richiede di utilizzare molti argomenti mnemonici da riga di comando, e il passaggio a un evento di una run diversa richiede il riavvio del software.
+Infine, non prevede alcuna modularità, dato che l'intero software è contenuto in un unico file Python.
+
+Con questa tesi si vuole realizzare un nuovo event display per la collaborazione, basato su una scena tridimensionale interattiva.
+Il nuovo sistema dovrà inoltre offrire una buona usabilità e rispettare le pratiche di buona progettazione del software, così da garantirne la manutenibilità e l'estendibilità nel tempo.
+
+Il lavoro inizia descrivendo dettagliatamente l'esperimento SND@LHC, a partire dalla sua collocazione fino al dettaglio di ogni sottorivelatore, proseguendo poi con lo studio del software attuale e un'analisi dei requisiti discussi con la collaborazione.
+Successivamente verranno presentate le basi matematiche di computer grafica necessarie alla costruzione del motore di rendering tridimensionale, così da comprendere nel dettaglio ogni scelta implementativa.
+Segue un capitolo che descrive l'architettura del software, basata su un ampio utilizzo di design pattern per ricondurre le principali sfide progettuali a problemi noti, con soluzioni consolidate.
+La teoria e le scelte progettuali vengono poi applicate nella stesura del software, descritta in dettaglio in un apposito capitolo e accompagnata da porzioni rilevanti di codice commentato.
+Vengono infine mostrate, tramite schermate dell'interfaccia utente, le funzionalità implementate nel software, così da illustrare concretamente come il nuovo event display possa migliorare lo studio degli eventi da parte della collaborazione di SND@LHC.
+La tesi si chiude con un capitolo conclusivo, in cui vengono riassunti i risultati raggiunti, discussi i limiti del sistema sviluppato e proposti possibili sviluppi futuri.
