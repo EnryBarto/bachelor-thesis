@@ -21,6 +21,9 @@ Questa funzionalità risulterebbe comoda per visualizzare nel dettaglio le infor
 
 Potrebbe anche essere utile introdurre uno slider temporale che agisce da filtro, per visualizzare l'evoluzione delle hit nel tempo, agevolando lo studio della dinamica degli eventi registrati.
 
+Come anticipato nella \cref{subsubsec:mini_dt}, in sndsw non è ancora ultimata la parte di elaborazione dei dati prodotti dalle MiniDT, nonostante siano già presenti nella geometria.
+Non appena il framework ne includerà il supporto ufficiale, l'event display dovrà essere aggiornato per caricarli e mostrarli nella scena tridimensionale.
+
 Il software potrebbe inoltre essere esteso per eseguire il rendering in locale anche quando i dati sono ospitati su un server remoto, tramite un'architettura client-server che disaccoppi il visualizzatore dal caricamento dei dati.
 La lettura dei dati sperimentali continuerebbe ad avvenire sul server remoto, dove sndsw è eseguibile, ma verrebbe esposta tramite un processo dedicato; il visualizzatore diventerebbe invece un applicativo client eseguito in locale, che riceve i dati già letti tramite rete e si occupa interamente del rendering.
 In questo modo, l'interazione con la scena avverrebbe interamente in locale, eliminando il lag introdotto dal forwarding del display e limitando la comunicazione di rete al solo trasferimento dei dati.
