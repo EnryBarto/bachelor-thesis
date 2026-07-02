@@ -138,7 +138,7 @@ La classe \texttt{App}, posta all'interno del package \texttt{core}, rappresenta
 
 Il metodo \texttt{run} contiene il render loop: cicla fino a che il software rimane in stato \texttt{RUNNING}, aggiornando tutti i componenti dell'app ed eseguendo il render di gui e scena tridimensionale.
 
-Il metodo \texttt{update}, invocato ad ogni ciclo del render loop, funge da dispatcher della FSM: ad ogni frame legge lo stato corrente e delega l'operazione corrispondente al componente appropriato -- ad esempio il caricamento di una run a \texttt{SndswEventManager}. 
+Il metodo \texttt{update}, invocato ad ogni ciclo del render loop, funge da dispatcher della FSM: ad ogni frame legge lo stato corrente e delega l'operazione corrispondente al componente appropriato -- ad esempio il caricamento di una run a \texttt{SndswEventManager}.
 Gli errori sollevati durante il caricamento vengono catturati e notificati all'\texttt{AppStateManager}, che provvede a transitare nello stato di errore appropriato.
 
 % ====================================================
@@ -155,9 +155,9 @@ La progettazione fa ampiamente uso dei \emph{design pattern}: per ogni component
 % ====================================================
 \subsection{Oggetti tridimensionali della scena}
 \label{subsec:oggetti_tridimensionali_scena}
-ROOT memorizza le geometrie dei rivelatori in formato proprietario. 
+ROOT memorizza le geometrie dei rivelatori in formato proprietario.
 Poiché la conversione diretta di tali file avrebbe comportato un lavoro considerevole, non strettamente legato agli obiettivi della tesi, si è scelto di adottare una conversione preventiva nel formato glTF 2.0 tramite uno strumento dedicato.
-Questa scelta è giustificata anche dal fatto che le geometrie disponibili sono in numero limitato e vengono aggiornate raramente, indicativamente una volta all’anno. 
+Questa scelta è giustificata anche dal fatto che le geometrie disponibili sono in numero limitato e vengono aggiornate raramente, indicativamente una volta all’anno.
 
 \subsubsection{Lo standard glTF}
 
@@ -201,7 +201,7 @@ Seguendo il pattern \emph{Composite}, sono state create le classi (illustrate in
 \end{itemize}
 
 Poiché le geometrie possono essere condivise tra più nodi della scena, i dati delle mesh sono stati disaccoppiati dal concetto logico di mesh: un oggetto \texttt{Mesh} punta a una \texttt{GpuMesh} che può essere condivisa tra più istanze, evitando la duplicazione di dati geometrici in memoria GPU.
-Lo stesso ragionamento vale per \texttt{Material}. 
+Lo stesso ragionamento vale per \texttt{Material}.
 Questa soluzione corrisponde al pattern \emph{Flyweight}, applicato per minimizzare il consumo di memoria nella rappresentazione di geometrie e materiali ricorrenti.
 Lo stato intrinseco è rappresentato dalle informazioni condivisibili (contenute in \texttt{GpuMesh} e \texttt{Material}), mentre lo stato estrinseco è dato dal contesto in cui l'oggetto viene utilizzato — ad esempio la matrice di modellazione contenuta in \texttt{Node}, che permette di posizionare e orientare la stessa \texttt{GpuMesh} in punti diversi della scena.
 Per garantire la condivisione dello stato intrinseco, la creazione degli oggetti \texttt{Object} è delegata alla classe \texttt{ObjectFactory}, che svolge il ruolo di FlyweightFactory.
